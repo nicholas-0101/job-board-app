@@ -21,7 +21,7 @@ export function Categories() {
         viewport={{ once: true }}
       >
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Popular Categories</h2>
+          <h2 className="text-3xl font-bold text-foreground">Popular Categories</h2>
           <a href="/explore/jobs" className="text-blue-600 hover:text-blue-700 font-medium">View all →</a>
         </div>
         <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">

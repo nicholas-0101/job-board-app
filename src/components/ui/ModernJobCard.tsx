@@ -44,6 +44,7 @@ export function ModernJobCard({
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className="relative group"
+      aria-label={`${title} at ${company}`}
     >
       {/* Hot Badge */}
       {isHot && (
@@ -62,7 +63,7 @@ export function ModernJobCard({
         </motion.div>
       )}
 
-      <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-primary-300 transition-all duration-300 overflow-hidden">
+      <div className="relative bg-card text-card-foreground rounded-2xl border border-border hover:border-primary/40 transition-all duration-300 overflow-hidden">
         {/* Gradient Border on Hover */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 opacity-0"
@@ -77,22 +78,22 @@ export function ModernJobCard({
               {/* Company Logo */}
               <motion.div
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                className="w-14 h-14 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center text-2xl font-bold text-primary-600 shadow-sm"
+                className="w-14 h-14 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center text-2xl font-bold text-primary shadow-sm"
               >
                 {logo || company.charAt(0)}
               </motion.div>
 
               <div>
                 <Link href={`/explore/jobs/${id}`}>
-                  <h3 className="text-lg font-semibold text-gray-900 hover:text-primary-600 transition-colors cursor-pointer">
+                  <h3 className="text-lg font-semibold hover:text-primary transition-colors cursor-pointer">
                     {title}
                   </h3>
                 </Link>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="text-sm font-medium text-gray-700">{company}</span>
+                  <span className="text-sm font-medium text-foreground/80">{company}</span>
                   <div className="flex items-center gap-1">
-                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                    <span className="text-xs text-gray-600">{rating}</span>
+                    <Star className="w-3 h-3 text-yellow-400 fill-current" aria-hidden="true" />
+                    <span className="text-xs text-muted-foreground">{rating}</span>
                   </div>
                 </div>
               </div>
@@ -105,32 +106,34 @@ export function ModernJobCard({
               onClick={() => setIsBookmarked(!isBookmarked)}
               className={`p-2 rounded-lg transition-colors ${
                 isBookmarked 
-                  ? "bg-primary-100 text-primary-600" 
-                  : "hover:bg-gray-100 text-gray-400"
+                  ? "bg-primary/10 text-primary" 
+                  : "hover:bg-secondary text-muted-foreground"
               }`}
+              aria-pressed={isBookmarked}
+              aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
             >
               <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
             </motion.button>
           </div>
 
           {/* Job Details */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
             <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-gray-400" />
+              <MapPin className="w-4 h-4 text-muted-foreground/70" aria-hidden="true" />
               <span>{city}</span>
             </div>
             {salary && (
               <div className="flex items-center gap-1">
-                <DollarSign className="w-4 h-4 text-gray-400" />
+                <DollarSign className="w-4 h-4 text-muted-foreground/70" aria-hidden="true" />
                 <span className="font-medium">{salary}</span>
               </div>
             )}
             <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4 text-gray-400" />
+              <Clock className="w-4 h-4 text-muted-foreground/70" aria-hidden="true" />
               <span>{posted}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Users className="w-4 h-4 text-gray-400" />
+              <Users className="w-4 h-4 text-muted-foreground/70" aria-hidden="true" />
               <span>{applicants} applicants</span>
             </div>
           </div>
@@ -143,13 +146,13 @@ export function ModernJobCard({
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="px-3 py-1 bg-gradient-to-r from-primary-50 to-secondary-50 text-primary-700 text-xs font-medium rounded-full border border-primary-200/50"
+                className="px-3 py-1 bg-gradient-to-r from-primary/5 to-secondary/5 text-primary text-xs font-medium rounded-full border border-primary/20"
               >
                 {tag}
               </motion.span>
             ))}
             {tags.length > 3 && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+              <span className="px-3 py-1 bg-secondary text-muted-foreground text-xs font-medium rounded-full">
                 +{tags.length - 3} more
               </span>
             )}
@@ -161,7 +164,8 @@ export function ModernJobCard({
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-medium rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+                className="w-full px-4 py-2.5 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+                aria-label={`View details for ${title} at ${company}`}
               >
                 View Details
               </motion.button>
@@ -169,7 +173,8 @@ export function ModernJobCard({
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2.5 border-2 border-gray-200 hover:border-primary-300 text-gray-700 hover:text-primary-600 font-medium rounded-xl transition-all duration-300"
+              className="px-4 py-2.5 border-2 border-border hover:border-primary text-foreground/80 hover:text-primary font-medium rounded-xl transition-all duration-300"
+              aria-label={`Quick apply for ${title} at ${company}`}
             >
               Quick Apply
             </motion.button>
@@ -183,13 +188,13 @@ export function ModernJobCard({
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mt-4 pt-4 border-t border-gray-100"
+                className="mt-4 pt-4 border-t border-border"
               >
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">
-                    <span className="font-medium text-gray-900">{type}</span> position
+                  <span className="text-muted-foreground">
+                    <span className="font-medium text-foreground">{type}</span> position
                   </span>
-                  <span className="text-primary-600 font-medium">
+                  <span className="text-primary font-medium">
                     Match: 92%
                   </span>
                 </div>
@@ -200,15 +205,15 @@ export function ModernJobCard({
 
         {/* Progress Bar for Applications */}
         <div className="px-6 pb-3">
-          <div className="relative h-1 bg-gray-100 rounded-full overflow-hidden">
+          <div className="relative h-1 bg-secondary rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${Math.min((applicants / 100) * 100, 100)}%` }}
               transition={{ duration: 1, delay: 0.5 }}
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary-400 to-secondary-400 rounded-full"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-secondary rounded-full"
             />
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {applicants < 20 ? "Few applicants" : applicants < 50 ? "Moderate competition" : "High competition"}
           </p>
         </div>

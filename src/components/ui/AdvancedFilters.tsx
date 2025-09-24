@@ -50,18 +50,18 @@ export function AdvancedFilters() {
       {/* Filter Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 shadow-sm hover:shadow-md"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-card text-card-foreground border-2 border-border hover:border-primary transition-all duration-300 shadow-sm hover:shadow-md"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <Filter className="w-5 h-5 text-gray-600" />
-        <span className="font-semibold text-gray-700">Filters</span>
+        <Filter className="w-5 h-5 text-muted-foreground" />
+        <span className="font-semibold text-foreground">Filters</span>
         {selectedFilters.length > 0 && (
           <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
             {selectedFilters.length}
           </span>
         )}
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </motion.button>
 
       {/* Filter Panel */}
@@ -72,16 +72,16 @@ export function AdvancedFilters() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full mt-3 left-0 w-96 bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 z-50"
+            className="absolute top-full mt-3 left-0 w-96 bg-card text-card-foreground rounded-3xl shadow-2xl border border-border p-6 z-50"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-900">Advanced Filters</h3>
+              <h3 className="text-lg font-bold text-foreground">Advanced Filters</h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
 
@@ -90,25 +90,25 @@ export function AdvancedFilters() {
               {/* Job Type */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <Briefcase className="w-4 h-4 text-gray-400" />
-                  <h4 className="text-sm font-semibold text-gray-700">Job Type</h4>
+                  <Briefcase className="w-4 h-4 text-muted-foreground" />
+                  <h4 className="text-sm font-semibold text-foreground">Job Type</h4>
                 </div>
                 <div className="space-y-2">
                   {jobTypes.map((type) => (
                     <label
                       key={type.value}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
                           checked={selectedFilters.includes(type.value)}
                           onChange={() => toggleFilter(type.value)}
-                          className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
                         />
-                        <span className="text-sm text-gray-700">{type.label}</span>
+                        <span className="text-sm text-foreground/80">{type.label}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{type.count}</span>
+                      <span className="text-xs text-muted-foreground">{type.count}</span>
                     </label>
                   ))}
                 </div>
@@ -117,25 +117,25 @@ export function AdvancedFilters() {
               {/* Experience Level */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <Star className="w-4 h-4 text-gray-400" />
-                  <h4 className="text-sm font-semibold text-gray-700">Experience Level</h4>
+                  <Star className="w-4 h-4 text-muted-foreground" />
+                  <h4 className="text-sm font-semibold text-foreground">Experience Level</h4>
                 </div>
                 <div className="space-y-2">
                   {experienceLevels.map((level) => (
                     <label
                       key={level.value}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
                           checked={selectedFilters.includes(level.value)}
                           onChange={() => toggleFilter(level.value)}
-                          className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
                         />
-                        <span className="text-sm text-gray-700">{level.label}</span>
+                        <span className="text-sm text-foreground/80">{level.label}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{level.count}</span>
+                      <span className="text-xs text-muted-foreground">{level.count}</span>
                     </label>
                   ))}
                 </div>
@@ -144,25 +144,25 @@ export function AdvancedFilters() {
               {/* Salary Range */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <DollarSign className="w-4 h-4 text-gray-400" />
-                  <h4 className="text-sm font-semibold text-gray-700">Salary Range (IDR)</h4>
+                  <DollarSign className="w-4 h-4 text-muted-foreground" />
+                  <h4 className="text-sm font-semibold text-foreground">Salary Range (IDR)</h4>
                 </div>
                 <div className="space-y-2">
                   {salaryRanges.map((range) => (
                     <label
                       key={range.value}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
                           checked={selectedFilters.includes(range.value)}
                           onChange={() => toggleFilter(range.value)}
-                          className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
                         />
-                        <span className="text-sm text-gray-700">{range.label}</span>
+                        <span className="text-sm text-foreground/80">{range.label}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{range.count}</span>
+                      <span className="text-xs text-muted-foreground">{range.count}</span>
                     </label>
                   ))}
                 </div>
@@ -170,16 +170,16 @@ export function AdvancedFilters() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-100">
+            <div className="flex items-center gap-3 mt-6 pt-6 border-t border-border">
               <button
                 onClick={() => setSelectedFilters([])}
-                className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 rounded-xl border border-border text-foreground/80 font-medium hover:bg-secondary transition-colors"
               >
                 Clear All
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium hover:shadow-lg transition-all"
+                className="flex-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium hover:shadow-lg transition-all"
               >
                 Apply Filters
               </button>

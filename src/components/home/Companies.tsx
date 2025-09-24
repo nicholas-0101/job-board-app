@@ -13,10 +13,10 @@ export function Companies() {
       </div>
       <div className="grid gap-3 md:grid-cols-4">
         {items.map((c) => (
-          <div key={c.name} className="rounded-2xl border bg-white p-5 hover:shadow-sm">
+          <div key={c.name} className="rounded-2xl border border-border bg-card text-card-foreground p-5 hover:shadow-sm">
             <div className="font-semibold">{c.name}</div>
-            <div className="text-sm text-gray-600">{c.city}</div>
-            <button className="mt-3 text-sm px-3 py-1.5 rounded-md border hover:bg-gray-50">View</button>
+            <div className="text-sm text-muted-foreground">{c.city}</div>
+            <button className="mt-3 text-sm px-3 py-1.5 rounded-md border border-border hover:bg-secondary">View</button>
           </div>
         ))}
       </div>
