@@ -8,6 +8,8 @@ import {
   Facebook, Twitter, Linkedin, MessageCircle,
   Copy, Check, X
 } from "lucide-react";
+import FilterSidebar from "@/components/jobboard/FilterSidebar";
+import JobCardPro from "@/components/jobboard/JobCardPro";
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [showShareModal, setShowShareModal] = useState(false);
@@ -86,22 +88,29 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
-      <div className="container mx-auto px-4 py-10 grid gap-8">
-        {/* Main Job Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg"
-        >
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left: Filters */}
+          <div className="lg:col-span-3">
+            <FilterSidebar />
+          </div>
+
+          {/* Middle: Job Detail */}
+          <div className="lg:col-span-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm"
+            >
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#0D6EFD] to-[#0D6EFD] rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
                   {job.company[0]}
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
+                  <h1 className="text-2xl font-semibold text-gray-900 mb-2">{job.title}</h1>
                   <div className="flex items-center gap-4 text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
                       <Building2 className="w-4 h-4" />
@@ -133,7 +142,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               
               <div className="flex items-center gap-2 mb-6">
                 <DollarSign className="w-5 h-5 text-green-600" />
-                <span className="text-xl font-semibold text-gray-900">{job.salary}</span>
+                <span className="text-lg font-semibold text-gray-900">{job.salary}</span>
                 <span className="text-gray-500">per month</span>
               </div>
             </div>
@@ -143,14 +152,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                className="px-6 py-3 bg-[#0D6EFD] text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
               >
                 Apply Now
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                className="px-6 py-3 border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2"
               >
                 <Bookmark className="w-4 h-4" />
                 Save Job
@@ -159,7 +168,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowShareModal(true)}
-                className="px-6 py-3 border-2 border-blue-300 text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
+                className="px-6 py-3 border-2 border-blue-200 text-blue-700 font-medium rounded-xl hover:bg-blue-50 transition flex items-center justify-center gap-2"
               >
                 <Share2 className="w-4 h-4" />
                 Share Job
@@ -178,58 +187,31 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
           {/* Job Description */}
           <div className="prose max-w-none">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Job Description</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Job Description</h3>
             <div className="text-gray-700 whitespace-pre-line leading-relaxed">
               {job.description}
             </div>
           </div>
-        </motion.div>
+            </motion.div>
 
-        {/* Related Jobs Section */}
-        <motion.section
+          </div>
+
+          {/* Right: Related Jobs */}
+          <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+          className="lg:col-span-3"
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Related Jobs</h2>
-            <Link href="/explore/jobs" className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Related Jobs</h2>
+            <Link href="/explore/jobs" className="text-[#0D6EFD] hover:opacity-80 font-medium flex items-center gap-1">
               See all <ExternalLink className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3">
             {[1,2,3].map((i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.02 }}
-                className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all"
-              >
-                <Link href={`/explore/jobs/${i}`} className="block">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-xl flex items-center justify-center text-white font-bold">
-                      C
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Frontend Engineer</h3>
-                      <p className="text-sm text-gray-600">Company Name • City</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                    <Clock className="w-4 h-4" />
-                    <span>3 days ago</span>
-                    <span>•</span>
-                    <span>15 applicants</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {["React", "JavaScript"].map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-sm font-medium text-green-600">IDR 12-20M</div>
-                </Link>
-              </motion.div>
+              <JobCardPro key={i} id={i} title="Frontend Engineer" company="Company" city="Jakarta" tags={["React","TS"]} posted="3d" salary="IDR 12-20M" />
             ))}
           </div>
         </motion.section>
@@ -248,7 +230,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-3xl p-8 max-w-md w-full"
+                className="bg-white rounded-3xl p-8 max-w-md w-full border border-gray-200"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-6">
@@ -263,7 +245,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
                 {/* Custom Message */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
                     Custom Message (Optional)
                   </label>
                   <textarea
@@ -271,7 +253,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     onChange={(e) => setCustomMessage(e.target.value)}
                     placeholder={defaultMessage}
                     rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none resize-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-[#0D6EFD] focus:outline-none resize-none bg-white text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Leave empty to use default message
@@ -299,7 +281,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
                 {/* Copy Link */}
                 <div className="border-t border-gray-200 pt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
                     Or copy link
                   </label>
                   <div className="flex items-center gap-2">
@@ -336,6 +318,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

@@ -138,14 +138,14 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-background border-b border-border">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Company Reviews</h1>
-              <p className="text-gray-600 mt-1">Anonymous reviews from verified employees</p>
+              <h1 className="text-3xl font-bold text-foreground">Company Reviews</h1>
+              <p className="text-muted-foreground mt-1">Anonymous reviews from verified employees</p>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -162,13 +162,13 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
 
       <div className="container mx-auto px-4 py-8">
         {/* Company Overview */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 mb-8">
+        <div className="bg-background rounded-3xl border border-border p-8 mb-8">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Overall Rating */}
             <div className="text-center">
-              <div className="text-6xl font-bold text-gray-900 mb-2">{averageRatings.overall}</div>
+              <div className="text-6xl font-bold text-foreground mb-2">{averageRatings.overall}</div>
               <StarRating rating={averageRatings.overall} size="w-6 h-6" />
-              <p className="text-gray-600 mt-2">Based on {companyReviews.length} reviews</p>
+              <p className="text-muted-foreground mt-2">Based on {companyReviews.length} reviews</p>
               
               <div className="mt-6 space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -197,12 +197,12 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
 
             {/* Category Ratings */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Rating Breakdown</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Rating Breakdown</h3>
               {ratingCategories.map((category) => (
                 <div key={category.key} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{category.icon}</span>
-                    <span className="text-gray-700">{category.label}</span>
+                    <span className="text-foreground/80">{category.label}</span>
                   </div>
                   <StarRating rating={averageRatings[category.key as keyof typeof averageRatings]} />
                 </div>
@@ -212,8 +212,8 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
         </div>
 
         {/* Salary Insights */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 mb-8">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <div className="bg-background rounded-3xl border border-border p-8 mb-8">
+          <h3 className="text-2xl font-semibold text-foreground mb-6 flex items-center gap-2">
             <DollarSign className="w-6 h-6 text-green-600" />
             Salary Insights
           </h3>
@@ -244,7 +244,7 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -256,7 +256,7 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
           <select
             value={filterRating}
             onChange={(e) => setFilterRating(Number(e.target.value))}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
           >
             <option value={0}>All Ratings</option>
             <option value={5}>5 Stars</option>
@@ -275,13 +275,13 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all"
+              className="bg-background rounded-2xl border border-border p-6 hover:shadow-lg transition-all"
             >
               {/* Review Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-gray-900">{review.position}</h3>
+                    <h3 className="font-semibold text-foreground">{review.position}</h3>
                     {review.verified && (
                       <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                         <CheckCircle className="w-3 h-3" />
@@ -289,7 +289,7 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>{review.department}</span>
                     <span>•</span>
                     <span>{review.employmentType}</span>
@@ -299,7 +299,7 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
                 </div>
                 <div className="text-right">
                   <StarRating rating={review.overallRating} />
-                  <p className="text-xs text-gray-500 mt-1">{review.datePosted}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{review.datePosted}</p>
                 </div>
               </div>
 
@@ -318,7 +318,7 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 {ratingCategories.slice(0, 3).map((category) => (
                   <div key={category.key} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">{category.label}</span>
+                    <span className="text-muted-foreground">{category.label}</span>
                     <StarRating rating={review.ratings[category.key as keyof typeof review.ratings]} />
                   </div>
                 ))}
@@ -327,32 +327,32 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
               {/* Review Content */}
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                  <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
                     <ThumbsUp className="w-4 h-4 text-green-600" />
                     Pros
                   </h4>
-                  <p className="text-gray-700 text-sm">{review.pros}</p>
+                  <p className="text-foreground/80 text-sm">{review.pros}</p>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                  <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
                     <ThumbsDown className="w-4 h-4 text-red-600" />
                     Cons
                   </h4>
-                  <p className="text-gray-700 text-sm">{review.cons}</p>
+                  <p className="text-foreground/80 text-sm">{review.cons}</p>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                  <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-blue-600" />
                     Advice to Management
                   </h4>
-                  <p className="text-gray-700 text-sm">{review.advice}</p>
+                  <p className="text-foreground/80 text-sm">{review.advice}</p>
                 </div>
               </div>
 
               {/* Review Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-4">
+              <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
                 <div className="flex items-center gap-4">
                   <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                     review.wouldRecommend 
@@ -363,7 +363,7 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <button className="flex items-center gap-1 hover:text-green-600 transition-colors">
                     <ThumbsUp className="w-4 h-4" />
                     Helpful ({review.helpful})
@@ -389,12 +389,12 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-background rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Write Anonymous Review</h3>
-                <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                <h3 className="text-2xl font-bold text-foreground">Write Anonymous Review</h3>
+                <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                   <Shield className="w-4 h-4" />
                   Anonymous & Secure
                 </div>
@@ -404,16 +404,16 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
                 {/* Basic Info */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Position *</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Position *</label>
                     <input
                       type="text"
                       placeholder="e.g. Software Engineer"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                    <select className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none">
+                    <label className="block text-sm font-medium text-foreground mb-2">Department</label>
+                    <select className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground">
                       <option>Engineering</option>
                       <option>Product</option>
                       <option>Design</option>
@@ -428,28 +428,28 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
 
                 {/* Salary Range */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range (IDR per month)</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Salary Range (IDR per month)</label>
                   <div className="grid grid-cols-2 gap-4">
                     <input
                       type="number"
                       placeholder="Minimum"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                     />
                     <input
                       type="number"
                       placeholder="Maximum"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                     />
                   </div>
                 </div>
 
                 {/* Ratings */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-4">Rate Your Experience</label>
+                  <label className="block text-sm font-medium text-foreground mb-4">Rate Your Experience</label>
                   <div className="space-y-4">
                     {ratingCategories.map((category) => (
                       <div key={category.key} className="flex items-center justify-between">
-                        <span className="text-gray-700">{category.label}</span>
+                        <span className="text-foreground/80">{category.label}</span>
                         <StarRating 
                           rating={newReview.ratings[category.key as keyof typeof newReview.ratings]} 
                           interactive={true}
@@ -468,29 +468,29 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
                 {/* Review Text */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">What are the pros? *</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">What are the pros? *</label>
                     <textarea
                       rows={3}
                       placeholder="What did you like about working here?"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">What are the cons? *</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">What are the cons? *</label>
                     <textarea
                       rows={3}
                       placeholder="What could be improved?"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Advice to Management</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Advice to Management</label>
                     <textarea
                       rows={2}
                       placeholder="What advice would you give to management?"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                     />
                   </div>
                 </div>
@@ -499,14 +499,14 @@ export default function CompanyReviewsPage({ params }: { params: { id: string } 
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => setShowAddReview(false)}
-                    className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-6 py-3 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition-colors"
                   >
                     Cancel
                   </button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
                   >
                     Submit Review
                   </motion.button>

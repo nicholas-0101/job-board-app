@@ -54,9 +54,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
         <div className="absolute inset-0 bg-black/20" />
         <div className="relative container mx-auto px-4 py-16">
           <motion.div
@@ -84,7 +84,7 @@ export default function ProfilePage() {
             {/* Profile Info */}
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold mb-2">{profile.name}</h1>
-              <p className="text-xl text-blue-100 mb-4">{profile.title}</p>
+              <p className="text-xl text-white/90 mb-4">{profile.title}</p>
               <div className="flex flex-wrap gap-4 justify-center md:justify-start text-sm">
                 <span className="flex items-center gap-1">
                   <Mail className="w-4 h-4" /> {profile.email}
@@ -107,7 +107,7 @@ export default function ProfilePage() {
                   Edit Profile
                 </motion.button>
                 <motion.button
-                  className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-all"
+                  className="px-4 py-2 bg-white text-primary-600 rounded-lg hover:bg-gray-100 transition-all"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -140,15 +140,15 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <section className="container mx-auto px-4 -mt-8 relative z-10">
-        <div className="bg-white rounded-2xl shadow-xl p-2 flex gap-2">
+        <div className="bg-background border border-border rounded-2xl shadow-xl p-2 flex gap-2">
           {["overview", "applications", "settings"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
               className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all capitalize ${
                 activeTab === tab
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-lg"
+                  : "text-muted-foreground hover:bg-secondary"
               }`}
             >
               {tab}
@@ -176,10 +176,10 @@ export default function ProfilePage() {
                     <GlowCard key={stat.label} delay={i * 0.1}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-2xl font-bold text-gray-900">
+                          <p className="text-2xl font-bold text-foreground">
                             <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                           </p>
-                          <p className="text-sm text-gray-600">{stat.label}</p>
+                          <p className="text-sm text-muted-foreground">{stat.label}</p>
                         </div>
                         <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
                           <IconComponent className="w-5 h-5 text-white" />
@@ -193,15 +193,15 @@ export default function ProfilePage() {
               {/* Bio Section */}
               <div className="md:col-span-2">
                 <GlowCard>
-                  <h3 className="font-semibold text-gray-900 mb-3">About Me</h3>
-                  <p className="text-gray-600 leading-relaxed">{profile.bio}</p>
+                  <h3 className="font-semibold text-foreground mb-3">About Me</h3>
+                  <p className="text-foreground/80 leading-relaxed">{profile.bio}</p>
                   
-                  <h3 className="font-semibold text-gray-900 mt-6 mb-3">Skills</h3>
+                  <h3 className="font-semibold text-foreground mt-6 mb-3">Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {profile.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="px-3 py-1 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100"
+                        className="px-3 py-1 bg-secondary text-foreground rounded-full text-sm font-medium border border-border"
                       >
                         {skill}
                       </span>
@@ -213,15 +213,15 @@ export default function ProfilePage() {
               {/* Recent Activity */}
               <div className="md:col-span-1">
                 <GlowCard>
-                  <h3 className="font-semibold text-gray-900 mb-3">Recent Activity</h3>
+                  <h3 className="font-semibold text-foreground mb-3">Recent Activity</h3>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Briefcase className="w-4 h-4 text-blue-600" />
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Briefcase className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Applied to Frontend Role</p>
-                        <p className="text-xs text-gray-500">2 hours ago</p>
+                        <p className="text-sm font-medium text-foreground">Applied to Frontend Role</p>
+                        <p className="text-xs text-muted-foreground">2 hours ago</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -229,8 +229,8 @@ export default function ProfilePage() {
                         <Check className="w-4 h-4 text-green-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Profile Updated</p>
-                        <p className="text-xs text-gray-500">1 day ago</p>
+                        <p className="text-sm font-medium text-foreground">Profile Updated</p>
+                        <p className="text-xs text-muted-foreground">1 day ago</p>
                       </div>
                     </div>
                   </div>
@@ -253,13 +253,13 @@ export default function ProfilePage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all"
+                  className="bg-background rounded-2xl border border-border p-6 hover:shadow-lg transition-all"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{app.jobTitle}</h3>
-                      <p className="text-gray-600">{app.company}</p>
-                      <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                      <h3 className="font-semibold text-foreground">{app.jobTitle}</h3>
+                      <p className="text-muted-foreground">{app.company}</p>
+                      <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" /> {app.appliedDate}
                         </span>

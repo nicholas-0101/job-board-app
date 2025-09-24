@@ -29,8 +29,8 @@ export function ModernJobCard({
   type = "Full-time",
   posted,
   tags,
-  applicants = Math.floor(Math.random() * 50) + 10,
-  isHot = Math.random() > 0.7,
+  applicants = 20,
+  isHot = false,
   rating = 4.5
 }: JobCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
