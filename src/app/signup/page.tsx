@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
+import Container from "@/components/common/Container";
 
 export default function SignUpPage() {
   const [tab, setTab] = useState<"seeker" | "admin">("seeker");
   return (
-    <div className="container mx-auto px-4 py-12 max-w-2xl">
+    <Container className="py-12 max-w-2xl">
       <h1 className="text-2xl font-semibold text-foreground mb-6">Create an account</h1>
       <div className="bg-background border border-border rounded-2xl">
         <div className="flex">
@@ -26,7 +27,7 @@ export default function SignUpPage() {
                 <label className="text-sm text-muted-foreground">Password</label>
                 <input type="password" className="mt-1 w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
-              <button className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:opacity-95">Create account</button>
+              <button className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-95">Create account</button>
             </>
           ) : (
             <>
@@ -48,11 +49,11 @@ export default function SignUpPage() {
                 <label className="text-sm text-muted-foreground">Password</label>
                 <input type="password" className="mt-1 w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
-              <button className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:opacity-95">Create company admin</button>
+              <button className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-95">Create company admin</button>
             </>
           )}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

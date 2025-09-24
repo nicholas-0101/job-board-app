@@ -56,8 +56,8 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
-        <div className="absolute inset-0 bg-black/20" />
+      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-foreground">
+        <div className="absolute inset-0 bg-black/10" />
         <div className="relative container mx-auto px-4 py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -67,7 +67,7 @@ export default function ProfilePage() {
             {/* Profile Image */}
             <div className="relative">
               <motion.div
-                className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm p-1"
+                className="w-32 h-32 rounded-full bg-background/20 backdrop-blur-sm p-1"
                 whileHover={{ scale: 1.05 }}
               >
                 <img
@@ -75,7 +75,7 @@ export default function ProfilePage() {
                   alt="Profile"
                   className="w-full h-full rounded-full object-cover"
                 />
-                <button className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg text-gray-700 hover:bg-gray-100">
+                <button className="absolute bottom-0 right-0 p-2 bg-background rounded-full shadow-lg text-foreground hover:bg-secondary">
                   <Camera className="w-4 h-4" />
                 </button>
               </motion.div>
@@ -84,7 +84,7 @@ export default function ProfilePage() {
             {/* Profile Info */}
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-bold mb-2">{profile.name}</h1>
-              <p className="text-xl text-white/90 mb-4">{profile.title}</p>
+              <p className="text-xl text-foreground/90 mb-4">{profile.title}</p>
               <div className="flex flex-wrap gap-4 justify-center md:justify-start text-sm">
                 <span className="flex items-center gap-1">
                   <Mail className="w-4 h-4" /> {profile.email}
@@ -99,7 +99,7 @@ export default function ProfilePage() {
               <div className="mt-4 flex gap-3 justify-center md:justify-start">
                 <motion.button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all"
+                  className="px-4 py-2 bg-background/30 backdrop-blur-sm rounded-lg hover:bg-background/40 transition-all"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -107,7 +107,7 @@ export default function ProfilePage() {
                   Edit Profile
                 </motion.button>
                 <motion.button
-                  className="px-4 py-2 bg-white text-primary-600 rounded-lg hover:bg-gray-100 transition-all"
+                  className="px-4 py-2 bg-background text-primary rounded-lg hover:bg-secondary transition-all"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >

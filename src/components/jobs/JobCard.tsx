@@ -10,11 +10,11 @@ export function JobCard(props: { id: number; title: string; company: string; cit
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
-      <Link href={`/explore/jobs/${id}`} className="block bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-blue-200 transition-all duration-300 group">
+  <Link href={`/explore/jobs/${id}`} className="block bg-card text-card-foreground border border-border rounded-2xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{title}</h3>
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{title}</h3>
+        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
               <span className="font-medium">{company}</span>
               <div className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
@@ -24,13 +24,13 @@ export function JobCard(props: { id: number; title: string; company: string; cit
           </div>
           <div className="flex items-center gap-2">
             {posted && (
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 {posted} ago
               </div>
             )}
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-              <Bookmark className="w-4 h-4 text-gray-400" />
+      <button className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
+        <Bookmark className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
         </div>
@@ -40,7 +40,7 @@ export function JobCard(props: { id: number; title: string; company: string; cit
               <span key={t} className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-medium">{t}</span>
             ))}
             {tags.length > 3 && (
-              <span className="text-xs px-3 py-1 rounded-full bg-gray-50 text-gray-600">+{tags.length - 3}</span>
+        <span className="text-xs px-3 py-1 rounded-full bg-secondary text-foreground/80">+{tags.length - 3}</span>
             )}
           </div>
         )}

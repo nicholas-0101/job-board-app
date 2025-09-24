@@ -53,7 +53,7 @@ export function Navbar() {
             </Button>
           </Link>
           <Link href="/signup">
-            <Button className="rounded-xl bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:shadow-lg">
+            <Button className="rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:shadow-lg">
               <UserPlus className="w-4 h-4" />
               Register
             </Button>
@@ -93,7 +93,7 @@ export function Navbar() {
                 </Button>
               </Link>
               <Link href="/signup" onClick={() => setIsOpen(false)}>
-                <Button className="w-full rounded-xl justify-center bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
+                <Button className="w-full rounded-xl justify-center bg-gradient-to-r from-primary to-secondary text-primary-foreground">
                   <UserPlus className="w-4 h-4" />
                   Register
                 </Button>

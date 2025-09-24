@@ -33,7 +33,7 @@ export function SearchBox({ categories, locations }: SearchBoxProps) {
 
   return (
     <motion.div 
-      className="relative bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/50"
+      className="relative bg-card/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-border"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.6, duration: 0.6 }}
@@ -43,11 +43,11 @@ export function SearchBox({ categories, locations }: SearchBoxProps) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-lg">
-            <Search className="w-6 h-6 text-white" />
+            <Search className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Smart Job Search</h3>
-            <p className="text-xs text-gray-500">AI-powered matching</p>
+            <h3 className="text-lg font-bold text-foreground">Smart Job Search</h3>
+            <p className="text-xs text-muted-foreground">AI-powered matching</p>
           </div>
         </div>
         <motion.div
@@ -65,21 +65,21 @@ export function SearchBox({ categories, locations }: SearchBoxProps) {
         {/* Keyword Input with Suggestions */}
         <div className="relative">
           <div className="relative">
-            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input 
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onFocus={() => setShowSuggestions(true)}
               placeholder="Job title, keywords, or company" 
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-300 bg-gray-50 hover:bg-white" 
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-input focus:border-primary focus:outline-none transition-all duration-300 bg-secondary hover:bg-background" 
             />
             {keyword && (
               <button
                 onClick={() => setKeyword("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-secondary rounded-lg transition-colors"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
           </div>
@@ -91,9 +91,9 @@ export function SearchBox({ categories, locations }: SearchBoxProps) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-3 z-10"
+                className="absolute top-full mt-2 w-full bg-card text-card-foreground rounded-2xl shadow-xl border border-border p-3 z-10"
               >
-                <p className="text-xs text-gray-500 mb-2 px-2">Popular searches</p>
+                <p className="text-xs text-muted-foreground mb-2 px-2">Popular searches</p>
                 {popularSearches.map((search) => (
                   <button
                     key={search}

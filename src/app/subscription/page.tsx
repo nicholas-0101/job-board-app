@@ -59,22 +59,22 @@ export default function SubscriptionPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20">
+      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-foreground py-20">
         <div className="absolute inset-0 bg-black/10" />
-        <div className="relative container mx-auto px-4 text-center">
+        <div className="relative container mx-auto px-4 text-center max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur rounded-full mb-6">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-semibold">Unlock Premium Features</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-background/90 border border-border rounded-full shadow-sm mb-6">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">Unlock Premium Features</span>
             </div>
-            <h1 className="text-5xl font-bold mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
               Supercharge Your Career
             </h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-foreground/90 mx-auto">
               Get access to exclusive tools and features that will accelerate your job search and career growth
             </p>
           </motion.div>
@@ -94,14 +94,14 @@ export default function SubscriptionPage() {
                 transition={{ delay: index * 0.1 }}
                 className={`relative bg-background rounded-3xl border-2 transition-all duration-300 overflow-hidden ${
                   plan.popular 
-                    ? "border-secondary/40 shadow-2xl scale-105" 
-                    : "border-border hover:border-primary/40 hover:shadow-xl"
+                    ? "border-primary/30 shadow-xl" 
+                    : "border-border hover:border-primary/40 hover:shadow-lg"
                 }`}
               >
                 {/* Popular Badge */}
                 {plan.popular && (
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                    <div className="bg-background border border-border text-foreground px-6 py-2 rounded-full text-sm font-semibold shadow-sm">
                       🔥 Most Popular
                     </div>
                   </div>
@@ -118,7 +118,7 @@ export default function SubscriptionPage() {
                       <span className="text-sm text-muted-foreground line-through">
                         IDR {plan.originalPrice.toLocaleString()}
                       </span>
-                      <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">
                         SAVE {Math.round((1 - plan.price/plan.originalPrice) * 100)}%
                       </span>
                     </div>
@@ -148,17 +148,17 @@ export default function SubscriptionPage() {
                       setSelectedPlan(plan);
                       setShowPayment(true);
                     }}
-                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all ${
+                    className={`w-full py-3.5 px-6 rounded-xl font-semibold transition-all ${
                       plan.popular
-                        ? "bg-gradient-to-r from-secondary-600 to-pink-600 text-white shadow-lg hover:shadow-xl"
-                        : "bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:shadow-lg"
+                        ? "bg-primary text-primary-foreground shadow-sm hover:shadow"
+                        : "bg-background border border-border text-foreground hover:bg-secondary"
                     }`}
                   >
                     {plan.popular ? "Get Premium Access" : "Choose Standard"}
                   </motion.button>
 
                   {plan.popular && (
-                    <p className="text-center text-sm text-gray-500 mt-3">
+                    <p className="text-center text-sm text-muted-foreground mt-3">
                       ⚡ Instant activation • 30-day money back guarantee
                     </p>
                   )}
@@ -282,38 +282,38 @@ export default function SubscriptionPage() {
         )}
 
         {/* Features Comparison */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 mb-16">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+        <div className="bg-background rounded-3xl border border-border p-8 mb-16">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Why Choose Premium?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="p-4 bg-blue-100 rounded-2xl w-fit mx-auto mb-4">
-                <Target className="w-8 h-8 text-blue-600" />
+              <div className="p-4 bg-primary/10 rounded-2xl w-fit mx-auto mb-4">
+                <Target className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">AI-Powered Matching</h3>
-              <p className="text-gray-600">Get matched with jobs that perfectly fit your skills and preferences</p>
+              <h3 className="text-xl font-semibold text-foreground mb-2">AI-Powered Matching</h3>
+              <p className="text-muted-foreground">Get matched with jobs that perfectly fit your skills and preferences</p>
             </div>
             <div className="text-center">
-              <div className="p-4 bg-purple-100 rounded-2xl w-fit mx-auto mb-4">
-                <Award className="w-8 h-8 text-purple-600" />
+              <div className="p-4 bg-secondary rounded-2xl w-fit mx-auto mb-4">
+                <Award className="w-8 h-8 text-foreground" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Skill Certification</h3>
-              <p className="text-gray-600">Earn verified certificates to showcase your expertise to employers</p>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Skill Certification</h3>
+              <p className="text-muted-foreground">Earn verified certificates to showcase your expertise to employers</p>
             </div>
             <div className="text-center">
-              <div className="p-4 bg-green-100 rounded-2xl w-fit mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-green-600" />
+              <div className="p-4 bg-primary/10 rounded-2xl w-fit mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Career Growth</h3>
-              <p className="text-gray-600">Access exclusive resources and coaching to accelerate your career</p>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Career Growth</h3>
+              <p className="text-muted-foreground">Access exclusive resources and coaching to accelerate your career</p>
             </div>
           </div>
         </div>
 
         {/* FAQ Section */}
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Frequently Asked Questions
           </h2>
           <div className="space-y-4">
@@ -336,10 +336,10 @@ export default function SubscriptionPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-2xl border border-gray-200 p-6"
+                className="bg-background rounded-2xl border border-border p-6"
               >
-                <h3 className="font-semibold text-gray-900 mb-2">{faq.q}</h3>
-                <p className="text-gray-600">{faq.a}</p>
+                <h3 className="font-semibold text-foreground mb-2">{faq.q}</h3>
+                <p className="text-muted-foreground">{faq.a}</p>
               </motion.div>
             ))}
           </div>

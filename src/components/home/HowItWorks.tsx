@@ -9,10 +9,10 @@ export function HowItWorks() {
       <h2 className="text-xl font-semibold mb-4">How it works</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {steps.map((s) => (
-          <div key={s.n} className="rounded-2xl border bg-white p-6">
-            <div className="h-8 w-8 rounded-full bg-blue-600 text-white grid place-items-center font-bold">{s.n}</div>
-            <div className="mt-3 font-semibold text-gray-900">{s.t}</div>
-            <div className="mt-1 text-sm text-gray-600">{s.d}</div>
+          <div key={s.n} className="rounded-2xl border border-border bg-card text-card-foreground p-6">
+            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground grid place-items-center font-bold">{s.n}</div>
+            <div className="mt-3 font-semibold text-foreground">{s.t}</div>
+            <div className="mt-1 text-sm text-muted-foreground">{s.d}</div>
           </div>
         ))}
       </div>
