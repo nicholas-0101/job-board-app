@@ -11,7 +11,8 @@ const assessments = [
 
 export default function AssessmentsPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -62,7 +63,7 @@ export default function AssessmentsPage() {
               
               <Link
                 href={`/assessments/${assessment.id}`}
-                className="group inline-flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
+                className="group inline-flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-[#0D6EFD] text-white font-medium shadow-sm hover:opacity-90 transition"
               >
                 Start Assessment
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -71,6 +72,7 @@ export default function AssessmentsPage() {
           ))}
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

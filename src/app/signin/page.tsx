@@ -22,7 +22,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
       <FloatingElements />
       
       <motion.div
@@ -46,8 +46,8 @@ export default function SignInPage() {
               ProHire
             </span>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
-          <p className="text-gray-600">Sign in to access your account</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back!</h1>
+          <p className="text-muted-foreground">Sign in to access your account</p>
         </motion.div>
 
         {/* Sign In Form */}
@@ -56,18 +56,18 @@ export default function SignInPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
           onSubmit={handleSubmit}
-          className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8"
+          className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8"
         >
           {/* Email Field */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all bg-gray-50 hover:bg-white"
+                className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-input focus:border-primary focus:outline-none transition-all bg-secondary hover:bg-background"
                 placeholder="you@example.com"
                 required
               />
@@ -76,21 +76,21 @@ export default function SignInPage() {
 
           {/* Password Field */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-12 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all bg-gray-50 hover:bg-white"
+                className="w-full pl-12 pr-12 py-3 rounded-xl border-2 border-input focus:border-primary focus:outline-none transition-all bg-secondary hover:bg-background"
                 placeholder="••••••••"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -106,9 +106,9 @@ export default function SignInPage() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-600">Remember me</span>
+              <span className="text-sm text-muted-foreground">Remember me</span>
             </label>
-            <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/forgot-password" className="text-sm text-primary hover:text-primary/80 font-medium">
               Forgot password?
             </Link>
           </div>
@@ -117,12 +117,12 @@ export default function SignInPage() {
           <motion.button
             type="submit"
             disabled={isLoading}
-            className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group"
+            className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600"
+              className="absolute inset-0 bg-gradient-to-r from-secondary-600 to-primary-600"
               animate={{ x: ["-100%", "100%"] }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
               style={{ width: "200%" }}
@@ -149,10 +149,10 @@ export default function SignInPage() {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">Or continue with</span>
+              <span className="px-4 bg-background text-muted-foreground">Or continue with</span>
             </div>
           </div>
 
@@ -160,7 +160,7 @@ export default function SignInPage() {
           <div className="grid grid-cols-2 gap-3">
             <motion.button
               type="button"
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-gray-200 hover:bg-gray-50 transition-all font-medium text-gray-700"
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-border hover:bg-secondary transition-all font-medium text-foreground"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -169,7 +169,7 @@ export default function SignInPage() {
             </motion.button>
             <motion.button
               type="button"
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-gray-200 hover:bg-gray-50 transition-all font-medium text-gray-700"
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-border hover:bg-secondary transition-all font-medium text-foreground"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -184,10 +184,10 @@ export default function SignInPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-center mt-8 text-gray-600"
+          className="text-center mt-8 text-muted-foreground"
         >
           Don't have an account?{" "}
-          <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
+          <Link href="/signup" className="text-primary hover:text-primary/80 font-semibold">
             Sign up for free
           </Link>
         </motion.p>

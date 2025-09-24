@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ModernJobCard } from "../components/ui/ModernJobCard";
+import SearchBarPro from "../components/jobboard/SearchBarPro";
 import { AnimatedCounter } from "../components/ui/AnimatedCounter";
 
 // Enhanced job data with more details
@@ -131,7 +132,7 @@ export default function ModernHome() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-background">
       {/* Hero Section with Parallax */}
       <motion.section 
         ref={heroRef}
@@ -141,6 +142,15 @@ export default function ModernHome() {
         {/* Animated Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50" />
+          {/* Subtle grid pattern */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.08]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(0,0,0,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.5) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
           
           {/* Animated Mesh Gradient */}
           <motion.div
@@ -174,6 +184,9 @@ export default function ModernHome() {
             }}
             transition={{ duration: 20, repeat: Infinity }}
           />
+          {/* Radial spotlights */}
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18),transparent_60%)]" />
+          <div className="absolute bottom-0 left-1/3 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.16),transparent_60%)]" />
         </div>
 
         <div className="relative container mx-auto px-4 pt-20 pb-10">
@@ -202,7 +215,7 @@ export default function ModernHome() {
 
             {/* Main Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="text-gray-900">Find Your</span>
+              <span className="text-foreground">Find Your</span>
               <br />
               <motion.span
                 className="bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent"
@@ -216,7 +229,7 @@ export default function ModernHome() {
               </motion.span>
             </h1>
             
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Connect with top companies and discover opportunities that match your skills, 
               passion, and career goals with our AI-powered platform
             </p>
@@ -231,136 +244,18 @@ export default function ModernHome() {
                   transition={{ delay: 0.3 + index * 0.1 }}
                   className="text-center"
                 >
-                  <div className="text-3xl font-bold text-gray-900">
+                  <div className="text-3xl font-bold text-foreground">
                     <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                   </div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                  <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
 
-          {/* Advanced Search Box */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="max-w-4xl mx-auto"
-          >
-            <div className={`relative bg-white rounded-2xl shadow-2xl transition-all duration-300 ${
-              isSearchFocused ? 'ring-4 ring-primary-100' : ''
-            }`}>
-              {/* Search Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl">
-                    <Search className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">Smart Job Search</h3>
-                    <p className="text-xs text-gray-500">Powered by AI matching</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1 text-xs text-green-600">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    Live
-                  </span>
-                  <span className="text-xs text-gray-500">2,340 jobs available</span>
-                </div>
-              </div>
-
-              {/* Search Fields */}
-              <div className="p-6">
-                <div className="grid md:grid-cols-3 gap-4 mb-4">
-                  <div className="relative">
-                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Job title or keyword"
-                      value={keyword}
-                      onChange={(e) => setKeyword(e.target.value)}
-                      onFocus={() => setIsSearchFocused(true)}
-                      onBlur={() => setIsSearchFocused(false)}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:outline-none transition-all"
-                    />
-                  </div>
-                  
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <select
-                      value={selectedLocation}
-                      onChange={(e) => setSelectedLocation(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:outline-none transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="">All Locations</option>
-                      <option value="jakarta">Jakarta</option>
-                      <option value="bandung">Bandung</option>
-                      <option value="surabaya">Surabaya</option>
-                      <option value="remote">Remote</option>
-                    </select>
-                  </div>
-                  
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                  >
-                    <Search className="w-5 h-5" />
-                    Search Jobs
-                  </motion.button>
-                </div>
-
-                {/* Quick Filters */}
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-sm text-gray-500">Quick filters:</span>
-                  {["Remote", "Full-time", "Senior Level", "Startup"].map((filter) => (
-                    <motion.button
-                      key={filter}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-3 py-1 bg-gray-100 hover:bg-primary-100 text-gray-700 hover:text-primary-700 text-sm rounded-full transition-all"
-                    >
-                      {filter}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Search Suggestions (shown when focused) */}
-              <AnimatePresence>
-                {isSearchFocused && keyword.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="border-t border-gray-100"
-                  >
-                    <div className="p-4">
-                      <p className="text-xs text-gray-500 mb-3">Suggestions</p>
-                      {searchSuggestions.map((suggestion, index) => (
-                        <motion.button
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-xl">{suggestion.icon}</span>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{suggestion.title}</p>
-                              <p className="text-xs text-gray-500">{suggestion.type}</p>
-                            </div>
-                          </div>
-                          <ArrowRight className="w-4 h-4 text-gray-400" />
-                        </motion.button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          {/* Pro Search Bar (unified) */}
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.6 }} className="max-w-4xl mx-auto">
+            <SearchBarPro />
           </motion.div>
         </div>
       </motion.section>
@@ -374,24 +269,24 @@ export default function ModernHome() {
           transition={{ duration: 0.6 }}
         >
           {/* Section Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-foreground mb-2">
                 Featured Opportunities
               </h2>
-              <p className="text-gray-600">Hand-picked jobs that match your profile</p>
+              <p className="text-muted-foreground">Hand-picked jobs that match your profile</p>
             </div>
             
             {/* Tab Navigation */}
-            <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-xl">
+            <div className="hidden md:flex items-center gap-2 p-1 bg-secondary rounded-xl border border-border">
               {["recommended", "latest", "trending"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveJobTab(tab)}
                   className={`px-4 py-2 rounded-lg font-medium capitalize transition-all ${
                     activeJobTab === tab
-                      ? "bg-white text-primary-600 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-background text-primary shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {tab}
@@ -401,16 +296,16 @@ export default function ModernHome() {
           </div>
 
           {/* Job Cards Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {enhancedJobs.map((job, index) => (
               <motion.div
                 key={job.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: Math.min(index * 0.08, 0.32) }}
               >
-                <ModernJobCard {...job} />
+                <ModernJobCard {...job} applicants={job.applicants} isHot={Boolean(job.isHot)} />
               </motion.div>
             ))}
           </div>
@@ -420,7 +315,7 @@ export default function ModernHome() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mt-8"
+            className="text-center mt-10"
           >
             <Link href="/explore/jobs">
               <motion.button
@@ -437,7 +332,7 @@ export default function ModernHome() {
       </section>
 
       {/* Categories Section */}
-      <section className="bg-gradient-to-br from-gray-50 to-white py-16">
+      <section className="bg-gradient-to-br from-secondary-50 to-background py-16">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -446,10 +341,10 @@ export default function ModernHome() {
             transition={{ duration: 0.6 }}
           >
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-foreground mb-2">
                 Explore by Category
               </h2>
-              <p className="text-gray-600">Find opportunities in your field of expertise</p>
+              <p className="text-muted-foreground">Find opportunities in your field of expertise</p>
             </div>
 
             <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -461,11 +356,11 @@ export default function ModernHome() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer border border-gray-100 hover:border-primary-200"
+                  className="bg-background rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer border border-border hover:border-primary/40"
                 >
                   <div className="text-4xl mb-3">{category.icon}</div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{category.name}</h3>
-                  <p className="text-sm text-primary-600 font-medium">{category.count} jobs</p>
+                  <h3 className="font-semibold text-foreground mb-1">{category.name}</h3>
+                  <p className="text-sm text-primary font-medium">{category.count} jobs</p>
                 </motion.div>
               ))}
             </div>
@@ -482,7 +377,7 @@ export default function ModernHome() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h3 className="text-lg font-semibold text-gray-600 mb-8">
+          <h3 className="text-lg font-semibold text-muted-foreground mb-8">
             Trusted by professionals from
           </h3>
           <div className="flex justify-center items-center gap-12 flex-wrap">
@@ -493,7 +388,7 @@ export default function ModernHome() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <span className="text-3xl">{company.logo}</span>
                 <span className="text-xl font-semibold">{company.name}</span>

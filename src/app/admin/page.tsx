@@ -105,7 +105,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-6">
@@ -118,7 +118,7 @@ export default function AdminPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowAddJobModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0D6EFD] text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
             >
               <Plus className="w-5 h-5" />
               Post New Job
@@ -163,7 +163,7 @@ export default function AdminPage() {
               onClick={() => setActiveTab(tab)}
               className={`flex-1 px-4 py-3 rounded-lg font-medium capitalize transition-all ${
                 activeTab === tab
-                  ? "bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-md"
+                  ? "bg-[#0D6EFD] text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >

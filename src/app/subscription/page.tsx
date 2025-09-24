@@ -57,7 +57,7 @@ export default function SubscriptionPage() {
   const [showPayment, setShowPayment] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20">
         <div className="absolute inset-0 bg-black/10" />
@@ -92,10 +92,10 @@ export default function SubscriptionPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative bg-white rounded-3xl border-2 transition-all duration-300 overflow-hidden ${
+                className={`relative bg-background rounded-3xl border-2 transition-all duration-300 overflow-hidden ${
                   plan.popular 
-                    ? "border-purple-200 shadow-2xl scale-105" 
-                    : "border-gray-200 hover:border-blue-200 hover:shadow-xl"
+                    ? "border-secondary/40 shadow-2xl scale-105" 
+                    : "border-border hover:border-primary/40 hover:shadow-xl"
                 }`}
               >
                 {/* Popular Badge */}
@@ -113,18 +113,18 @@ export default function SubscriptionPage() {
                     <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${plan.color} mb-4`}>
                       <IconComponent className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-sm text-muted-foreground line-through">
                         IDR {plan.originalPrice.toLocaleString()}
                       </span>
                       <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">
                         SAVE {Math.round((1 - plan.price/plan.originalPrice) * 100)}%
                       </span>
                     </div>
-                    <div className="text-4xl font-bold text-gray-900">
+                    <div className="text-4xl font-bold text-foreground">
                       IDR {plan.price.toLocaleString()}
-                      <span className="text-lg font-normal text-gray-500">/{plan.period}</span>
+                      <span className="text-lg font-normal text-muted-foreground">/{plan.period}</span>
                     </div>
                   </div>
 
@@ -135,7 +135,7 @@ export default function SubscriptionPage() {
                         <div className="p-1 bg-green-100 rounded-full mt-0.5">
                           <Check className="w-3 h-3 text-green-600" />
                         </div>
-                        <span className="text-gray-700">{feature}</span>
+                        <span className="text-foreground/80">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -150,8 +150,8 @@ export default function SubscriptionPage() {
                     }}
                     className={`w-full py-4 px-6 rounded-xl font-semibold transition-all ${
                       plan.popular
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl"
-                        : "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg"
+                        ? "bg-gradient-to-r from-secondary-600 to-pink-600 text-white shadow-lg hover:shadow-xl"
+                        : "bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:shadow-lg"
                     }`}
                   >
                     {plan.popular ? "Get Premium Access" : "Choose Standard"}
@@ -179,14 +179,14 @@ export default function SubscriptionPage() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white rounded-3xl p-8 max-w-md w-full"
+              className="bg-background rounded-3xl p-8 max-w-md w-full border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold text-foreground mb-2">
                   Complete Your Purchase
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {selectedPlan.name} Plan - IDR {selectedPlan.price.toLocaleString()}/month
                 </p>
               </div>
@@ -194,38 +194,38 @@ export default function SubscriptionPage() {
               {/* Payment Method Selection */}
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Payment Method
                   </label>
                   <div className="grid gap-3">
-                    <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition-colors">
+                    <label className="flex items-center gap-3 p-4 border-2 border-border rounded-xl cursor-pointer hover:border-primary transition-colors">
                       <input
                         type="radio"
                         name="payment"
                         value="transfer"
                         checked={paymentMethod === "transfer"}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="text-blue-600"
+                        className="text-primary"
                       />
-                      <Upload className="w-5 h-5 text-gray-600" />
+                      <Upload className="w-5 h-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium text-gray-900">Bank Transfer</p>
-                        <p className="text-sm text-gray-500">Upload payment proof</p>
+                        <p className="font-medium text-foreground">Bank Transfer</p>
+                        <p className="text-sm text-muted-foreground">Upload payment proof</p>
                       </div>
                     </label>
                     
-                    <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition-colors opacity-50">
+                    <label className="flex items-center gap-3 p-4 border-2 border-border rounded-xl cursor-pointer hover:border-primary transition-colors opacity-50">
                       <input
                         type="radio"
                         name="payment"
                         value="gateway"
                         disabled
-                        className="text-blue-600"
+                        className="text-primary"
                       />
-                      <CreditCard className="w-5 h-5 text-gray-600" />
+                      <CreditCard className="w-5 h-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium text-gray-900">Payment Gateway</p>
-                        <p className="text-sm text-gray-500">Coming soon</p>
+                        <p className="font-medium text-foreground">Payment Gateway</p>
+                        <p className="text-sm text-muted-foreground">Coming soon</p>
                       </div>
                     </label>
                   </div>
@@ -237,9 +237,9 @@ export default function SubscriptionPage() {
                     animate={{ opacity: 1, height: "auto" }}
                     className="space-y-4"
                   >
-                    <div className="bg-blue-50 p-4 rounded-xl">
-                      <h4 className="font-semibold text-blue-900 mb-2">Bank Transfer Details:</h4>
-                      <div className="text-sm text-blue-800 space-y-1">
+                    <div className="bg-primary/5 p-4 rounded-xl">
+                      <h4 className="font-semibold text-primary mb-2">Bank Transfer Details:</h4>
+                      <div className="text-sm text-foreground space-y-1">
                         <p><strong>Bank:</strong> BCA</p>
                         <p><strong>Account:</strong> 1234567890</p>
                         <p><strong>Name:</strong> ProHire Indonesia</p>
@@ -248,13 +248,13 @@ export default function SubscriptionPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         Upload Payment Proof
                       </label>
                       <input
                         type="file"
                         accept="image/*,application/pdf"
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                       />
                     </div>
                   </motion.div>
@@ -265,14 +265,14 @@ export default function SubscriptionPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowPayment(false)}
-                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-6 py-3 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition-colors"
                 >
                   Cancel
                 </button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
                 >
                   Submit Payment
                 </motion.button>

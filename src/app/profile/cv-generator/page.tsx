@@ -38,7 +38,43 @@ const cvTemplates = [
 export default function CVGeneratorPage() {
   const [activeStep, setActiveStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState("ats-modern");
-  const [cvData, setCvData] = useState({
+  interface Experience {
+    id: number;
+    title: string;
+    company: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+    description: string;
+  }
+  interface Education {
+    id: number;
+    degree: string;
+    school: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    gpa: string;
+  }
+  interface CVData {
+    personalInfo: {
+      fullName: string;
+      email: string;
+      phone: string;
+      location: string;
+      website: string;
+      linkedin: string;
+      summary: string;
+    };
+    experience: Experience[];
+    education: Education[];
+    skills: string[];
+    languages: string[];
+    certifications: string[];
+  }
+
+  const [cvData, setCvData] = useState<CVData>({
     personalInfo: {
       fullName: "",
       email: "",
@@ -101,8 +137,8 @@ export default function CVGeneratorPage() {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Choose Your Template</h2>
-              <p className="text-gray-600">Select a template that matches your industry and style</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Choose Your Template</h2>
+              <p className="text-muted-foreground">Select a template that matches your industry and style</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6">
@@ -114,8 +150,8 @@ export default function CVGeneratorPage() {
                   onClick={() => setSelectedTemplate(template.id)}
                   className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all ${
                     selectedTemplate === template.id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/30"
                   }`}
                 >
                   {template.isPremium && (
@@ -131,8 +167,8 @@ export default function CVGeneratorPage() {
                     <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${template.color} flex items-center justify-center text-2xl`}>
                       {template.preview}
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">{template.name}</h3>
-                    <p className="text-sm text-gray-600">{template.description}</p>
+                    <h3 className="font-semibold text-foreground mb-2">{template.name}</h3>
+                    <p className="text-sm text-muted-foreground">{template.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -144,13 +180,13 @@ export default function CVGeneratorPage() {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Personal Information</h2>
-              <p className="text-gray-600">Tell us about yourself</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Personal Information</h2>
+              <p className="text-muted-foreground">Tell us about yourself</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Full Name *</label>
                 <input
                   type="text"
                   value={cvData.personalInfo.fullName}
@@ -158,13 +194,13 @@ export default function CVGeneratorPage() {
                     ...prev,
                     personalInfo: { ...prev.personalInfo, fullName: e.target.value }
                   }))}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                   placeholder="John Doe"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Email *</label>
                 <input
                   type="email"
                   value={cvData.personalInfo.email}
@@ -172,13 +208,13 @@ export default function CVGeneratorPage() {
                     ...prev,
                     personalInfo: { ...prev.personalInfo, email: e.target.value }
                   }))}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                   placeholder="john@example.com"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Phone</label>
                 <input
                   type="tel"
                   value={cvData.personalInfo.phone}
@@ -186,13 +222,13 @@ export default function CVGeneratorPage() {
                     ...prev,
                     personalInfo: { ...prev.personalInfo, phone: e.target.value }
                   }))}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                   placeholder="+62 812 3456 7890"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Location</label>
                 <input
                   type="text"
                   value={cvData.personalInfo.location}
@@ -200,13 +236,13 @@ export default function CVGeneratorPage() {
                     ...prev,
                     personalInfo: { ...prev.personalInfo, location: e.target.value }
                   }))}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                   placeholder="Jakarta, Indonesia"
                 />
               </div>
               
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Professional Summary</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Professional Summary</label>
                 <textarea
                   value={cvData.personalInfo.summary}
                   onChange={(e) => setCvData(prev => ({
@@ -214,7 +250,7 @@ export default function CVGeneratorPage() {
                     personalInfo: { ...prev.personalInfo, summary: e.target.value }
                   }))}
                   rows={4}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
                   placeholder="Brief summary of your professional background and career objectives..."
                 />
               </div>
@@ -300,39 +336,39 @@ export default function CVGeneratorPage() {
       case 6:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Preview & Download</h2>
-              <p className="text-gray-600">Review your CV and download when ready</p>
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-foreground mb-2">Preview & Download</h2>
+                  <p className="text-muted-foreground">Review your CV and download when ready</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-8">
               {/* CV Preview */}
-              <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-lg">
+              <div className="bg-background border-2 border-border rounded-2xl p-8 shadow-lg">
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">{cvData.personalInfo.fullName || "Your Name"}</h3>
-                  <p className="text-gray-600">{cvData.personalInfo.email || "your.email@example.com"}</p>
-                  <p className="text-gray-500">{cvData.personalInfo.phone || "+62 XXX XXX XXXX"}</p>
+                  <h3 className="text-2xl font-bold text-foreground">{cvData.personalInfo.fullName || "Your Name"}</h3>
+                  <p className="text-muted-foreground">{cvData.personalInfo.email || "your.email@example.com"}</p>
+                  <p className="text-muted-foreground/80">{cvData.personalInfo.phone || "+62 XXX XXX XXXX"}</p>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900 border-b border-gray-200 pb-2 mb-3">Professional Summary</h4>
-                    <p className="text-gray-700 text-sm">
+                    <h4 className="font-semibold text-foreground border-b border-border pb-2 mb-3">Professional Summary</h4>
+                    <p className="text-foreground/80 text-sm">
                       {cvData.personalInfo.summary || "Your professional summary will appear here..."}
                     </p>
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold text-gray-900 border-b border-gray-200 pb-2 mb-3">Experience</h4>
+                    <h4 className="font-semibold text-foreground border-b border-border pb-2 mb-3">Experience</h4>
                     {cvData.experience.length === 0 ? (
-                      <p className="text-gray-500 text-sm">No experience added yet</p>
+                      <p className="text-muted-foreground text-sm">No experience added yet</p>
                     ) : (
                       <div className="space-y-3">
                         {cvData.experience.map((exp, index) => (
                           <div key={index} className="text-sm">
-                            <p className="font-medium text-gray-900">Job Title</p>
-                            <p className="text-gray-600">Company Name</p>
-                            <p className="text-gray-500">Date Range</p>
+                            <p className="font-medium text-foreground">Job Title</p>
+                            <p className="text-muted-foreground">Company Name</p>
+                            <p className="text-muted-foreground/80">Date Range</p>
                           </div>
                         ))}
                       </div>
@@ -343,20 +379,20 @@ export default function CVGeneratorPage() {
               
               {/* Download Options */}
               <div className="space-y-6">
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200">
+                <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-6 border border-border">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Sparkles className="w-5 h-5 text-blue-600" />
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Sparkles className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-gray-900">Ready to Download</h3>
+                    <h3 className="font-semibold text-foreground">Ready to Download</h3>
                   </div>
-                  <p className="text-gray-600 mb-6">Your CV is ready! Choose your preferred format below.</p>
+                  <p className="text-muted-foreground mb-6">Your CV is ready! Choose your preferred format below.</p>
                   
                   <div className="space-y-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
                     >
                       <Download className="w-5 h-5" />
                       Download PDF
@@ -365,7 +401,7 @@ export default function CVGeneratorPage() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-4 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition-all"
                     >
                       <Save className="w-5 h-5" />
                       Save Draft
