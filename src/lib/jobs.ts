@@ -5,10 +5,10 @@ export interface JobItemDTO {
   title: string;
   category: string;
   city: string;
-  isPublished: boolean;
+  isPublished?: boolean;
   deadline?: string | null;
   createdAt: string;
-  applicantsCount: number;
+  applicantsCount?: number;
 }
 
 export interface JobsListDTO {
@@ -31,6 +31,22 @@ export async function listCompanyJobs(params: {
   const res = await apiCall.get<{ success: boolean; data: JobsListDTO }>(
     `/job/companies/${companyId}/jobs`,
     { params: query }
+  );
+  return res.data.data;
+}
+
+export async function listPublicJobs(params: {
+  title?: string;
+  category?: string;
+  city?: string;
+  sortBy?: "createdAt" | "deadline";
+  sortOrder?: "asc" | "desc";
+  limit?: number;
+  offset?: number;
+}): Promise<JobsListDTO> {
+  const res = await apiCall.get<{ success: boolean; data: JobsListDTO }>(
+    `/job/public/jobs`,
+    { params: params }
   );
   return res.data.data;
 }
