@@ -21,7 +21,7 @@ export default function SearchBarPro() {
             placeholder="City or Remote"
           />
         </div>
-        <button className="w-full md:w-auto h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium shadow-sm hover:opacity-90 flex items-center justify-center gap-2">
+        <button className="w-full md:w-auto h-12 px-6 rounded-xl bg-[#24CFA7] text-primary-foreground font-medium shadow-sm hover:bg-[#39D4B0] transition-colors flex items-center justify-center gap-2">
           <Search className="w-5 h-5" />
           Search
         </button>

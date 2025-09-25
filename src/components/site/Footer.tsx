@@ -3,15 +3,14 @@ export function Footer() {
     <footer className="border-t bg-background">
       <div className="container mx-auto px-4 py-12 grid gap-8 md:grid-cols-4 text-sm text-muted-foreground">
         <div>
-          <div className="font-semibold text-foreground text-lg">ProHire</div>
-          <p className="mt-2 max-w-sm">Modern job board to connect talents and companies.</p>
+          <div className="text-[#467ec7] text-3xl font-bold">Work<span className="text-[#24cfa7]">oo</span></div>
+          <p className="mt-2 max-w-sm text-md font-semibold">Seek your next move</p>
         </div>
         <div>
           <div className="font-semibold text-foreground">Product</div>
           <ul className="mt-3 space-y-2">
             <li><a className="hover:text-primary" href="#">Features</a></li>
             <li><a className="hover:text-primary" href="#">Pricing</a></li>
-            <li><a className="hover:text-primary" href="#">AI Matching</a></li>
           </ul>
         </div>
         <div>
@@ -31,7 +30,7 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t py-5 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} ProHire</div>
+      <div className="border-t py-5 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} Workoo</div>
     </footer>
   );
 }
