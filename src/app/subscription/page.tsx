@@ -1,60 +1,31 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { 
-  Check, Star, Zap, Crown, Shield, Sparkles, 
-  CreditCard, Upload, FileText, Award, Target,
-  Users, Briefcase, Calendar, TrendingUp
-} from "lucide-react";
-
-const subscriptionPlans = [
-  {
-    name: "Standard",
-    price: 25000,
-    originalPrice: 35000,
-    period: "month",
-    popular: false,
-    color: "from-blue-500 to-blue-600",
-    icon: Briefcase,
-    features: [
-      "CV Generator access",
-      "Skill Assessment (2x per month)",
-      "Basic job alerts",
-      "Standard support",
-      "Profile optimization tips"
-    ],
-    limitations: [
-      "Limited assessment attempts",
-      "No priority review"
-    ]
-  },
-  {
-    name: "Professional",
-    price: 100000,
-    originalPrice: 150000,
-    period: "month",
-    popular: true,
-    color: "from-purple-500 to-purple-600",
-    icon: Crown,
-    features: [
-      "Everything in Standard",
-      "Unlimited Skill Assessments",
-      "Priority CV review",
-      "Advanced job matching",
-      "Premium support",
-      "Interview preparation guide",
-      "Salary negotiation tips",
-      "Career coaching session (1x)",
-      "LinkedIn profile optimization"
-    ],
-    limitations: []
-  }
-];
+import { subscriptionPlans } from "@/components/subscription/subscriptionPlans";
+import SignInModal from "@/components/subscription/SignInModal";
+import PlanCard from "@/components/subscription/PlanCard";
 
 export default function SubscriptionPage() {
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState("transfer");
-  const [showPayment, setShowPayment] = useState(false);
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [showSignInModal, setShowSignInModal] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handlePlanSelection = (planId: string) => {
+    if (!isAuthenticated) {
+      // Show sign in modal instead of redirecting
+      setShowSignInModal(true);
+    } else {
+      // User is authenticated, proceed to transaction
+      router.push(`/transaction?plan=${planId}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
@@ -67,284 +38,35 @@ export default function SubscriptionPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-background/90 border border-border rounded-full shadow-sm mb-6">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Unlock Premium Features</span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
-              Supercharge Your Career
+            <h1 className="text-5xl font-bold mb-6">
+              Choose Your <span className="text-primary">Perfect Plan</span>
             </h1>
-            <p className="text-lg md:text-xl text-foreground/90 mx-auto">
-              Get access to exclusive tools and features that will accelerate your job search and career growth
+            <p className="text-xl opacity-90 mb-8">
+              Unlock premium features and accelerate your career journey with
+              our subscription plans
             </p>
           </motion.div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-16">
-        {/* Pricing Plans */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
-          {subscriptionPlans.map((plan, index) => {
-            const IconComponent = plan.icon;
-            return (
-              <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`relative bg-background rounded-3xl border-2 transition-all duration-300 overflow-hidden ${
-                  plan.popular 
-                    ? "border-primary/30 shadow-xl" 
-                    : "border-border hover:border-primary/40 hover:shadow-lg"
-                }`}
-              >
-                {/* Popular Badge */}
-                {plan.popular && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="bg-background border border-border text-foreground px-6 py-2 rounded-full text-sm font-semibold shadow-sm">
-                      🔥 Most Popular
-                    </div>
-                  </div>
-                )}
-
-                <div className="p-8">
-                  {/* Plan Header */}
-                  <div className="text-center mb-8">
-                    <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${plan.color} mb-4`}>
-                      <IconComponent className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <span className="text-sm text-muted-foreground line-through">
-                        IDR {plan.originalPrice.toLocaleString()}
-                      </span>
-                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">
-                        SAVE {Math.round((1 - plan.price/plan.originalPrice) * 100)}%
-                      </span>
-                    </div>
-                    <div className="text-4xl font-bold text-foreground">
-                      IDR {plan.price.toLocaleString()}
-                      <span className="text-lg font-normal text-muted-foreground">/{plan.period}</span>
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="space-y-4 mb-8">
-                    {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <div className="p-1 bg-green-100 rounded-full mt-0.5">
-                          <Check className="w-3 h-3 text-green-600" />
-                        </div>
-                        <span className="text-foreground/80">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTA Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setSelectedPlan(plan);
-                      setShowPayment(true);
-                    }}
-                    className={`w-full py-3.5 px-6 rounded-xl font-semibold transition-all ${
-                      plan.popular
-                        ? "bg-primary text-primary-foreground shadow-sm hover:shadow"
-                        : "bg-background border border-border text-foreground hover:bg-secondary"
-                    }`}
-                  >
-                    {plan.popular ? "Get Premium Access" : "Choose Standard"}
-                  </motion.button>
-
-                  {plan.popular && (
-                    <p className="text-center text-sm text-muted-foreground mt-3">
-                      ⚡ Instant activation • 30-day money back guarantee
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Payment Modal */}
-        {showPayment && selectedPlan && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowPayment(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-background rounded-3xl p-8 max-w-md w-full border border-border"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-foreground mb-2">
-                  Complete Your Purchase
-                </h3>
-                <p className="text-muted-foreground">
-                  {selectedPlan.name} Plan - IDR {selectedPlan.price.toLocaleString()}/month
-                </p>
-              </div>
-
-              {/* Payment Method Selection */}
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Payment Method
-                  </label>
-                  <div className="grid gap-3">
-                    <label className="flex items-center gap-3 p-4 border-2 border-border rounded-xl cursor-pointer hover:border-primary transition-colors">
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="transfer"
-                        checked={paymentMethod === "transfer"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="text-primary"
-                      />
-                      <Upload className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium text-foreground">Bank Transfer</p>
-                        <p className="text-sm text-muted-foreground">Upload payment proof</p>
-                      </div>
-                    </label>
-                    
-                    <label className="flex items-center gap-3 p-4 border-2 border-border rounded-xl cursor-pointer hover:border-primary transition-colors opacity-50">
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="gateway"
-                        disabled
-                        className="text-primary"
-                      />
-                      <CreditCard className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium text-foreground">Payment Gateway</p>
-                        <p className="text-sm text-muted-foreground">Coming soon</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                {paymentMethod === "transfer" && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="space-y-4"
-                  >
-                    <div className="bg-primary/5 p-4 rounded-xl">
-                      <h4 className="font-semibold text-primary mb-2">Bank Transfer Details:</h4>
-                      <div className="text-sm text-foreground space-y-1">
-                        <p><strong>Bank:</strong> BCA</p>
-                        <p><strong>Account:</strong> 1234567890</p>
-                        <p><strong>Name:</strong> ProHire Indonesia</p>
-                        <p><strong>Amount:</strong> IDR {selectedPlan.price.toLocaleString()}</p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Upload Payment Proof
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*,application/pdf"
-                        className="w-full px-4 py-3 border-2 border-input rounded-xl focus:border-primary focus:outline-none bg-background text-foreground"
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowPayment(false)}
-                  className="flex-1 px-6 py-3 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition-colors"
-                >
-                  Cancel
-                </button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
-                >
-                  Submit Payment
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Features Comparison */}
-        <div className="bg-background rounded-3xl border border-border p-8 mb-16">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
-            Why Choose Premium?
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="p-4 bg-primary/10 rounded-2xl w-fit mx-auto mb-4">
-                <Target className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">AI-Powered Matching</h3>
-              <p className="text-muted-foreground">Get matched with jobs that perfectly fit your skills and preferences</p>
-            </div>
-            <div className="text-center">
-              <div className="p-4 bg-secondary rounded-2xl w-fit mx-auto mb-4">
-                <Award className="w-8 h-8 text-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Skill Certification</h3>
-              <p className="text-muted-foreground">Earn verified certificates to showcase your expertise to employers</p>
-            </div>
-            <div className="text-center">
-              <div className="p-4 bg-primary/10 rounded-2xl w-fit mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Career Growth</h3>
-              <p className="text-muted-foreground">Access exclusive resources and coaching to accelerate your career</p>
-            </div>
-          </div>
-        </div>
-
-        {/* FAQ Section */}
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-4">
-            {[
-              {
-                q: "Can I cancel my subscription anytime?",
-                a: "Yes, you can cancel your subscription at any time. Your premium features will remain active until the end of your billing period."
-              },
-              {
-                q: "What happens if I don't pass the skill assessment?",
-                a: "Don't worry! You can retake assessments. Standard users get 2 attempts per month, while Professional users get unlimited attempts."
-              },
-              {
-                q: "How does the CV review work?",
-                a: "Professional subscribers get priority CV reviews by our career experts within 24 hours, with detailed feedback and improvement suggestions."
-              }
-            ].map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-background rounded-2xl border border-border p-6"
-              >
-                <h3 className="font-semibold text-foreground mb-2">{faq.q}</h3>
-                <p className="text-muted-foreground">{faq.a}</p>
-              </motion.div>
-            ))}
-          </div>
+      {/* Pricing Section */}
+      <div className="container mx-auto px-4 py-20">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {subscriptionPlans.map((plan, index) => (
+            <PlanCard 
+              key={plan.id}
+              plan={plan}
+              onSelectPlan={handlePlanSelection}
+            />
+          ))}
         </div>
       </div>
+
+      {/* Sign In Required Modal */}
+      <SignInModal 
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+      />
     </div>
   );
 }
