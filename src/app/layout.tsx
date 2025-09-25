@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import NavbarPro from "../components/site/Navbar";
+import Navbar from "../components/site/Navbar";
 import { Footer } from "../components/site/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -30,8 +30,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} antialiased min-h-screen bg-background text-foreground flex flex-col`}
       >
-        
-        <NavbarPro />
+        <Navbar />
         <main className="flex-1 pt-16">{children}</main>
         <Footer />
       </body>
