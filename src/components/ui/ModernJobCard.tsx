@@ -37,6 +37,7 @@ export function ModernJobCard({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
+    <Link href={`/explore/jobs/${id}`}>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -46,24 +47,8 @@ export function ModernJobCard({
       className="relative group"
       aria-label={`${title} at ${company}`}
     >
-      {/* Hot Badge */}
-      {isHot && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="absolute -top-2 -right-2 z-10"
-        >
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-500 rounded-full blur animate-pulse" />
-            <div className="relative bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
-              HOT
-            </div>
-          </div>
-        </motion.div>
-      )}
 
-      <div className="relative bg-card text-card-foreground rounded-2xl border border-border hover:border-primary/40 transition-all duration-300 overflow-hidden">
+      <div className="relative bg-[#F0F5F9] text-card-foreground rounded-2xl transition-all duration-300 overflow-hidden">
         {/* Gradient Border on Hover */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 opacity-0"
@@ -84,11 +69,9 @@ export function ModernJobCard({
               </motion.div>
 
               <div>
-                <Link href={`/explore/jobs/${id}`}>
-                  <h3 className="text-lg font-semibold hover:text-primary transition-colors cursor-pointer">
+                  <h3 className="text-lg font-semibold text-[#467EC7] transition-colors cursor-pointer">
                     {title}
                   </h3>
-                </Link>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="text-sm font-medium text-foreground/80">{company}</span>
                   <div className="flex items-center gap-1">
@@ -106,12 +89,12 @@ export function ModernJobCard({
               onClick={() => setIsBookmarked(!isBookmarked)}
               className={`p-2 rounded-lg transition-colors ${
                 isBookmarked 
-                  ? "bg-primary/10 text-primary" 
-                  : "hover:bg-secondary text-muted-foreground"
+                ? "bg-primary/10 text-primary" 
+                : "hover:bg-secondary text-muted-foreground"
               }`}
               aria-pressed={isBookmarked}
               aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-            >
+              >
               <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
             </motion.button>
           </div>
@@ -139,14 +122,14 @@ export function ModernJobCard({
           </div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2">
             {tags.slice(0, 3).map((tag, index) => (
               <motion.span
-                key={tag}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="px-3 py-1 bg-gradient-to-r from-primary/5 to-secondary/5 text-primary text-xs font-medium rounded-full border border-primary/20"
+              key={tag}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 }}
+              className="px-3 py-1 bg-gradient-to-r from-primary/5 to-secondary/5 text-primary text-xs font-medium rounded-full border border-primary/20"
               >
                 {tag}
               </motion.span>
@@ -157,67 +140,9 @@ export function ModernJobCard({
               </span>
             )}
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <Link href={`/explore/jobs/${id}`} className="flex-1">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-4 py-2.5 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
-                aria-label={`View details for ${title} at ${company}`}
-              >
-                View Details
-              </motion.button>
-            </Link>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2.5 border-2 border-border hover:border-primary text-foreground/80 hover:text-primary font-medium rounded-xl transition-all duration-300"
-              aria-label={`Quick apply for ${title} at ${company}`}
-            >
-              Quick Apply
-            </motion.button>
-          </div>
-
-          {/* Hover Effect - Additional Info */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mt-4 pt-4 border-t border-border"
-              >
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    <span className="font-medium text-foreground">{type}</span> position
-                  </span>
-                  <span className="text-primary font-medium">
-                    Match: 92%
-                  </span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Progress Bar for Applications */}
-        <div className="px-6 pb-3">
-          <div className="relative h-1 bg-secondary rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min((applicants / 100) * 100, 100)}%` }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-secondary rounded-full"
-            />
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {applicants < 20 ? "Few applicants" : applicants < 50 ? "Moderate competition" : "High competition"}
-          </p>
         </div>
       </div>
     </motion.div>
+          </Link>
   );
 }

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Grid3x3, List, Loader2, Sparkles } from "lucide-react";
-import NavbarPro from "@/components/jobboard/NavbarPro";
+import NavbarPro from "@/components/site/Navbar";
 import SearchBarPro from "@/components/jobboard/SearchBarPro";
 import FilterSidebar from "@/components/jobboard/FilterSidebar";
 import JobCardPro from "@/components/jobboard/JobCardPro";
