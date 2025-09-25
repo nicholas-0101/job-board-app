@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
   TrendingUp, Users, DollarSign, Briefcase, MapPin, 
@@ -9,7 +9,7 @@ import {
 import { AnimatedCounter } from "../../../components/ui/AnimatedCounter";
 import { GlowCard } from "../../../components/ui/GlowCard";
 
-const analyticsData = {
+const analyticsDataFallback = {
   overview: {
     totalUsers: 15420,
     activeJobs: 1240,
@@ -70,9 +70,48 @@ const analyticsData = {
   ]
 };
 
+import { getOverview, getDemographics, getSalaryTrends, getInterests } from "@/lib/analytics";
+
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("30d");
   const [selectedMetric, setSelectedMetric] = useState("users");
+  const [companyId] = useState<number>(() => {
+    const raw = localStorage.getItem("companyId");
+    return raw ? Number(raw) : 1;
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [overview, setOverview] = useState<any>(null);
+  const [demographics, setDemographics] = useState<any>(null);
+  const [salaryTrends, setSalaryTrends] = useState<any>(null);
+  const [interests, setInterests] = useState<any>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [ov, dm, st, it] = await Promise.all([
+          getOverview(companyId),
+          getDemographics(companyId),
+          getSalaryTrends(companyId),
+          getInterests(companyId),
+        ]);
+        if (mounted) {
+          setOverview(ov);
+          setDemographics(dm);
+          setSalaryTrends(st);
+          setInterests(it);
+        }
+      } catch (e: any) {
+        setError(e?.response?.data?.message || "Failed to load analytics");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [companyId]);
 
   const StatCard = ({ title, value, change, icon: Icon, color }: any) => (
     <GlowCard>
@@ -143,29 +182,29 @@ export default function AnalyticsPage() {
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Users"
-            value={analyticsData.overview.totalUsers}
-            change={analyticsData.overview.growth.users}
+            value={(overview?.totalUsers ?? analyticsDataFallback.overview.totalUsers)}
+            change={(overview?.growth?.users ?? analyticsDataFallback.overview.growth.users)}
             icon={Users}
             color="from-blue-500 to-blue-600"
           />
           <StatCard
             title="Active Jobs"
-            value={analyticsData.overview.activeJobs}
-            change={analyticsData.overview.growth.jobs}
+            value={(overview?.activeJobs ?? analyticsDataFallback.overview.activeJobs)}
+            change={(overview?.growth?.jobs ?? analyticsDataFallback.overview.growth.jobs)}
             icon={Briefcase}
             color="from-green-500 to-green-600"
           />
           <StatCard
             title="Applications"
-            value={analyticsData.overview.applications}
-            change={analyticsData.overview.growth.applications}
+            value={(overview?.applications ?? analyticsDataFallback.overview.applications)}
+            change={(overview?.growth?.applications ?? analyticsDataFallback.overview.growth.applications)}
             icon={TrendingUp}
             color="from-purple-500 to-purple-600"
           />
           <StatCard
             title="Companies"
-            value={analyticsData.overview.companies}
-            change={analyticsData.overview.growth.companies}
+            value={(overview?.companies ?? analyticsDataFallback.overview.companies)}
+            change={(overview?.growth?.companies ?? analyticsDataFallback.overview.growth.companies)}
             icon={Target}
             color="from-orange-500 to-orange-600"
           />
@@ -180,7 +219,7 @@ export default function AnalyticsPage() {
               Age Demographics
             </h3>
             <div className="space-y-4">
-              {analyticsData.demographics.ageGroups.map((group, index) => (
+              {(demographics?.ageBuckets ? Object.entries(demographics.ageBuckets).map(([range, count]) => ({ range, count, percentage: 0 })) : analyticsDataFallback.demographics.ageGroups).map((group: any, index: number) => (
                 <div key={group.range} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-blue-500" style={{ 
@@ -192,10 +231,10 @@ export default function AnalyticsPage() {
                     <div className="w-20 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${group.percentage}%` }}
+                        style={{ width: `${group.percentage ?? 0}%` }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-8">{group.percentage}%</span>
+                    <span className="text-sm font-medium text-gray-900 w-8">{group.percentage ?? 0}%</span>
                   </div>
                 </div>
               ))}
@@ -209,7 +248,7 @@ export default function AnalyticsPage() {
               Gender Distribution
             </h3>
             <div className="space-y-4">
-              {analyticsData.demographics.gender.map((item, index) => (
+              {(demographics?.gender ? Object.entries(demographics.gender).map(([type, count]) => ({ type, count, percentage: 0 })) : analyticsDataFallback.demographics.gender).map((item: any, index: number) => (
                 <div key={item.type} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full" style={{ 
@@ -222,12 +261,12 @@ export default function AnalyticsPage() {
                       <div 
                         className="h-2 rounded-full transition-all duration-1000"
                         style={{ 
-                          width: `${item.percentage}%`,
+                          width: `${item.percentage ?? 0}%`,
                           backgroundColor: index === 0 ? '#3B82F6' : index === 1 ? '#EC4899' : '#6B7280'
                         }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-8">{item.percentage}%</span>
+                    <span className="text-sm font-medium text-gray-900 w-8">{item.percentage ?? 0}%</span>
                   </div>
                 </div>
               ))}
@@ -241,7 +280,7 @@ export default function AnalyticsPage() {
               Top Locations
             </h3>
             <div className="space-y-4">
-              {analyticsData.demographics.locations.map((location, index) => (
+              {(demographics?.locations ?? analyticsDataFallback.demographics.locations).map((location: any, index: number) => (
                 <div key={location.city} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-green-500" style={{ 
@@ -253,10 +292,10 @@ export default function AnalyticsPage() {
                     <div className="w-20 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-green-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${location.percentage}%` }}
+                        style={{ width: `${location.percentage ?? 0}%` }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-8">{location.percentage}%</span>
+                    <span className="text-sm font-medium text-gray-900 w-8">{location.percentage ?? 0}%</span>
                   </div>
                 </div>
               ))}
@@ -273,7 +312,7 @@ export default function AnalyticsPage() {
               Average Salary by Position
             </h3>
             <div className="space-y-4">
-              {analyticsData.salaryTrends.byPosition.map((position, index) => (
+              {(salaryTrends?.byPosition ?? analyticsDataFallback.salaryTrends.byPosition).map((position: any, index: number) => (
                 <div key={position.position} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-900">{position.position}</h4>
@@ -305,7 +344,7 @@ export default function AnalyticsPage() {
               Salary Trends by Location
             </h3>
             <div className="space-y-4">
-              {analyticsData.salaryTrends.byLocation.map((location, index) => (
+              {(salaryTrends?.byLocation ?? analyticsDataFallback.salaryTrends.byLocation).map((location: any, index: number) => (
                 <div key={location.city} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-900">{location.city}</h4>
@@ -341,7 +380,7 @@ export default function AnalyticsPage() {
             Most Popular Job Categories
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {analyticsData.applicantInterests.map((interest, index) => (
+            {(interests ?? analyticsDataFallback.applicantInterests).map((interest: any, index: number) => (
               <motion.div
                 key={interest.category}
                 initial={{ opacity: 0, y: 20 }}
@@ -357,10 +396,10 @@ export default function AnalyticsPage() {
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                     <div 
                       className="bg-gradient-to-r from-red-400 to-red-600 h-2 rounded-full transition-all duration-1000"
-                      style={{ width: `${interest.percentage}%` }}
+                      style={{ width: `${interest.percentage ?? 0}%` }}
                     />
                   </div>
-                  <div className="text-sm font-medium text-red-600">{interest.percentage}%</div>
+                  <div className="text-sm font-medium text-red-600">{interest.percentage ?? 0}%</div>
                 </div>
               </motion.div>
             ))}
