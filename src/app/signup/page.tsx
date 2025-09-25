@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -24,7 +24,56 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
+
   const router = useRouter();
+
+  useEffect(() => {
+    const googleObj = (window as any).google;
+    if (googleObj && !isGoogleLoaded) {
+      googleObj.accounts.id.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+        callback: (response: any) => {
+          console.log("Raw Google credential:", response.credential);
+        },
+        ux_mode: "popup",
+        use_fedcm_for_prompt: true,
+      });
+
+      setIsGoogleLoaded(true);
+    }
+  }, [isGoogleLoaded]);
+
+  const handleGoogleResponse = async (response: any) => {
+    console.log("Google response:", response); // <-- check this
+    try {
+      const res = await apiCall.post("/auth/social", {
+        provider: "GOOGLE",
+        token: response.credential, // JWT
+        role: tab === "seeker" ? "USER" : "ADMIN",
+      });
+      console.log("Backend response:", res.data);
+      router.push("/preverify");
+    } catch (err: any) {
+      console.error("Google login failed:", err);
+      alert(err.response?.data?.message || "Google login failed");
+    }
+  };
+
+  const handleSocialLogin = () => {
+    const googleObj = (window as any).google;
+    if (googleObj) {
+      googleObj.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // fallback to explicit popup
+          googleObj.accounts.id.renderButton(
+            document.getElementById("googleBtn"),
+            { theme: "outline", size: "large" }
+          );
+        }
+      });
+    }
+  };
 
   const handleSignUp = async () => {
     setIsLoading(true);
@@ -37,13 +86,7 @@ export default function SignUpPage() {
 
       const payload =
         tab === "seeker"
-          ? {
-              name: fullName,
-              email,
-              password,
-              confirmPassword,
-              role: "USER",
-            }
+          ? { name: fullName, email, password, confirmPassword, role: "USER" }
           : {
               name: companyName,
               email,
@@ -53,14 +96,9 @@ export default function SignUpPage() {
             };
 
       const url = tab === "seeker" ? "/auth/signup/user" : "/auth/signup/admin";
-
       const res = await apiCall.post(url, payload);
 
-      alert(
-        tab === "seeker"
-          ? "User registered successfully!"
-          : "Admin registered successfully!"
-      );
+      alert(tab === "seeker" ? "User registered!" : "Admin registered!");
       router.push("/preverify");
     } catch (err: any) {
       console.error(err);
@@ -371,12 +409,15 @@ export default function SignUpPage() {
           <div className="w-full">
             <motion.button
               type="button"
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-[#ebebeb] shadow-lg hover:shadow-xl bg-[#F0F5F9] transition-all font-medium text-[#467EC7]"
+              onClick={handleSocialLogin}
+              disabled={!isGoogleLoaded}
+              className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F0F5F9] text-[#467EC7] font-medium transition-all ${
+                !isGoogleLoaded ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Chrome className="w-5 h-5 text-[#467EC7]" />
-              Google
+              <Chrome className="w-5 h-5 text-[#467EC7]" /> Google
             </motion.button>
           </div>
         </motion.form>
