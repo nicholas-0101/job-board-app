@@ -1,3 +1,10 @@
+"use client";
+import { AdminGuard } from "@/components/auth/AdminGuard";
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return <AdminGuard>{children}</AdminGuard>;
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="container mx-auto px-4 py-8 grid gap-6 md:grid-cols-[240px_1fr]">
