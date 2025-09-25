@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Grid3x3, List, Loader2, Sparkles } from "lucide-react";
 import NavbarPro from "@/components/site/Navbar";
@@ -7,57 +7,47 @@ import SearchBarPro from "@/components/jobboard/SearchBarPro";
 import FilterSidebar from "@/components/jobboard/FilterSidebar";
 import JobCardPro from "@/components/jobboard/JobCardPro";
 import JobDetailPanel from "@/components/jobboard/JobDetailPanel";
+import { listPublicJobs, JobItemDTO, JobsListDTO } from "@/lib/jobs";
 
-const DUMMY = Array.from({ length: 12 }).map((_, i) => ({
-  id: i + 1,
-  title: [
-    "Senior Frontend Engineer",
-    "Backend Developer",
-    "UI/UX Designer",
-    "Product Manager",
-    "Data Scientist",
-    "DevOps Engineer"
-  ][i % 6],
-  company: ["TechNova", "Cloudify", "DesignHub", "DataCorp", "StartupX", "MegaCorp"][i % 6],
-  city: ["Jakarta", "Bandung", "Surabaya", "Remote", "Hybrid"][i % 5],
-  tags: [
-    ["React", "TypeScript", "Next.js", "Tailwind"],
-    ["Node.js", "PostgreSQL", "Docker"],
-    ["Figma", "Prototyping", "User Research"],
-    ["Agile", "Strategy", "Analytics"],
-    ["Python", "Machine Learning", "TensorFlow"],
-    ["AWS", "Kubernetes", "CI/CD"]
-  ][i % 6].slice(0, 3),
-  posted: `${(i % 7) + 1}d`,
-  salary: `${10 + (i % 4) * 5}M - ${15 + (i % 4) * 5}M`,
-  type: ["Full-time", "Part-time", "Contract", "Remote"][i % 4]
-}));
+type Filters = { keyword?: string; category?: string; location?: string; sort?: "createdAt" | "deadline"; order?: "asc" | "desc" };
 
 export default function JobsPage() {
-  const [items, setItems] = useState(DUMMY);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("newest");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const [filters, setFilters] = useState<Filters>({ sort: "createdAt", order: "desc" });
+  const [limit, setLimit] = useState(9);
+  const [page, setPage] = useState(1);
+  const offset = useMemo(() => (page - 1) * limit, [page, limit]);
+  const [data, setData] = useState<JobsListDTO>({ total: 0, limit, offset: 0, items: [] });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await listPublicJobs({
+          title: filters.keyword,
+          category: filters.category,
+          city: filters.location,
+          sortBy: filters.sort,
+          sortOrder: filters.order,
+          limit,
+          offset,
+        });
+        setData(res);
+      } catch (e: any) {
+        setError(e?.response?.data?.message || "Failed to load jobs");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, limit, offset]);
 
-  const filteredItems = items.filter(item =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.company.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = data.items;
+  const totalPages = Math.max(1, Math.ceil(data.total / limit));
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,7 +69,7 @@ export default function JobsPage() {
             {/* Controls Row */}
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-muted-foreground">
-                Showing <span className="font-semibold text-foreground">{paginatedItems.length}</span> of {filteredItems.length} jobs
+                Showing <span className="font-semibold text-foreground">{paginatedItems.length}</span> of {data.total} jobs
               </p>
               <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
                 <button
@@ -109,7 +99,7 @@ export default function JobsPage() {
               </div>
             ) : (
               <>
-                {filteredItems.length === 0 ? (
+                {paginatedItems.length === 0 ? (
                   <div className="text-center py-20">
                     <h3 className="text-xl font-semibold text-foreground">No results found</h3>
                     <p className="text-muted-foreground">Try adjusting filters or searching a different keyword.</p>
@@ -126,7 +116,7 @@ export default function JobsPage() {
                     >
                       {paginatedItems.map((job, index) => (
                         <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-                          <JobCardPro id={job.id} title={job.title} company={job.company} city={job.city} tags={job.tags} posted={job.posted} salary={job.salary} />
+                          <JobCardPro id={job.id} title={job.title} company={job.companyName || ""} city={job.city} tags={[]} posted={new Date(job.createdAt).toDateString()} salary={""} />
                         </motion.div>
                       ))}
                     </motion.div>
@@ -136,8 +126,8 @@ export default function JobsPage() {
                 {/* Pagination */}
                 <div className="mt-6 flex items-center justify-center gap-2" role="navigation" aria-label="Pagination">
                   <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
+                    onClick={() => setPage(Math.max(1, page - 1))}
+                    disabled={page === 1}
                     className="px-4 py-2 rounded-xl border border-border bg-card text-foreground/80 hover:bg-secondary disabled:opacity-50"
                     aria-label="Previous page"
                   >
@@ -147,11 +137,11 @@ export default function JobsPage() {
                     {[...Array(totalPages)].map((_, i) => (
                       <button
                         key={i}
-                        onClick={() => setCurrentPage(i + 1)}
+                        onClick={() => setPage(i + 1)}
                         className={`w-10 h-10 rounded-xl font-medium ${
-                          currentPage === i + 1 ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground/80 hover:bg-secondary"
+                          page === i + 1 ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground/80 hover:bg-secondary"
                         }`}
-                        aria-current={currentPage === i + 1 ? "page" : undefined}
+                        aria-current={page === i + 1 ? "page" : undefined}
                         aria-label={`Go to page ${i + 1}`}
                       >
                         {i + 1}
@@ -159,8 +149,8 @@ export default function JobsPage() {
                     ))}
                   </div>
                   <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                    disabled={page === totalPages}
                     className="px-4 py-2 rounded-xl border border-border bg-card text-foreground/80 hover:bg-secondary disabled:opacity-50"
                     aria-label="Next page"
                   >
