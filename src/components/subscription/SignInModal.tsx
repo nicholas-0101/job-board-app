@@ -37,8 +37,8 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
         {/* Modal Content */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
-            <LogIn className="w-8 h-8 text-primary" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#467ec7]/10 rounded-full mb-6">
+            <LogIn className="w-8 h-8 text-[#467ec7]" />
           </div>
           
           <h3 className="text-2xl font-bold text-foreground mb-4">
@@ -55,8 +55,8 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => router.push('/signin')}
-              className="w-full px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
+              onClick={() => router.push('/auth/signin')}
+              className="w-full px-6 py-3 bg-[#467ec7] text-white font-semibold rounded-xl hover:bg-[#578BCC] transition-colors shadow-sm"
             >
               <LogIn className="w-4 h-4 inline mr-2" />
               Sign In
@@ -65,8 +65,8 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => router.push('/signup')}
-              className="w-full px-6 py-3 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition-colors"
+              onClick={() => router.push('/auth/signup')}
+              className="w-full px-6 py-3 border-2 border-[#467ec7] text-[#467ec7] font-semibold rounded-xl hover:bg-[#467ec7] hover:text-white transition-colors"
             >
               Create Account
             </motion.button>
