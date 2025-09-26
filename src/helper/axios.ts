@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const apiCall = axios.create({
-  baseURL: "http://localhost:4400", 
+  baseURL: process.env.NEXT_PUBLIC_BE_URL,  
   headers: {
     "Content-Type": "application/json",
   },
