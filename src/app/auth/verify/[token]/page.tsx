@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation"; 
+import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { apiCall } from "@/helper/axios";
 
@@ -9,8 +9,12 @@ export default function VerifyPage() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<"pending" | "success" | "error">("pending");
-  const [message, setMessage] = useState("Click verify to confirm your account");
+  const [status, setStatus] = useState<"pending" | "success" | "error">(
+    "pending"
+  );
+  const [message, setMessage] = useState(
+    "Click verify to confirm your account"
+  );
 
   const handleVerify = async () => {
     if (!token) return;
@@ -63,16 +67,20 @@ export default function VerifyPage() {
             <motion.button
               type="button"
               onClick={handleVerify}
-              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+                isLoading
+                  ? "cursor-not-allowed opacity-70"
+                  : "hover:shadow-xl cursor-pointer"
+              }`}
+              whileHover={isLoading ? {} : { scale: 1.02 }}
+              whileTap={isLoading ? {} : { scale: 0.98 }}
+              disabled={isLoading}
             >
               {isLoading ? (
-                <motion.div
-                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mx-auto"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
+                <span className="flex items-center justify-center gap-2">
+                  <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Verifying...
+                </span>
               ) : (
                 "Verify"
               )}
@@ -83,7 +91,7 @@ export default function VerifyPage() {
             <motion.button
               type="button"
               onClick={handleRedirect}
-              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group"
+              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -95,7 +103,7 @@ export default function VerifyPage() {
             <motion.button
               type="button"
               onClick={handleVerify}
-              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group"
+              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
