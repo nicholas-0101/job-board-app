@@ -25,6 +25,11 @@ export default function Navbar() {
   const user = useUserStore((state) => state.user);
   const logout = useUserStore((state) => state.logout);
 
+  // Hide navbar on developer pages
+  if (pathname?.startsWith('/developer')) {
+    return null;
+  }
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (

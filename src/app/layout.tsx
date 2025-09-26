@@ -5,6 +5,7 @@ import Navbar from "../components/site/Navbar";
 import { Footer } from "../components/site/Footer";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import ConditionalLayout from "../components/layout/ConditionalLayout";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -32,8 +33,7 @@ export default function RootLayout({
         className={`${inter.variable} antialiased min-h-screen bg-background text-foreground flex flex-col`}
       >
         <Navbar />
-        <main className="flex-1 pt-16">{children}</main>
-        <Footer />
+        <ConditionalLayout>{children}</ConditionalLayout>
         <Toaster 
           position="top-right"
           toastOptions={{
