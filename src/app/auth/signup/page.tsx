@@ -90,7 +90,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 pb-20 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -111,7 +111,7 @@ export default function SignUpPage() {
           validationSchema={signUpSchema}
           onSubmit={handleSignUp}
         >
-          {({  values, handleChange, handleSubmit, errors, touched }) => (
+          {({ values, handleChange, handleSubmit, errors, touched }) => (
             <Form
               onSubmit={handleSubmit}
               className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8"
@@ -124,7 +124,7 @@ export default function SignUpPage() {
                 setShowPassword={setShowPassword}
                 showConfirmPassword={showConfirmPassword}
                 setShowConfirmPassword={setShowConfirmPassword}
-                errors={errors} 
+                errors={errors}
                 touched={touched}
               />
 
@@ -140,13 +140,14 @@ export default function SignUpPage() {
                 whileTap={isLoading ? {} : { scale: 0.98 }}
                 disabled={isLoading}
               >
-                <span className="flex items-center justify-center gap-2">
-                  {isLoading ? (
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
                     <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>Create Account!</>
-                  )}
-                </span>
+                    Creating...
+                  </span>
+                ) : (
+                  "Create Account!"
+                )}
               </motion.button>
 
               {/* Divider + Social */}
