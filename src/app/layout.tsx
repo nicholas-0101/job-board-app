@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "../components/site/Navbar";
 import { Footer } from "../components/site/Footer";
 import { Toaster } from "react-hot-toast";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -21,11 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
-        <script
-          src="https://accounts.google.com/gsi/client"
-          async
-          defer
-        ></script>
+        <Script
+          src="https://apis.google.com/js/platform.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body
         suppressHydrationWarning
