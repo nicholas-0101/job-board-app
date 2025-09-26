@@ -68,13 +68,9 @@ export default function PlanCard({ plan, onSelectPlan }: PlanCardProps) {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => onSelectPlan(plan.id)}
-        className={`w-full py-3.5 px-6 rounded-xl font-semibold transition-all ${
-          plan.popular
-            ? "bg-primary text-primary-foreground shadow-sm hover:shadow"
-            : "bg-background border border-border text-foreground hover:bg-secondary"
-        }`}
+        className="w-full py-3.5 px-6 rounded-xl font-semibold transition-all bg-background border border-border text-foreground hover:bg-secondary"
       >
-        {plan.popular ? "Get Premium Access" : "Choose Standard"}
+        Choose {plan.name}
       </motion.button>
     </motion.div>
   );
