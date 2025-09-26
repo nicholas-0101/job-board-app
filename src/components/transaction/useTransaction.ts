@@ -85,9 +85,10 @@ export function useTransaction() {
         const formData = new FormData();
         formData.append("paymentProof", paymentProof);
 
+        // Don't set Content-Type manually for FormData - let browser handle it
         await apiCall.post(`/subscription/payments/${paymentId}/upload-proof`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': undefined, // Remove default application/json
           },
         });
       }
@@ -97,12 +98,17 @@ export function useTransaction() {
       
     } catch (error: any) {
       console.error("Transaction error:", error);
+      
       if (error.response?.status === 401) {
         toast.error("Please sign in to subscribe");
       } else if (error.response?.status === 400) {
         const message = error.response?.data?.message;
+        const errorDetail = error.response?.data?.error;
+        
         if (message?.includes("already has an active subscription")) {
           toast.error("You already have an active subscription");
+        } else if (message?.includes("File upload error")) {
+          toast.error(`Upload error: ${errorDetail || message}`);
         } else {
           toast.error(message || "Failed to submit transaction");
         }

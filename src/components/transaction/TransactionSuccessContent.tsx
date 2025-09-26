@@ -11,6 +11,7 @@ import {
   Home,
   CreditCard,
   AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,7 @@ export default function TransactionSuccessContent() {
   const [transactionData, setTransactionData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (paymentId) {
@@ -38,7 +40,10 @@ export default function TransactionSuccessContent() {
 
   // Removed auto-refresh - user can manually refresh browser to get latest status
 
-  const loadTransactionData = async () => {
+  const loadTransactionData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    }
     try {
       // Get user's subscriptions
       const subscriptionsResponse = await apiCall.get("/subscription/my-subscriptions");
@@ -57,20 +62,39 @@ export default function TransactionSuccessContent() {
       const userData = userResponse.data.data; // Note: response has { success: true, data: userData }
       
       // Get payments for this subscription
-      const paymentsResponse = await apiCall.get(`/subscription/subscriptions/${latestSubscription.id}/payments`);
-      
-      // Find the payment that matches our paymentId
-      const payments = paymentsResponse.data;
-      
-      let payment = payments.find((p: any) => p.id.toString() === paymentId);
+      let payment = null;
+      try {
+        const paymentsResponse = await apiCall.get(`/subscription/subscriptions/${latestSubscription.id}/payments`);
+        const payments = paymentsResponse.data;
+        payment = payments.find((p: any) => p.id.toString() === paymentId);
+      } catch (paymentsError) {
+        // This is okay, we'll create a basic payment object below
+      }
       
       if (!payment && paymentId) {
-        // If not found in subscription payments, try to get payment directly
-        try {
-          const directPaymentResponse = await apiCall.get(`/subscription/payments/${paymentId}`);
-          payment = directPaymentResponse.data;
-        } catch (directError) {
-          console.error("Could not find payment:", directError);
+        // Payment not found in latest subscription, try searching in all subscriptions
+        for (const subscription of subscriptions) {
+          try {
+            const allPaymentsResponse = await apiCall.get(`/subscription/subscriptions/${subscription.id}/payments`);
+            const allPayments = allPaymentsResponse.data;
+            const foundPayment = allPayments.find((p: any) => p.id.toString() === paymentId);
+            
+            if (foundPayment) {
+              payment = foundPayment;
+              break;
+            }
+          } catch (error) {
+            // Continue searching in other subscriptions
+          }
+        }
+        
+        // If still not found, create basic payment object
+        if (!payment) {
+          payment = {
+            id: paymentId,
+            status: 'pending',
+            amount: latestSubscription.plan?.price || 0
+          };
         }
       }
       
@@ -86,10 +110,19 @@ export default function TransactionSuccessContent() {
     } catch (error: any) {
       console.error("Error loading transaction data:", error);
       setError("Failed to load transaction details");
-      toast.error("Failed to load transaction details");
+      if (isRefresh) {
+        toast.error("Failed to refresh transaction details");
+      } else {
+        toast.error("Failed to load transaction details");
+      }
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    loadTransactionData(true);
   };
 
   if (isLoading) {
@@ -171,9 +204,20 @@ export default function TransactionSuccessContent() {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Transaction Details
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-5 h-5" />
+                    Transaction Details
+                  </div>
+                  <Button 
+                    onClick={handleRefresh} 
+                    variant="outline" 
+                    size="sm"
+                    disabled={isRefreshing}
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
