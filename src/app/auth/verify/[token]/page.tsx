@@ -34,7 +34,7 @@ export default function VerifyPage() {
   };
 
   const handleRedirect = () => {
-    router.push("/signin");
+    router.push("/auth/signin");
   };
 
   return (

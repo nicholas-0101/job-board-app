@@ -48,7 +48,7 @@ export default function NavbarProfile({ user, logout, router }: Props) {
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-background border border-border rounded-lg shadow-lg z-50 flex flex-col">
           <Link
-            href="/profile"
+            href="/profile/edit"
             className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
