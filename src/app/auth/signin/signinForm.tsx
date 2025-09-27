@@ -40,7 +40,11 @@ export default function SignInForm({
             }`}
           />
         </div>
-        <ErrorMessage name="email" component="div" className="text-red-400 text-sm mt-1" />
+        <ErrorMessage
+          name="email"
+          component="div"
+          className="text-red-400 text-sm mt-1"
+        />
       </div>
 
       {/* Password */}
@@ -65,23 +69,40 @@ export default function SignInForm({
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {showPassword ? (
+              <EyeOff className="w-5 h-5" />
+            ) : (
+              <Eye className="w-5 h-5" />
+            )}
           </button>
         </div>
-        <ErrorMessage name="password" component="div" className="text-red-400 text-sm mt-1" />
+        <ErrorMessage
+          name="password"
+          component="div"
+          className="text-red-400 text-sm mt-1"
+        />
       </div>
 
       {/* Submit */}
       <motion.button
         type="submit"
         className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
-          isLoading ? "cursor-not-allowed opacity-70" : "hover:shadow-xl cursor-pointer"
+          isLoading
+            ? "cursor-not-allowed opacity-70"
+            : "hover:shadow-xl cursor-pointer"
         }`}
         whileHover={isLoading ? {} : { scale: 1.02 }}
         whileTap={isLoading ? {} : { scale: 0.98 }}
         disabled={isLoading}
       >
-        {isLoading ? "Signing in..." : "Sign In"}
+        {isLoading ? (
+          <span className="flex items-center justify-center gap-2">
+            <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Signing in...
+          </span>
+        ) : (
+          "Sign In"
+        )}
       </motion.button>
 
       {/* Divider */}
@@ -90,7 +111,9 @@ export default function SignInForm({
           <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-background text-muted-foreground">Or continue with</span>
+          <span className="px-4 bg-background text-muted-foreground">
+            Or continue with
+          </span>
         </div>
       </div>
 
