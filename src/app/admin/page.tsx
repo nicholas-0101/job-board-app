@@ -1,13 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2,
   Users, Briefcase, Calendar, TrendingUp, DollarSign,
-  Clock, MapPin, Star, CheckCircle, XCircle, AlertCircle
+  Clock, MapPin, Star, CheckCircle, XCircle, AlertCircle,
+  Settings, BarChart3, FileText, UserCheck, Mail, TestTube,
+  RefreshCw, ExternalLink
 } from "lucide-react";
 import { AnimatedCounter } from "../../components/ui/AnimatedCounter";
 import { GlowCard } from "../../components/ui/GlowCard";
+import { listCompanyJobs } from "@/lib/jobs";
+import { listCompanyInterviews } from "@/lib/interviews";
 
 // Dummy data
 const jobPostings = [
@@ -77,12 +82,98 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedJob, setSelectedJob] = useState(null);
   const [showAddJobModal, setShowAddJobModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [realStats, setRealStats] = useState({
+    totalJobs: 0,
+    publishedJobs: 0,
+    totalApplicants: 0,
+    totalInterviews: 0
+  });
+
+  const companyId = useState<number>(() => {
+    const raw = localStorage.getItem("companyId");
+    return raw ? Number(raw) : 16;
+  })[0];
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [jobsResponse, interviewsResponse] = await Promise.all([
+        listCompanyJobs({ companyId, limit: 100, offset: 0 }),
+        listCompanyInterviews({ companyId, limit: 100, offset: 0 })
+      ]);
+
+      const totalJobs = jobsResponse.total;
+      const publishedJobs = jobsResponse.items.filter(job => job.isPublished).length;
+      const totalApplicants = jobsResponse.items.reduce((sum, job) => sum + (job.applicantsCount || 0), 0);
+      const totalInterviews = interviewsResponse.total;
+
+      setRealStats({
+        totalJobs,
+        publishedJobs,
+        totalApplicants,
+        totalInterviews
+      });
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Admin Features Menu
+  const adminFeatures = [
+    {
+      title: "Job Management",
+      description: "Create, edit, and manage job postings",
+      icon: Briefcase,
+      color: "from-blue-500 to-blue-600",
+      href: "/admin/jobs",
+      features: ["Create New Job", "Edit Existing Jobs", "Publish/Unpublish", "View Applications"]
+    },
+    {
+      title: "Pre-Selection Tests",
+      description: "Create and manage pre-selection tests for job applicants",
+      icon: TestTube,
+      color: "from-purple-500 to-purple-600",
+      href: "/admin/preselection",
+      features: ["Create 25-Question Tests", "Set Passing Scores", "View Test Results", "Auto-Block Applications"]
+    },
+    {
+      title: "Applicant Management",
+      description: "Review and manage job applicants",
+      icon: Users,
+      color: "from-green-500 to-green-600",
+      href: "/admin/applicants",
+      features: ["View All Applicants", "Filter by Criteria", "Update Status", "View CV Preview"]
+    },
+    {
+      title: "Interview Scheduling",
+      description: "Schedule and manage interview sessions",
+      icon: Calendar,
+      color: "from-orange-500 to-orange-600",
+      href: "/admin/interviews",
+      features: ["Schedule Interviews", "Email Notifications", "H-1 Reminders", "Multiple Candidates"]
+    },
+    {
+      title: "Analytics Dashboard",
+      description: "View comprehensive analytics and insights",
+      icon: BarChart3,
+      color: "from-indigo-500 to-indigo-600",
+      href: "/admin/analytics",
+      features: ["User Demographics", "Salary Trends", "Application Insights", "Company Metrics"]
+    }
+  ];
 
   const stats = [
-    { label: "Total Jobs", value: 12, icon: Briefcase, color: "from-blue-500 to-blue-600", change: "+2" },
-    { label: "Active Applications", value: 89, icon: Users, color: "from-green-500 to-green-600", change: "+15" },
-    { label: "Interviews Scheduled", value: 23, icon: Calendar, color: "from-purple-500 to-purple-600", change: "+5" },
-    { label: "Avg. Response Time", value: 2.5, icon: Clock, color: "from-orange-500 to-orange-600", suffix: "h" }
+    { label: "Total Jobs", value: realStats.totalJobs, icon: Briefcase, color: "from-blue-500 to-blue-600", change: "+2" },
+    { label: "Published Jobs", value: realStats.publishedJobs, icon: CheckCircle, color: "from-green-500 to-green-600", change: "+5" },
+    { label: "Total Applicants", value: realStats.totalApplicants, icon: Users, color: "from-purple-500 to-purple-600", change: "+15" },
+    { label: "Scheduled Interviews", value: realStats.totalInterviews, icon: Calendar, color: "from-orange-500 to-orange-600", change: "+3" }
   ];
 
   const getStatusColor = (status: string) => {
@@ -111,18 +202,196 @@ export default function AdminPage() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Company Dashboard</h1>
-              <p className="text-gray-600 mt-1">Manage your job postings and applications</p>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600 mt-1">Manage your job board platform</p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowAddJobModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0D6EFD] text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
+            <div className="flex gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={fetchDashboardData}
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-xl shadow-sm hover:bg-gray-200 transition disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </motion.button>
+              <Link href="/admin/jobs/new">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#0D6EFD] text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
+                >
+                  <Plus className="w-5 h-5" />
+                  Post New Job
+                </motion.button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Admin Features Section */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Features</h2>
+          <p className="text-gray-600">Access all administrative functions for your job board platform</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {adminFeatures.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
             >
-              <Plus className="w-5 h-5" />
-              Post New Job
-            </motion.button>
+              <Link href={feature.href}>
+                <GlowCard className="h-full cursor-pointer group hover:scale-105 transition-transform duration-300">
+                  <div className="p-6">
+                    <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${feature.color} mb-4`}>
+                      <feature.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4">{feature.description}</p>
+                    <div className="space-y-2">
+                      {feature.features.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-500">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex items-center text-blue-600 font-medium group-hover:text-blue-700">
+                      <span>Access Feature</span>
+                      <motion.div
+                        className="ml-2"
+                        animate={{ x: [0, 4, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      >
+                        →
+                      </motion.div>
+                    </div>
+                  </div>
+                </GlowCard>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <Link href="/admin/jobs/new">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Plus className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Create New Job</h4>
+                    <p className="text-sm text-gray-500">Post a new job opening</p>
+                  </div>
+                </div>
+              </motion.button>
+            </Link>
+
+            <Link href="/admin/jobs">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-green-300 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Briefcase className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Manage Jobs</h4>
+                    <p className="text-sm text-gray-500">View and edit job postings</p>
+                  </div>
+                </div>
+              </motion.button>
+            </Link>
+
+            <Link href="/admin/applicants">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-green-300 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Users className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Manage Applicants</h4>
+                    <p className="text-sm text-gray-500">Review and manage applicants</p>
+                  </div>
+                </div>
+              </motion.button>
+            </Link>
+
+            <Link href="/admin/interviews">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-orange-300 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Calendar className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Schedule Interview</h4>
+                    <p className="text-sm text-gray-500">Manage interview sessions</p>
+                  </div>
+                </div>
+              </motion.button>
+            </Link>
+
+            <Link href="/admin/preselection">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <TestTube className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Pre-Selection Tests</h4>
+                    <p className="text-sm text-gray-500">Manage applicant tests</p>
+                  </div>
+                </div>
+              </motion.button>
+            </Link>
+
+            <Link href="/admin/analytics">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-md transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">View Analytics</h4>
+                    <p className="text-sm text-gray-500">Check platform insights</p>
+                  </div>
+                </div>
+              </motion.button>
+            </Link>
           </div>
         </div>
       </div>
@@ -137,7 +406,7 @@ export default function AdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl font-bold text-gray-900">
-                      <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                      <AnimatedCounter end={stat.value} />
                     </p>
                     <p className="text-sm text-gray-600">{stat.label}</p>
                     {stat.change && (

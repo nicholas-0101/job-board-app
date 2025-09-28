@@ -3,9 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import { listCompanyInterviews, createSchedules, updateInterview, deleteInterview, InterviewItemDTO } from "@/lib/interviews";
 
 export default function AdminInterviewsPage() {
-  const [companyId] = useState<number>(() => {
+  const [companyId, setCompanyId] = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
-    return raw ? Number(raw) : 1;
+    return raw ? Number(raw) : 16; // Default to company ID 16 from our script
   });
 
   const [filters, setFilters] = useState({
