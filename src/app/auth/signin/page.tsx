@@ -26,7 +26,7 @@ export default function SignInPage() {
       setUser(user);
 
       alert(res.data.message || "Signed in successfully!");
-      router.push("/");
+      router.replace("/");
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Sign in failed!");
@@ -57,7 +57,7 @@ export default function SignInPage() {
           localStorage.setItem("user", JSON.stringify(userData));
           setUser(userData);
 
-          router.push("/");
+          router.replace("/");
         } catch (err: any) {
           console.error(err);
           alert(err.response?.data?.message || "Google login failed");
