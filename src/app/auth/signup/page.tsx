@@ -41,7 +41,7 @@ export default function SignUpPage() {
       const url = tab === "seeker" ? "/auth/signup/user" : "/auth/signup/admin";
       await apiCall.post(url, payload);
       alert(tab === "seeker" ? "User registered!" : "Admin registered!");
-      router.push("/preverify");
+      router.replace("/preverify");
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Something went wrong");
@@ -77,7 +77,7 @@ export default function SignUpPage() {
           localStorage.setItem("token", userData.token);
           localStorage.setItem("user", JSON.stringify(userData));
           setUser(userData);
-          router.push("/");
+          router.replace("/");
         } catch (err: any) {
           console.error(err);
           alert(err.response?.data?.message || "Google login failed");

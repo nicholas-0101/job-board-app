@@ -1,16 +1,16 @@
 "use client";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import {
+  Formik,
+  Form,
+  Field,
+  ErrorMessage,
+  useField,
+  useFormikContext,
+} from "formik";
 import { apiCall } from "@/helper/axios";
 import dynamic from "next/dynamic";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Upload,
   Phone,
@@ -24,11 +24,40 @@ import {
   Mail,
   EyeOff,
   Eye,
+  FileText,
 } from "lucide-react";
 import { useUserStore } from "@/lib/store/userStore";
+import { useRouter } from "next/navigation";
+import {
+  userProfileSchema,
+  adminProfileSchema,
+  changeEmailSchema,
+  changePasswordSchema,
+} from "./editProfileSchema";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
+
+interface InputFieldProps {
+  name: string;
+  label: string;
+  placeholder?: string;
+  type?: string;
+  icon?: React.ComponentType<any>;
+}
+
+interface SelectFieldProps {
+  name: string;
+  label: string;
+  options: { value: string; label: string }[];
+}
+
+interface QuillFieldProps {
+  name: string;
+  label: string;
+  icon?: React.ElementType;
+  placeholder?: string;
+}
 
 export default function EditProfilePage() {
   const { user } = useUserStore();
@@ -49,6 +78,7 @@ export default function EditProfilePage() {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const router = useRouter();
 
   const handleEditProfile = async (values: any, { resetForm }: any) => {
     setIsLoading(true);
@@ -62,6 +92,7 @@ export default function EditProfilePage() {
       });
       alert(res.data.message || "Profile updated successfully!");
       resetForm();
+      router.replace("/");
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to update profile!");
     } finally {
@@ -74,6 +105,7 @@ export default function EditProfilePage() {
     try {
       const res = await apiCall.patch("/auth/change-email", values);
       alert(res.data.message || "Email updated successfully!");
+      router.replace("/");
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to change email!");
     } finally {
@@ -108,41 +140,196 @@ export default function EditProfilePage() {
       } else {
         alert("Failed to change password!");
       }
+      router.replace("/");
     } finally {
       setIsLoading(false);
     }
   };
 
   const InputField = ({
-    label,
     name,
-    type = "text",
+    label,
     placeholder,
+    type = "text",
     icon: Icon,
-  }: any) => (
-    <div className="mb-6">
-      <label className="block text-sm font-medium text-foreground mb-2">
-        {label}
-      </label>
-      <div className="relative">
-        {Icon && (
-          <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        )}
-        <Field
-          id={name}
+    toggleIcon,
+    onToggle,
+  }: InputFieldProps & {
+    toggleIcon?: React.ReactNode;
+    onToggle?: () => void;
+  }) => {
+    const [field, meta] = useField(name);
+
+    return (
+      <div className="mb-6">
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-foreground mb-2"
+        >
+          {label}
+        </label>
+
+        <div className="relative">
+          {Icon && (
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Icon className="w-5 h-5" />
+            </div>
+          )}
+
+          <input
+            id={name}
+            {...field}
+            type={type}
+            placeholder={placeholder}
+            className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
+              meta.touched && meta.error
+                ? "border-red-400 bg-red-50"
+                : "border-input focus:border-primary bg-secondary"
+            }`}
+          />
+
+          {toggleIcon ? (
+            <button
+              type="button"
+              onClick={onToggle}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {toggleIcon}
+            </button>
+          ) : type === "date" ? (
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.getElementById(
+                  name
+                ) as HTMLInputElement | null;
+                if (input) {
+                  (input as any).showPicker?.();
+                }
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <Calendar className="w-5 h-5" />
+            </button>
+          ) : null}
+        </div>
+
+        <ErrorMessage
           name={name}
-          type={type}
-          placeholder={placeholder}
-          className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-input bg-secondary focus:outline-none focus:border-primary hover:bg-background transition-all"
+          component="div"
+          className="text-red-400 text-sm mt-1"
         />
       </div>
-      <ErrorMessage
-        name={name}
-        component="div"
-        className="text-red-400 text-sm mt-1"
-      />
-    </div>
-  );
+    );
+  };
+
+  const SelectField = ({ name, label, options }: SelectFieldProps) => {
+    const [field, meta] = useField(name);
+
+    return (
+      <div className="mb-6 relative">
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-foreground mb-2"
+        >
+          {label}
+        </label>
+
+        <div className="relative">
+          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <User className="w-5 h-5 text-muted-foreground" />
+          </div>
+
+          <select
+            id={name}
+            {...field}
+            className={`w-full pl-10 pr-10 py-3 rounded-xl border-2 focus:outline-none transition-all appearance-none ${
+              meta.touched && meta.error
+                ? "border-red-400 bg-red-50"
+                : "border-input focus:border-primary bg-secondary hover:bg-background"
+            }`}
+          >
+            <option value="">Select gender</option>
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            <svg
+              className="w-4 h-4 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <ErrorMessage
+          name={name}
+          component="div"
+          className="text-red-400 text-sm mt-1"
+        />
+      </div>
+    );
+  };
+
+  const QuillField = ({
+    name,
+    label,
+    icon: Icon = FileText,
+    placeholder,
+  }: QuillFieldProps) => {
+    const { values, errors, touched, setFieldValue, setFieldTouched } =
+      useFormikContext<any>();
+
+    return (
+      <div className="mb-6">
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-foreground mb-2"
+        >
+          {label}
+        </label>
+
+        <div
+          className={`relative rounded-xl border-2 transition-all ${
+            touched[name] && errors[name]
+              ? "border-red-400 bg-red-50"
+              : "border-input bg-secondary focus-within:border-primary hover:bg-background"
+          }`}
+        >
+          {Icon && (
+            <Icon className="absolute left-4 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
+          )}
+
+          <ReactQuill
+            id={name}
+            value={values[name]}
+            onChange={(val) => setFieldValue(name, val)}
+            onBlur={() => setFieldTouched(name, true)}
+            className="custom-quill w-full pl-12 pr-4"
+            placeholder={placeholder}
+          />
+        </div>
+
+        {touched[name] && errors[name] && (
+          <div className="text-red-400 text-sm mt-1">
+            {errors[name] as string}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen pb-30 bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
@@ -194,9 +381,12 @@ export default function EditProfilePage() {
                     profilePicture: null,
                   }
             }
+            validationSchema={
+              user?.role === "ADMIN" ? adminProfileSchema : userProfileSchema
+            }
             onSubmit={handleEditProfile}
           >
-            {({ setFieldValue, values, errors, touched }) => (
+            {({ setFieldValue }) => (
               <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
                 {user?.role === "ADMIN" ? (
                   <>
@@ -206,6 +396,7 @@ export default function EditProfilePage() {
                       placeholder="Enter company phone"
                       icon={Phone}
                     />
+
                     <InputField
                       name="location"
                       label="Location"
@@ -213,22 +404,17 @@ export default function EditProfilePage() {
                       icon={MapPin}
                     />
 
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Description
-                      </label>
-                      <ReactQuill
-                        value={values.description}
-                        onChange={(val) => setFieldValue("description", val)}
-                        className="bg-white rounded-xl"
-                      />
-                    </div>
-
                     <InputField
                       name="website"
                       label="Website"
                       placeholder="https://example.com"
                       icon={Globe}
+                    />
+
+                    <QuillField
+                      name="description"
+                      label="Description"
+                      placeholder="Write something about your company..."
                     />
 
                     <div className="mb-6">
@@ -291,44 +477,14 @@ export default function EditProfilePage() {
                       icon={Phone}
                     />
 
-                    <div className="mb-6 relative">
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Gender
-                      </label>
-
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                          <User className="w-5 h-5 text-muted-foreground" />
-                        </div>
-
-                        <Field
-                          as="select"
-                          name="gender"
-                          className="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-input bg-secondary focus:outline-none focus:border-primary hover:bg-background transition-all appearance-none"
-                        >
-                          <option value="">Select gender</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                        </Field>
-
-                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                          <svg
-                            className="w-4 h-4 text-muted-foreground"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
+                    <SelectField
+                      name="gender"
+                      label="Gender"
+                      options={[
+                        { value: "Male", label: "Male" },
+                        { value: "Female", label: "Female" },
+                      ]}
+                    />
 
                     <InputField
                       name="dob"
@@ -336,12 +492,14 @@ export default function EditProfilePage() {
                       type="date"
                       icon={Calendar}
                     />
+
                     <InputField
                       name="education"
                       label="Education"
                       placeholder="Your education"
                       icon={GraduationCap}
                     />
+
                     <InputField
                       name="address"
                       label="Address"
@@ -430,7 +588,11 @@ export default function EditProfilePage() {
 
         {/* Email Tab */}
         {activeTab === "email" && (
-          <Formik initialValues={{ newEmail: "" }} onSubmit={handleChangeEmail}>
+          <Formik
+            initialValues={{ newEmail: "" }}
+            validationSchema={changeEmailSchema}
+            onSubmit={handleChangeEmail}
+          >
             <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
               <InputField
                 name="newEmail"
@@ -439,6 +601,7 @@ export default function EditProfilePage() {
                 placeholder="you@example.com"
                 icon={Mail}
               />
+
               <motion.button
                 type="submit"
                 className="w-full mt-6 px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg"
@@ -467,118 +630,59 @@ export default function EditProfilePage() {
               newPassword: "",
               confirmPassword: "",
             }}
+            validationSchema={changePasswordSchema}
             onSubmit={handleChangePassword}
           >
             {({ errors, touched }) => {
               return (
                 <Form className="relative bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
-                  {/* Old Password */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Old Password
-                    </label>
-                    <div className="relative">
-                      <InputField
-                        name="oldPassword"
-                        type={showOld ? "text" : "password"}
-                        placeholder="Enter old password"
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
-                          errors.oldPassword && touched.oldPassword
-                            ? "border-red-400 bg-red-50"
-                            : "border-input focus:border-primary bg-secondary"
-                        }`}
-                        icon={Lock}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowOld(!showOld)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showOld ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
-                    </div>
-                    <ErrorMessage
-                      name="oldPassword"
-                      component="div"
-                      className="text-red-400 text-sm mt-1"
-                    />
-                  </div>
+                  <InputField
+                    name="oldPassword"
+                    type={showOld ? "text" : "password"}
+                    placeholder="Enter old password"
+                    label="Old Password"
+                    icon={Lock}
+                    toggleIcon={
+                      showOld ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )
+                    }
+                    onToggle={() => setShowOld(!showOld)}
+                  />
 
-                  {/* New Password */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      New Password
-                    </label>
-                    <div className="relative">
-                      <InputField
-                        name="newPassword"
-                        type={showNew ? "text" : "password"}
-                        placeholder="Enter new password"
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
-                          errors.newPassword && touched.newPassword
-                            ? "border-red-400 bg-red-50"
-                            : "border-input focus:border-primary bg-secondary"
-                        }`}
-                        icon={Lock}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNew(!showNew)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showNew ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
-                    </div>
-                    <ErrorMessage
-                      name="newPassword"
-                      component="div"
-                      className="text-red-400 text-sm mt-1"
-                    />
-                  </div>
+                  <InputField
+                    name="newPassword"
+                    type={showNew ? "text" : "password"}
+                    placeholder="Enter new password"
+                    label="New Password"
+                    icon={Lock}
+                    toggleIcon={
+                      showNew ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )
+                    }
+                    onToggle={() => setShowNew(!showNew)}
+                  />
 
-                  {/* Confirm Password */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <InputField
-                        name="confirmPassword"
-                        type={showConfirm ? "text" : "password"}
-                        placeholder="Confirm new password"
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
-                          errors.confirmPassword && touched.confirmPassword
-                            ? "border-red-400 bg-red-50"
-                            : "border-input focus:border-primary bg-secondary"
-                        }`}
-                        icon={Lock}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirm(!showConfirm)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showConfirm ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
-                    </div>
-                    <ErrorMessage
-                      name="confirmPassword"
-                      component="div"
-                      className="text-red-400 text-sm mt-1"
-                    />
-                  </div>
+                  <InputField
+                    name="confirmPassword"
+                    type={showConfirm ? "text" : "password"}
+                    placeholder="Confirm new password"
+                    label="Confirm Password"
+                    icon={Lock}
+                    toggleIcon={
+                      showConfirm ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )
+                    }
+                    onToggle={() => setShowConfirm(!showConfirm)}
+                  />
 
                   <motion.button
                     type="submit"
