@@ -34,7 +34,7 @@ export default function VerifyPage() {
   };
 
   const handleRedirect = () => {
-    router.push("/auth/signin"); // /profile/complete
+    router.push("/auth/signin");
   };
 
   return (
@@ -95,7 +95,7 @@ export default function VerifyPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Complete Profile
+              Go to Sign In
             </motion.button>
           )}
 
