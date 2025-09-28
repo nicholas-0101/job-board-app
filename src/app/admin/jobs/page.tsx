@@ -26,9 +26,12 @@ export default function AdminJobsPage() {
     setLoading(true);
     setError(null);
     try {
+      console.log("Fetching jobs with params:", { companyId, title, category, sortBy, sortOrder, limit, offset });
       const res = await listCompanyJobs({ companyId, title, category, sortBy, sortOrder, limit, offset });
+      console.log("Jobs response:", res);
       setData({ total: res.total, items: res.items });
     } catch (e: any) {
+      console.error("Error fetching jobs:", e);
       setError(e?.response?.data?.message || "Failed to load jobs");
     } finally {
       setLoading(false);
@@ -101,9 +104,17 @@ export default function AdminJobsPage() {
                   <td className="p-2 border">{j.applicantsCount}</td>
                   <td className="p-2 border">{j.isPublished ? "Yes" : "No"}</td>
                   <td className="p-2 border">
-                    <button onClick={() => onTogglePublish(j)} className="px-3 py-1 text-sm rounded bg-blue-600 text-white">
-                      {j.isPublished ? "Unpublish" : "Publish"}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => onTogglePublish(j)} className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
+                        {j.isPublished ? "Unpublish" : "Publish"}
+                      </button>
+                      <Link href={`/admin/jobs/${j.id}/edit`} className="px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700">
+                        Edit
+                      </Link>
+                      <Link href={`/admin/jobs/${j.id}/applicants`} className="px-3 py-1 text-sm rounded bg-purple-600 text-white hover:bg-purple-700">
+                        Applicants ({j.applicantsCount})
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -107,7 +107,7 @@ export default function JobsPage() {
                 ) : (
                   <AnimatePresence mode="wait">
                     <motion.div
-                      key={currentPage}
+                      key={page}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
@@ -116,7 +116,7 @@ export default function JobsPage() {
                     >
                       {paginatedItems.map((job, index) => (
                         <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-                          <JobCardPro id={job.id} title={job.title} company={job.companyName || ""} city={job.city} tags={[]} posted={new Date(job.createdAt).toDateString()} salary={""} />
+                          <JobCardPro id={job.id} title={job.title} company={job.category || ""} city={job.city} tags={[]} posted={new Date(job.createdAt).toDateString()} salary={""} />
                         </motion.div>
                       ))}
                     </motion.div>

@@ -18,15 +18,55 @@ export default function SignInPage() {
   const handleSignIn = async (values: { email: string; password: string }) => {
     setIsLoading(true);
     try {
-      const res = await apiCall.post("/auth/signin", values);
+      // Sanitize input
+      const sanitizedValues = {
+        email: values.email.trim().toLowerCase(),
+        password: values.password
+      };
+
+      const res = await apiCall.post("/auth/signin", sanitizedValues);
       const { token, user } = res.data;
+
+      // Validate response data
+      if (!token || !user || !user.id || !user.role) {
+        throw new Error("Invalid response from server");
+      }
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("userId", user.id.toString());
+      
+      // Get company ID for admin
+      if (user.role === "ADMIN") {
+        try {
+          const companyResponse = await fetch("http://localhost:4400/company/admin", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          if (companyResponse.ok) {
+            const companyData = await companyResponse.json();
+            if (companyData.data && companyData.data.id) {
+              localStorage.setItem("companyId", companyData.data.id.toString());
+            }
+          }
+        } catch (error) {
+          console.log("Could not fetch company data, using default companyId");
+          localStorage.setItem("companyId", "16"); // Default company ID from our script
+        }
+      }
+      
       setUser(user);
 
       alert(res.data.message || "Signed in successfully!");
-      router.replace("/");
+      
+      // Redirect based on role
+      if (user.role === "ADMIN") {
+        router.replace("/admin");
+      } else {
+        router.replace("/");
+      }
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Sign in failed!");
@@ -76,6 +116,15 @@ export default function SignInPage() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#467EC7] mb-2">Welcome back!</h1>
           <p className="text-muted-foreground">Sign in to access your account</p>
+          
+          {/* Demo Credentials */}
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials:</h3>
+            <div className="text-xs text-blue-700 space-y-1">
+              <div><strong>Admin:</strong> admin@company.com / admin123</div>
+              <div><strong>User:</strong> Use any email/password to register</div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Formik Form */}

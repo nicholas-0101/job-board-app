@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, use } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -12,13 +12,14 @@ import FilterSidebar from "@/components/jobboard/FilterSidebar";
 import Container from "@/components/common/Container";
 import JobCardPro from "@/components/jobboard/JobCardPro";
 
-export default function JobDetailPage({ params }: { params: { id: string } }) {
+export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [showShareModal, setShowShareModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [customMessage, setCustomMessage] = useState("");
   
+  const resolvedParams = use(params);
   const job = { 
-    id: Number(params.id), 
+    id: Number(resolvedParams.id), 
     title: "Senior Frontend Engineer", 
     company: "TechNova", 
     city: "Jakarta", 

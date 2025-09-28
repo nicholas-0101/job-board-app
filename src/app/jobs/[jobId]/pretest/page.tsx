@@ -44,15 +44,15 @@ export default function JobPretestPage() {
     if (!test) return;
     setSubmitting(true);
     try {
-      // NOTE: assuming userId is stored in localStorage decoded elsewhere; for now, require token-only flow
+      // Get user ID from localStorage
       const raw = localStorage.getItem("userId");
       const applicantId = raw ? Number(raw) : undefined;
       if (!applicantId) throw new Error("Not authenticated");
 
       const payload = test.questions.map((q) => ({ questionId: q.id, selected: answers[q.id] }));
       await submitPreselectionAnswers({ applicantId, testId: test.id, answers: payload });
-      alert("Test submitted successfully");
-      router.back();
+      alert("Test submitted successfully! You can now proceed with your job application.");
+      router.push(`/jobs/${jobId}`);
     } catch (e: any) {
       alert(e?.response?.data?.message || e?.message || "Failed to submit");
     } finally {
@@ -60,47 +60,143 @@ export default function JobPretestPage() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading preselection test...</div>;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
-  if (!test) return <div className="p-6">No test available.</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading pre-selection test...</p>
+      </div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-red-600 text-lg mb-4">❌ Error</div>
+        <p className="text-gray-600">{error}</p>
+        <button 
+          onClick={() => router.back()}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Go Back
+        </button>
+      </div>
+    </div>
+  );
+  
+  if (!test) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-gray-600 text-lg mb-4">📝 No Test Available</div>
+        <p className="text-gray-500">This job doesn't have a pre-selection test.</p>
+        <button 
+          onClick={() => router.back()}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Go Back
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Preselection Test</h1>
-        {typeof test.passingScore === "number" && (
-          <p className="text-sm text-gray-500">Passing score: {test.passingScore} / {test.questions.length}</p>
-        )}
-      </div>
-
-      {test.questions.map((q, idx) => (
-        <div key={q.id} className="bg-white border rounded-xl p-4 space-y-3">
-          <div className="font-medium">{idx + 1}. {q.question}</div>
-          <div className="grid gap-2">
-            {q.options.map((opt) => (
-              <label key={opt} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name={`q-${q.id}`}
-                  value={opt}
-                  checked={answers[q.id] === opt}
-                  onChange={() => onSelect(q.id, opt)}
-                />
-                <span>{opt}</span>
-              </label>
-            ))}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Pre-Selection Test</h1>
+              <p className="text-gray-600">Complete this test to proceed with your job application</p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-500">Progress</div>
+              <div className="text-lg font-semibold text-blue-600">
+                {Object.keys(answers).length} / {test.questions.length}
+              </div>
+            </div>
           </div>
         </div>
-      ))}
+      </div>
 
-      <div className="flex gap-3">
-        <button
-          disabled={!canSubmit || submitting}
-          onClick={onSubmit}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50"
-        >
-          {submitting ? "Submitting..." : "Submit Answers"}
-        </button>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Test Info */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Test Information</h2>
+              {typeof test.passingScore === "number" && (
+                <div className="text-sm text-gray-600">
+                  Passing Score: <span className="font-semibold text-blue-600">{test.passingScore}</span> / {test.questions.length}
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+              <div>
+                <span className="font-medium">Total Questions:</span> {test.questions.length}
+              </div>
+              <div>
+                <span className="font-medium">Answered:</span> {Object.keys(answers).length}
+              </div>
+              <div>
+                <span className="font-medium">Remaining:</span> {test.questions.length - Object.keys(answers).length}
+              </div>
+            </div>
+          </div>
+
+          {/* Questions */}
+          <div className="space-y-6">
+            {test.questions.map((q, idx) => (
+              <div key={q.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
+                  {idx + 1}. {q.question}
+                </h3>
+                <div className="space-y-3">
+                  {q.options.map((opt) => (
+                    <label key={opt} className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                      <input
+                        type="radio"
+                        name={`q-${q.id}`}
+                        value={opt}
+                        checked={answers[q.id] === opt}
+                        onChange={() => onSelect(q.id, opt)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Submit Button */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                {canSubmit ? (
+                  <span className="text-green-600">✅ All questions answered</span>
+                ) : (
+                  <span className="text-orange-600">⚠️ Please answer all questions</span>
+                )}
+              </div>
+              <button
+                onClick={onSubmit}
+                disabled={!canSubmit || submitting}
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {submitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Submitting...
+                  </div>
+                ) : (
+                  "Submit Test"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
