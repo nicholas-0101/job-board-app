@@ -41,7 +41,7 @@ export default function SignUpPage() {
       const url = tab === "seeker" ? "/auth/signup/user" : "/auth/signup/admin";
       await apiCall.post(url, payload);
       alert(tab === "seeker" ? "User registered!" : "Admin registered!");
-      router.replace("/preverify");
+      router.replace("/auth/preverify");
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Something went wrong");
@@ -177,7 +177,7 @@ export default function SignUpPage() {
         >
           Already have an account?{" "}
           <Link
-            href="/signin"
+            href="/auth/signin"
             className="text-[#467EC7] hover:text-[#A3B6CE] font-semibold cursor-pointer"
           >
             Sign in here

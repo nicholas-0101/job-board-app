@@ -81,7 +81,7 @@ export default function CompleteProfilePage() {
       });
       alert(res.data.message || "Profile completed successfully!");
       resetForm();
-      router.replace("/");
+      router.replace("/auth/signin");
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to complete profile!");
     } finally {

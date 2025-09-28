@@ -37,6 +37,7 @@ import {
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
+import { useCompanyStore } from "@/lib/store/companyStore";
 
 interface InputFieldProps {
   name: string;
@@ -60,7 +61,7 @@ interface QuillFieldProps {
 }
 
 export default function EditProfilePage() {
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
   const [activeTab, setActiveTab] = useState<"profile" | "email" | "password">(
     "profile"
   );
@@ -79,6 +80,7 @@ export default function EditProfilePage() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
+  const { company, setCompany } = useCompanyStore();
 
   const handleEditProfile = async (values: any, { resetForm }: any) => {
     setIsLoading(true);
@@ -87,12 +89,21 @@ export default function EditProfilePage() {
       for (const key in values) {
         if (values[key]) formData.append(key, values[key]);
       }
+
       const res = await apiCall.put("/profile/edit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      if (res.data.data.role === "USER") {
+        setUser(res.data.data);
+      } else if (res.data.data.adminId) {
+        setCompany(res.data.data);
+      }
+
       alert(res.data.message || "Profile updated successfully!");
       resetForm();
-      router.replace("/");
+
+      // router.replace("/");
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to update profile!");
     } finally {
@@ -105,7 +116,7 @@ export default function EditProfilePage() {
     try {
       const res = await apiCall.patch("/auth/change-email", values);
       alert(res.data.message || "Email updated successfully!");
-      router.replace("/");
+      router.replace("/auth/preverify");
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to change email!");
     } finally {
@@ -140,7 +151,7 @@ export default function EditProfilePage() {
       } else {
         alert("Failed to change password!");
       }
-      router.replace("/");
+      // router.replace("/");
     } finally {
       setIsLoading(false);
     }
@@ -331,6 +342,15 @@ export default function EditProfilePage() {
     );
   };
 
+  const formatDateForInput = (dateStr: string | null | undefined) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2); 
+    const day = ("0" + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <div className="min-h-screen pb-30 bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
@@ -366,21 +386,22 @@ export default function EditProfilePage() {
             initialValues={
               user?.role === "ADMIN"
                 ? {
-                    phone: "",
-                    location: "",
-                    description: "",
-                    website: "",
-                    logo: null,
+                    phone: company?.phone || "",
+                    location: company?.location || "",
+                    description: company?.description || "",
+                    website: company?.website || "",
+                    logo: company?.logo || null,
                   }
                 : {
-                    phone: "",
-                    gender: "",
-                    dob: "",
-                    education: "",
-                    address: "",
-                    profilePicture: null,
+                    phone: user?.phone || "",
+                    gender: user?.gender || "",
+                    dob: formatDateForInput(user?.dob) || "",
+                    education: user?.education || "",
+                    address: user?.address || "",
+                    profilePicture: user?.profilePicture || null,
                   }
             }
+            enableReinitialize
             validationSchema={
               user?.role === "ADMIN" ? adminProfileSchema : userProfileSchema
             }
@@ -422,50 +443,51 @@ export default function EditProfilePage() {
                         Logo
                       </label>
 
-                      <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-input bg-secondary cursor-pointer hover:bg-background transition relative">
-                        <Upload className="w-5 h-5 text-gray-400" /> Upload Logo
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.currentTarget.files?.[0];
-                            setFieldValue("logo", file);
-                            if (file) {
-                              const objectUrl = URL.createObjectURL(file);
-                              setLogoPreview(objectUrl);
-
-                              setLogoFileInfo({
-                                name: file.name,
-                                size:
-                                  file.size / 1024 / 1024 < 1
-                                    ? (file.size / 1024).toFixed(1) + " KB"
-                                    : (file.size / 1024 / 1024).toFixed(1) +
-                                      " MB",
-                              });
-                            }
-                          }}
-                        />
-                      </label>
-
-                      {logoPreview && (
-                        <div className="mt-4">
-                          <p className="text-sm font-medium text-foreground mb-2">
-                            Preview
-                          </p>
-                          <div className="flex items-center gap-4">
-                            <img
-                              src={logoPreview}
-                              alt="Logo Preview"
-                              className="w-16 h-16 rounded-lg object-cover border"
-                            />
-                            <div className="text-sm text-muted-foreground">
-                              <p>{logoFileInfo?.name}</p>
-                              <p className="text-xs">{logoFileInfo?.size}</p>
-                            </div>
-                          </div>
+                      <div className="mb-6 flex items-center gap-4">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={logoPreview || company?.logo || ""}
+                            alt="Logo Preview"
+                            className="w-16 h-16 rounded-lg object-cover border"
+                          />
                         </div>
-                      )}
+
+                        <div className="flex-1">
+                          <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-input bg-secondary cursor-pointer hover:bg-background transition relative w-full justify-center">
+                            <Upload className="w-5 h-5 text-gray-400" /> Upload
+                            Logo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.currentTarget.files?.[0];
+                                setFieldValue("logo", file);
+                                if (file) {
+                                  const objectUrl = URL.createObjectURL(file);
+                                  setLogoPreview(objectUrl);
+
+                                  setLogoFileInfo({
+                                    name: file.name,
+                                    size:
+                                      file.size / 1024 / 1024 < 1
+                                        ? (file.size / 1024).toFixed(1) + " KB"
+                                        : (file.size / 1024 / 1024).toFixed(1) +
+                                          " MB",
+                                  });
+                                }
+                              }}
+                            />
+                          </label>
+
+                          {logoFileInfo && (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p>{logoFileInfo.name}</p>
+                              <p className="text-xs">{logoFileInfo.size}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -512,51 +534,51 @@ export default function EditProfilePage() {
                         Profile Picture
                       </label>
 
-                      <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-input bg-secondary cursor-pointer hover:bg-background transition relative">
-                        <Upload className="w-5 h-5 text-gray-400" /> Upload
-                        Profile Picture
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.currentTarget.files?.[0];
-                            setFieldValue("profilePicture", file);
-                            if (file) {
-                              const objectUrl = URL.createObjectURL(file);
-                              setPreview(objectUrl);
-
-                              setFileInfo({
-                                name: file.name,
-                                size:
-                                  file.size / 1024 / 1024 < 1
-                                    ? (file.size / 1024).toFixed(1) + " KB"
-                                    : (file.size / 1024 / 1024).toFixed(1) +
-                                      " MB",
-                              });
-                            }
-                          }}
-                        />
-                      </label>
-
-                      {preview && (
-                        <div className="mt-4">
-                          <p className="text-sm font-medium text-foreground mb-2">
-                            Preview
-                          </p>
-                          <div className="flex items-center gap-4">
-                            <img
-                              src={preview}
-                              alt="Preview"
-                              className="w-16 h-16 rounded-full object-cover border"
-                            />
-                            <div className="text-sm text-muted-foreground">
-                              <p>{fileInfo?.name}</p>
-                              <p className="text-xs">{fileInfo?.size}</p>
-                            </div>
-                          </div>
+                      <div className="mb-6 flex items-center gap-4">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={preview || user?.profilePicture || ""}
+                            alt="Preview"
+                            className="w-16 h-16 rounded-full object-cover border"
+                          />
                         </div>
-                      )}
+
+                        <div className="flex-1">
+                          <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-input bg-secondary cursor-pointer hover:bg-background transition relative w-full justify-center">
+                            <Upload className="w-5 h-5 text-gray-400" /> Upload
+                            Profile Picture
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.currentTarget.files?.[0];
+                                setFieldValue("profilePicture", file);
+                                if (file) {
+                                  const objectUrl = URL.createObjectURL(file);
+                                  setPreview(objectUrl);
+
+                                  setFileInfo({
+                                    name: file.name,
+                                    size:
+                                      file.size / 1024 / 1024 < 1
+                                        ? (file.size / 1024).toFixed(1) + " KB"
+                                        : (file.size / 1024 / 1024).toFixed(1) +
+                                          " MB",
+                                  });
+                                }
+                              }}
+                            />
+                          </label>
+
+                          {fileInfo && (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p>{fileInfo.name}</p>
+                              <p className="text-xs">{fileInfo.size}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}
@@ -589,14 +611,15 @@ export default function EditProfilePage() {
         {/* Email Tab */}
         {activeTab === "email" && (
           <Formik
-            initialValues={{ newEmail: "" }}
+            initialValues={{ newEmail: user?.email || "" }}
+            enableReinitialize
             validationSchema={changeEmailSchema}
             onSubmit={handleChangeEmail}
           >
             <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
               <InputField
                 name="newEmail"
-                label="New Email"
+                label="Your Email"
                 type="email"
                 placeholder="you@example.com"
                 icon={Mail}
