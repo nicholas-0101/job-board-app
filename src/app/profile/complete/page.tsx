@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Formik,
   Form,
@@ -54,7 +54,7 @@ interface QuillFieldProps {
 }
 
 export default function CompleteProfilePage() {
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,6 +69,13 @@ export default function CompleteProfilePage() {
     size: string;
   } | null>(null);
 
+  useEffect(() => {
+    if (!user) {
+      const saved = localStorage.getItem("verifiedUser");
+      if (saved) setUser(JSON.parse(saved));
+    }
+  }, []);
+
   const handleCompleteProfile = async (values: any, { resetForm }: any) => {
     setIsLoading(true);
     try {
@@ -76,14 +83,30 @@ export default function CompleteProfilePage() {
       for (const key in values) {
         if (values[key]) formData.append(key, values[key]);
       }
+
+      const token = localStorage.getItem("verifiedToken");
+      if (!token) {
+        alert("No verified token found. Please verify your account first.");
+        setIsLoading(false);
+        return;
+      }
+
       const res = await apiCall.put("/profile/edit", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
       });
+
       alert(res.data.message || "Profile completed successfully!");
       resetForm();
       router.replace("/auth/signin");
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to complete profile!");
+      console.error(err);
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to complete profile!"
+      );
     } finally {
       setIsLoading(false);
     }

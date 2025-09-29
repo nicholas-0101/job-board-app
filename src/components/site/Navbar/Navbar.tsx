@@ -9,7 +9,7 @@ import NavbarLinks from "./NavbarLinks";
 import NavbarProfile from "./NavbarProfile";
 import NavbarMobileMenu from "./NavbarMobile";
 
-const hiddenRoutes = ["/auth"];
+const hiddenRoutes = ["/auth", "/profile/complete"];
 
 const links = [
   { href: "/explore/jobs", label: "Jobs" },
