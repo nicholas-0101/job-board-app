@@ -8,14 +8,7 @@ export interface User {
   role: "USER" | "ADMIN";
   passwordHash?: string | null;
 
-  // ADMIN 
   phone?: string;
-  location?: string;
-  description?: string;
-  website?: string;
-  logo?: string;
-
-  // USER 
   gender?: string;
   dob?: string;
   education?: string;

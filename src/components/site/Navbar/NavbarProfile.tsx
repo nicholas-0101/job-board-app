@@ -6,7 +6,11 @@ import { User2, LogOutIcon } from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface Props {
-  user: { id: number; name: string; profilePicture?: string | null | undefined };
+  user: {
+    id: number;
+    name: string;
+    profilePicture?: string | null | undefined;
+  };
   logout: () => void;
   router: AppRouterInstance;
 }
@@ -17,7 +21,8 @@ export default function NavbarProfile({ user, logout, router }: Props) {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -40,7 +45,9 @@ export default function NavbarProfile({ user, logout, router }: Props) {
             className="rounded-full"
           />
         ) : (
-          <User2 className="w-6 h-6" />
+          <div className="rounded-full bg-[#A3B6CE]">
+            <User2 className="w-8 h-8 rounded-full" />
+          </div>
         )}
         <span className="hidden md:block text-sm font-medium">{user.name}</span>
       </button>
