@@ -13,7 +13,7 @@ export default function Tabs({ tab, setTab }: TabsProps) {
         className={`flex-1 py-2 text-sm font-medium rounded-t-xl transition-colors ${
           tab === "seeker"
             ? "border-b-2 border-[#467EC7] text-[#467EC7]"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-[#467EC7]"
         }`}
       >
         Job Seeker
@@ -24,7 +24,7 @@ export default function Tabs({ tab, setTab }: TabsProps) {
         className={`flex-1 py-2 text-sm font-medium rounded-t-xl transition-colors ${
           tab === "admin"
             ? "border-b-2 border-[#467EC7] text-[#467EC7]"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-[#467EC7]"
         }`}
       >
         Company Admin

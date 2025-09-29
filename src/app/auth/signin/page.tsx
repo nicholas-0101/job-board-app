@@ -21,7 +21,7 @@ export default function SignInPage() {
       // Sanitize input
       const sanitizedValues = {
         email: values.email.trim().toLowerCase(),
-        password: values.password
+        password: values.password,
       };
 
       const res = await apiCall.post("/auth/signin", sanitizedValues);
@@ -36,15 +36,18 @@ export default function SignInPage() {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("role", user.role);
       localStorage.setItem("userId", user.id.toString());
-      
+
       // Get company ID for admin
       if (user.role === "ADMIN") {
         try {
-          const companyResponse = await fetch("http://localhost:4400/company/admin", {
-            headers: {
-              Authorization: `Bearer ${token}`
+          const companyResponse = await fetch(
+            "http://localhost:4400/company/admin",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          });
+          );
           if (companyResponse.ok) {
             const companyData = await companyResponse.json();
             if (companyData.data && companyData.data.id) {
@@ -56,11 +59,11 @@ export default function SignInPage() {
           localStorage.setItem("companyId", "16"); // Default company ID from our script
         }
       }
-      
+
       setUser(user);
 
       alert(res.data.message || "Signed in successfully!");
-      
+
       // Redirect based on role
       if (user.role === "ADMIN") {
         router.replace("/admin");
@@ -83,14 +86,22 @@ export default function SignInPage() {
     const height = 600;
     const left = window.innerWidth / 2 - width / 2;
     const top = window.innerHeight / 2 - height / 2;
-    window.open(url, "GoogleLogin", `width=${width},height=${height},top=${top},left=${left}`);
+    window.open(
+      url,
+      "GoogleLogin",
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
 
     const listener = async (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       const { token } = event.data;
       if (token) {
         try {
-          const res = await apiCall.post("/auth/social", { provider: "GOOGLE", token, role });
+          const res = await apiCall.post("/auth/social", {
+            provider: "GOOGLE",
+            token,
+            role,
+          });
           const userData = res.data.data;
 
           localStorage.setItem("token", userData.token);
@@ -111,24 +122,33 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-md relative z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md relative z-10"
+      >
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#467EC7] mb-2">Welcome back!</h1>
-          <p className="text-muted-foreground">Sign in to access your account</p>
-          
-          {/* Demo Credentials */}
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials:</h3>
-            <div className="text-xs text-blue-700 space-y-1">
-              <div><strong>Admin:</strong> admin@company.com / admin123</div>
-              <div><strong>User:</strong> Use any email/password to register</div>
-            </div>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-bold text-[#467EC7] mb-2">
+            Welcome back!
+          </h1>
+          <p className="text-muted-foreground">
+            Sign in to access your account
+          </p>
         </motion.div>
 
         {/* Formik Form */}
-        <Formik initialValues={{ email: "", password: "" }} validationSchema={signInSchema} onSubmit={handleSignIn}>
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          validationSchema={signInSchema}
+          onSubmit={handleSignIn}
+        >
           {({ errors, touched }) => (
             <SignInForm
               errors={errors}
@@ -142,9 +162,17 @@ export default function SignInPage() {
         </Formik>
 
         {/* Sign Up Link */}
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center mt-8 text-muted-foreground">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-center mt-8 text-muted-foreground"
+        >
           Don't have an account?{" "}
-          <Link href="/auth/signup" className="text-[#467EC7] hover:text-[#A3B6CE] font-semibold cursor-pointer">
+          <Link
+            href="/auth/signup"
+            className="text-[#467EC7] hover:text-[#A3B6CE] font-semibold cursor-pointer"
+          >
             Sign up for free
           </Link>
         </motion.p>

@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { Field, Form, ErrorMessage } from "formik";
 import { Mail, Lock, Eye, EyeOff, Chrome } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface SignInFormProps {
   errors: any;
@@ -20,6 +21,7 @@ export default function SignInForm({
   isLoading,
   handleGoogleSignIn,
 }: SignInFormProps) {
+  const router = useRouter();
   return (
     <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
       {/* Email */}
@@ -81,6 +83,17 @@ export default function SignInForm({
           component="div"
           className="text-red-400 text-sm mt-1"
         />
+      </div>
+
+      {/* Forgot Password */}
+      <div className="mb-6 text-right">
+        <button
+          type="button"
+          onClick={() => router.push("/auth/forgot-password")}
+          className="text-sm font-medium text-[#467EC7] hover:underline"
+        >
+          Forgot password?
+        </button>
       </div>
 
       {/* Submit */}

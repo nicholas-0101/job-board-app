@@ -3,10 +3,12 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { apiCall } from "@/helper/axios";
+import { useUserStore } from "@/lib/store/userStore";
 
 export default function VerifyPage() {
   const { token } = useParams();
   const router = useRouter();
+  const { user, setUser } = useUserStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<"pending" | "success" | "error">(
@@ -22,6 +24,21 @@ export default function VerifyPage() {
     setIsLoading(true);
     try {
       const res = await apiCall.get(`/auth/verify/${token}`);
+
+      console.log("Verification response:", res.data);
+
+      const verifiedUser = res.data.user;
+      setUser(verifiedUser);
+      localStorage.setItem("verifiedUser", JSON.stringify(verifiedUser));
+
+      // Prefer top-level token, fallback to user.token
+      const verifiedToken = res.data.token || verifiedUser?.token;
+      if (verifiedToken) {
+        localStorage.setItem("verifiedToken", verifiedToken);
+      } else {
+        console.warn("No token returned from verification endpoint!");
+      }
+
       setStatus("success");
       setMessage(res.data.message || "Account verified successfully!");
     } catch (err: any) {
@@ -34,7 +51,7 @@ export default function VerifyPage() {
   };
 
   const handleRedirect = () => {
-    router.push("/auth/signin"); // /profile/complete
+    router.push("/profile/complete"); // /profile/complete
   };
 
   return (
@@ -95,7 +112,8 @@ export default function VerifyPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Complete Profile
+              Sign in
+              {/* Complete Profile */}
             </motion.button>
           )}
 

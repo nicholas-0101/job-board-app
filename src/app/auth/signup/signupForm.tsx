@@ -34,7 +34,7 @@ export default function SignUpForm({
       {/* Name / Company */}
       {tab === "seeker" ? (
         <div>
-          <label className="text-sm text-muted-foreground">Full Name</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
           <div className="relative">
             <User2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Field
@@ -52,7 +52,7 @@ export default function SignUpForm({
         </div>
       ) : (
         <div>
-          <label className="text-sm text-muted-foreground">Company Name</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Company Name</label>
           <div className="relative">
             <BuildingIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Field
@@ -72,7 +72,7 @@ export default function SignUpForm({
 
       {/* Email */}
       <div>
-        <label className="text-sm text-muted-foreground">Email</label>
+        <label className="block text-sm font-medium text-foreground mb-2">Email</label>
         <div className="relative">
           <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Field
@@ -91,7 +91,7 @@ export default function SignUpForm({
 
       {/* Password */}
       <div>
-        <label className="text-sm text-muted-foreground">Password</label>
+        <label className="block text-sm font-medium text-foreground mb-2">Password</label>
         <div className="relative">
           <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Field
@@ -117,7 +117,7 @@ export default function SignUpForm({
 
       {/* Confirm Password */}
       <div>
-        <label className="text-sm text-muted-foreground">Confirm Password</label>
+        <label className="block text-sm font-medium text-foreground mb-2">Confirm Password</label>
         <div className="relative">
           <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Field
