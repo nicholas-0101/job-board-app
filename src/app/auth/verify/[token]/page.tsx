@@ -51,7 +51,7 @@ export default function VerifyPage() {
   };
 
   const handleRedirect = () => {
-    router.push("/profile/complete"); // /profile/complete
+    router.push("/auth/signin"); // /profile/complete
   };
 
   return (
