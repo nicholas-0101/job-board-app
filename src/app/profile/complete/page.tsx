@@ -414,10 +414,19 @@ export default function CompleteProfilePage() {
                             alt="Logo Preview"
                             className="w-16 h-16 rounded-lg object-cover border"
                           />
-                          <div className="text-sm text-muted-foreground">
-                            <p>{logoFileInfo?.name}</p>
-                            <p className="text-xs">{logoFileInfo?.size}</p>
-                          </div>
+                          {logoFileInfo ? (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p>{logoFileInfo.name}</p>
+                              <p className="text-xs">{logoFileInfo.size}</p>
+                            </div>
+                          ) : (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p className="text-xs">
+                                Maximum file size 1MB. Only .jpg, .jpeg, and
+                                .png are allowed.
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -503,10 +512,19 @@ export default function CompleteProfilePage() {
                             alt="Preview"
                             className="w-16 h-16 rounded-full object-cover border"
                           />
-                          <div className="text-sm text-muted-foreground">
-                            <p>{fileInfo?.name}</p>
-                            <p className="text-xs">{fileInfo?.size}</p>
-                          </div>
+                          {fileInfo ? (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p>{fileInfo.name}</p>
+                              <p className="text-xs">{fileInfo.size}</p>
+                            </div>
+                          ) : (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p className="text-xs">
+                                Maximum file size 1MB. Only .jpg, .jpeg, and
+                                .png are allowed.
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}

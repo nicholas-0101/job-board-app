@@ -346,7 +346,7 @@ export default function EditProfilePage() {
     if (!dateStr) return "";
     const date = new Date(dateStr);
     const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2); 
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
     const day = ("0" + date.getDate()).slice(-2);
     return `${year}-${month}-${day}`;
   };
@@ -480,10 +480,17 @@ export default function EditProfilePage() {
                             />
                           </label>
 
-                          {logoFileInfo && (
+                          {logoFileInfo ? (
                             <div className="mt-2 text-sm text-muted-foreground">
                               <p>{logoFileInfo.name}</p>
                               <p className="text-xs">{logoFileInfo.size}</p>
+                            </div>
+                          ) : (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p className="text-xs">
+                                Maximum file size 1MB. Only .jpg, .jpeg, and
+                                .png are allowed.
+                              </p>
                             </div>
                           )}
                         </div>
@@ -571,10 +578,17 @@ export default function EditProfilePage() {
                             />
                           </label>
 
-                          {fileInfo && (
+                          {fileInfo ? (
                             <div className="mt-2 text-sm text-muted-foreground">
                               <p>{fileInfo.name}</p>
                               <p className="text-xs">{fileInfo.size}</p>
+                            </div>
+                          ) : (
+                            <div className="mt-2 text-sm text-muted-foreground">
+                              <p className="text-xs">
+                                Maximum file size 1MB. Only .jpg, .jpeg, and
+                                .png are allowed.
+                              </p>
                             </div>
                           )}
                         </div>
