@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/site/Navbar/Navbar";
-import { Footer } from "../components/site/Footer";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import ConditionalLayout from "../components/layout/ConditionalLayout";
@@ -32,7 +30,6 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} antialiased min-h-screen bg-background text-foreground flex flex-col`}
       >
-        <Navbar />
         <ConditionalLayout>{children}</ConditionalLayout>
         <Toaster 
           position="top-right"
