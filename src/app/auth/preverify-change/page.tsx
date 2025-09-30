@@ -22,7 +22,7 @@ export default function PreVerifyPage() {
             transition={{ delay: 0.2 }}
           >
             <h1 className="text-3xl font-bold text-[#467EC7] mb-2">
-              Email Changed Successfully!
+              Email Changed!
             </h1>
             <p className="text-muted-foreground">
               Your email address has been changed. Please check your email to

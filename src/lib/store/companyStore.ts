@@ -6,6 +6,7 @@ export interface Company {
   email: string;
   phone: string;
   location: string;
+  city:string;
   description: string;
   website: string;
   logo: string | null;

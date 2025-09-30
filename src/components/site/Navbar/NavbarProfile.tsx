@@ -45,9 +45,13 @@ export default function NavbarProfile({ user, logout, router }: Props) {
             className="rounded-full"
           />
         ) : (
-          <div className="rounded-full bg-[#A3B6CE]">
-            <User2 className="w-8 h-8 rounded-full" />
-          </div>
+          <Image
+            src={"/fallback_pfp_image.jpg"}
+            alt="Profile"
+            width={32}
+            height={32}
+            className="rounded-full"
+          />
         )}
         <span className="hidden md:block text-sm font-medium">{user.name}</span>
       </button>
