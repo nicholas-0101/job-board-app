@@ -79,23 +79,15 @@ export default function CompleteProfilePage() {
   const handleCompleteProfile = async (values: any, { resetForm }: any) => {
     setIsLoading(true);
     try {
+      if (values.dob) {
+        values.dob = new Date(values.dob).toISOString();
+      }
       const formData = new FormData();
       for (const key in values) {
         if (values[key]) formData.append(key, values[key]);
       }
 
-      const token = localStorage.getItem("verifiedToken");
-      if (!token) {
-        alert("No verified token found. Please verify your account first.");
-        setIsLoading(false);
-        return;
-      }
-
-      const res = await apiCall.put("/profile/edit", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`, 
-        },
-      });
+      const res = await apiCall.put("/profile/complete", formData);
 
       alert(res.data.message || "Profile completed successfully!");
       resetForm();
