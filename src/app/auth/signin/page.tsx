@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useUserStore } from "@/lib/store/userStore";
 import { apiCall } from "@/helper/axios";
 import { signInSchema } from "./signinSchema";
-import SignInForm from "./signinForm";
+import SignInForm from "./components/signinForm";
 
 export default function SignInPage() {
   const router = useRouter();

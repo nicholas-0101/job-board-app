@@ -19,7 +19,7 @@ export function useKeepLogin() {
         const res = await apiCall.get("/auth/keep", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(res.data.data); // make sure your backend returns the full user object
+        setUser(res.data.data); 
       } catch (err) {
         console.error("Keep login failed", err);
         localStorage.removeItem("token");

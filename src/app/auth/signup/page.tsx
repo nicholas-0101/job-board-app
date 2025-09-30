@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 import { apiCall } from "@/helper/axios";
 import { useUserStore } from "@/lib/store/userStore";
 
-import SignUpForm from "./signupForm";
-import Header from "./signupHeader";
-import Tabs from "./signupTabs";
-import SocialLoginButton from "./signupSocialButton";
+import SignUpForm from "./components/signupForm";
+import Header from "./components/signupHeader";
+import Tabs from "./components/signupTabs";
+import SocialLoginButton from "./components/signupSocialButton";
 import { signUpSchema } from "./signupSchema";
 
 export default function SignUpPage() {

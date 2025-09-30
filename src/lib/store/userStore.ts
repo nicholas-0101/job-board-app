@@ -4,15 +4,16 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  profilePicture?: string | null;
+  profilePicture: string | null;
   role: "USER" | "ADMIN";
   passwordHash?: string | null;
 
-  phone?: string;
-  gender?: string;
-  dob?: string;
-  education?: string;
-  address?: string;
+  phone: string;
+  gender: string;
+  dob: string;
+  education: string;
+  address: string;
+  city:string;
 }
 
 interface UserState {
