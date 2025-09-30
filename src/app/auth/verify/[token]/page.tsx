@@ -31,8 +31,7 @@ export default function VerifyPage() {
       setUser(verifiedUser);
       localStorage.setItem("verifiedUser", JSON.stringify(verifiedUser));
 
-      // Prefer top-level token, fallback to user.token
-      const verifiedToken = res.data.token || verifiedUser?.token;
+      const verifiedToken = res.data.token;
       if (verifiedToken) {
         localStorage.setItem("verifiedToken", verifiedToken);
       } else {
@@ -51,7 +50,7 @@ export default function VerifyPage() {
   };
 
   const handleRedirect = () => {
-    router.push("/auth/signin"); // /profile/complete
+    router.push("/profile/complete");
   };
 
   return (
@@ -112,8 +111,7 @@ export default function VerifyPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Sign in
-              {/* Complete Profile */}
+              Complete Profile
             </motion.button>
           )}
 
