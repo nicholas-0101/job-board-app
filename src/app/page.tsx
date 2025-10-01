@@ -10,8 +10,8 @@ import {
   SearchX,
 } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { HomeJobCard } from "../components/jobs/HomePageJobCard";
-import SearchBar from "../components/jobs/SearchBar";
+import { HomeJobCard } from "./explore/jobs/components/JobCard";
+import SearchBar from "../components/site/SearchBar";
 import { AnimatedCounter } from "../components/ui/AnimatedCounter";
 import { apiCall } from "@/helper/axios";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -228,8 +228,8 @@ export default function HomePage() {
       </motion.section>
 
       {/* Jobs */}
-      <section ref={exploreRef} className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
+      <section ref={exploreRef} className="container mx-auto px-4 py-16 min-h-[100vh]">
+        <div className="text-center mb-12 mt-10">
           <h2 className="text-3xl font-bold text-[#467EC7] mb-2">
             Explore Your Dream Career
           </h2>
@@ -239,9 +239,15 @@ export default function HomePage() {
         </div>
 
         {jobs.length === 0 ? (
-          <p className="text-center text-muted-foreground font-medium flex gap-2 items-center justify-center">
-            <SearchX /> No jobs found matching your search.
-          </p>
+          <div className="text-center py-30">
+            <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+              <SearchX size={48} color="#24CFA7" /> No jobs found matching your
+              search.
+            </h3>
+            <p className="text-muted-foreground">
+              Try adjusting filters or searching a different keyword.
+            </p>
+          </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {jobs.map((job, index) => (
