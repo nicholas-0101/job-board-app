@@ -1,17 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
-import { updateJob, listCompanyJobs, deleteJob } from "@/lib/jobs";
+import { updateJob, deleteJob, getJobDetail } from "@/lib/jobs";
+import { upsertPreselectionTest } from "@/lib/preselection";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { TestTube, Plus, Trash2, Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function EditJobPage() {
   const router = useRouter();
   const params = useParams<{ jobId: string }>();
   const jobId = Number(params.jobId);
-  const [companyId] = useState<number>(() => Number(localStorage.getItem("companyId") || 16));
-  const [form, setForm] = useState<any>({});
+  const [companyId, setCompanyId] = useState<number>(() => {
+    const raw = localStorage.getItem("companyId");
+    return raw ? Number(raw) : NaN;
+  });
+  const [form, setForm] = useState<any>({ title: "", category: "", description: "", city: "", salaryMin: null, salaryMax: null, tags: [], deadline: null });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("job");
@@ -26,15 +31,44 @@ export default function EditJobPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await listCompanyJobs({ companyId, limit: 1, offset: 0, title: "" });
-        // In absence of a direct detail endpoint on frontend lib, rely on admin jobs table then fetch detail page from backend if available later
-        // Keep simple: allow editing fields manually
-        setForm((f: any) => ({ ...f }));
+        // Resolve companyId from backend if missing/stale
+        let cid = companyId;
+        if (!cid || Number.isNaN(cid)) {
+          const token = localStorage.getItem("token");
+          const resp = await fetch("http://localhost:4400/company/admin", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            const resolved = Number(data?.id ?? data?.data?.id);
+            if (resolved) {
+              cid = resolved;
+              localStorage.setItem("companyId", cid.toString());
+              setCompanyId(cid);
+            }
+          }
+        }
+
+        if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
+
+        const detail = await getJobDetail({ companyId: cid, jobId });
+        setForm({
+          title: detail.title || "",
+          category: detail.category || "",
+          description: (detail as any).description || "",
+          city: detail.city || "",
+          salaryMin: detail.salaryMin ?? null,
+          salaryMax: detail.salaryMax ?? null,
+          tags: detail.tags ?? [],
+          deadline: (detail as any).deadline ?? null,
+        });
+      } catch (e) {
+        // noop
       } finally {
         setLoading(false);
       }
     })();
-  }, [companyId]);
+  }, [companyId, jobId]);
 
   const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +221,7 @@ export default function EditJobPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
                   <input
                     placeholder="e.g. Senior Frontend Developer"
-                    defaultValue={form.title}
+                    value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -196,7 +230,7 @@ export default function EditJobPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                   <input
                     placeholder="e.g. Engineering"
-                    defaultValue={form.category}
+                    value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -207,7 +241,7 @@ export default function EditJobPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
                   placeholder="Describe the job responsibilities and requirements..."
-                  defaultValue={form.description}
+                  value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={6}
@@ -219,7 +253,7 @@ export default function EditJobPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                   <input
                     placeholder="e.g. Jakarta"
-                    defaultValue={form.city}
+                    value={form.city}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -229,7 +263,7 @@ export default function EditJobPage() {
                   <input
                     type="number"
                     placeholder="e.g. 15000000"
-                    defaultValue={form.salaryMin}
+                    value={form.salaryMin ?? ""}
                     onChange={(e) => setForm({ ...form, salaryMin: Number(e.target.value) || null })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -239,7 +273,7 @@ export default function EditJobPage() {
                   <input
                     type="number"
                     placeholder="e.g. 25000000"
-                    defaultValue={form.salaryMax}
+                    value={form.salaryMax ?? ""}
                     onChange={(e) => setForm({ ...form, salaryMax: Number(e.target.value) || null })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -251,7 +285,7 @@ export default function EditJobPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma separated)</label>
                   <input
                     placeholder="e.g. React, TypeScript, Node.js"
-                    defaultValue={(form.tags || []).join(', ')}
+                    value={(form.tags || []).join(', ')}
                     onChange={(e) => setForm({ ...form, tags: e.target.value.split(',').map((t: string) => t.trim()).filter(Boolean) })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -260,7 +294,7 @@ export default function EditJobPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
                   <input
                     type="date"
-                    defaultValue={form.deadline}
+                    value={form.deadline || ""}
                     onChange={(e) => setForm({ ...form, deadline: e.target.value || null })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -268,26 +302,14 @@ export default function EditJobPage() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <motion.button
-                  type="submit"
-                  disabled={saving}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
+                <Button type="submit" disabled={saving} className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]">
                   <Save className="w-4 h-4" />
                   {saving ? "Saving..." : "Save Job"}
-                </motion.button>
-                <motion.button
-                  type="button"
-                  onClick={onDelete}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                >
+                </Button>
+                <Button type="button" onClick={onDelete} variant="outline" className="gap-2 text-red-600 border-red-300 hover:bg-red-50">
                   <Trash2 className="w-4 h-4" />
                   Delete Job
-                </motion.button>
+                </Button>
               </div>
             </form>
           </motion.div>
@@ -327,7 +349,7 @@ export default function EditJobPage() {
                     className="rounded"
                   />
                   <label htmlFor="testActive" className="text-sm font-medium text-gray-700">
-                    Activate Test
+                    Enable Preselection Test
                   </label>
                 </div>
               </div>
@@ -338,18 +360,13 @@ export default function EditJobPage() {
                 <p className="text-sm text-gray-600">
                   Questions: {testQuestions.length}/25
                 </p>
-                <motion.button
-                  onClick={addQuestion}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
+                <Button onClick={addQuestion} className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c]">
                   <Plus className="w-4 h-4" />
                   Add Question
-                </motion.button>
+                </Button>
               </div>
 
-              {testQuestions.length > 0 && (
+              {isTestActive && testQuestions.length > 0 && (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {testQuestions.map((question, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
@@ -417,24 +434,40 @@ export default function EditJobPage() {
                 </div>
               )}
 
-              {testQuestions.length === 0 && (
+              {isTestActive && testQuestions.length === 0 && (
                 <div className="text-center py-12 text-gray-500">
                   <TestTube className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No questions added yet. Click "Add Question" to start creating the test.</p>
                 </div>
               )}
+              {!isTestActive && (
+                <div className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  This job currently does not require a preselection test. Toggle "Enable Preselection Test" to create one.
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4 border-t border-gray-200">
-              <motion.button
-                onClick={saveTest}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              <Button
+                onClick={async () => {
+                  try {
+                    if (!isTestActive) {
+                      // Disable test for this job
+                      await upsertPreselectionTest({ jobId, isActive: false, passingScore: 0, questions: [] });
+                      alert("Preselection test disabled for this job.");
+                      return;
+                    }
+                    await saveTest();
+                  } catch (err: any) {
+                    alert(err?.response?.data?.message || "Failed to save test");
+                  }
+                }}
+                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
               >
                 <Save className="w-4 h-4" />
-                Save Test
-              </motion.button>
+                {isTestActive ? "Save Test" : "Save (Disable Test)"}
+              </Button>
+              <Link href="/admin/preselection" className="ml-2 inline-flex items-center text-sm text-blue-600 hover:underline">Manage all tests</Link>
             </div>
           </motion.div>
         )}

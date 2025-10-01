@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   Briefcase,
   Users,
@@ -14,7 +15,7 @@ import { HomeJobCard } from "./explore/jobs/components/JobCard";
 import SearchBar from "../components/site/SearchBar";
 import { AnimatedCounter } from "../components/ui/AnimatedCounter";
 import { apiCall } from "@/helper/axios";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { getCityFromCoords, getUserLocation } from "@/utils/location";
 
 const categories = [
@@ -36,6 +37,7 @@ const trustedCompanies = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
 
@@ -50,7 +52,6 @@ export default function HomePage() {
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   const searchParams = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
 
   const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
@@ -66,6 +67,15 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
+    // If admin is logged in, redirect root to /admin
+    try {
+      const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+      if (role === "ADMIN") {
+        router.replace("/admin");
+        return;
+      }
+    } catch {}
+
     const fetchJobs = async () => {
       try {
         const res = await apiCall.get("/job/all", {

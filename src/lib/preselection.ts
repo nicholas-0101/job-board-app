@@ -33,4 +33,19 @@ export async function submitPreselectionAnswers(params: {
   return res.data;
 }
 
+export async function upsertPreselectionTest(params: {
+  jobId: number;
+  isActive: boolean;
+  passingScore: number;
+  questions: Array<{ question: string; options: string[]; answer: string }>;
+}) {
+  const { jobId, isActive, passingScore, questions } = params;
+  const res = await apiCall.post(`/preselection/jobs/${jobId}/tests`, {
+    isActive,
+    passingScore,
+    questions,
+  });
+  return res.data;
+}
+
 

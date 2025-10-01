@@ -11,6 +11,14 @@ export interface JobItemDTO {
   applicantsCount?: number;
 }
 
+export interface JobDetailDTO extends JobItemDTO {
+  description: string;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  tags?: string[];
+  banner?: string | null;
+}
+
 export interface JobsListDTO {
   total: number;
   limit: number;
@@ -31,6 +39,14 @@ export async function listCompanyJobs(params: {
   const res = await apiCall.get<{ success: boolean; data: JobsListDTO }>(
     `/job/companies/${companyId}/jobs`,
     { params: query }
+  );
+  return res.data.data;
+}
+
+export async function getJobDetail(params: { companyId: number; jobId: number }): Promise<JobDetailDTO> {
+  const { companyId, jobId } = params;
+  const res = await apiCall.get<{ success: boolean; data: JobDetailDTO }>(
+    `/job/companies/${companyId}/jobs/${jobId}`
   );
   return res.data.data;
 }

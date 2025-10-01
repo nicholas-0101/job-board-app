@@ -32,13 +32,16 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 inset-x-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/">
+        <Link href={user?.role === "ADMIN" ? "/admin" : "/"}>
           <img src="/nobg_logo.png" alt="Logo" className="h-8 w-auto" />
         </Link>
 
         {/* Desktop */}
         <nav className="hidden lg:flex items-center gap-6">
-          <NavbarLinks links={links} pathname={pathname} />
+          {/* Hide public links for ADMIN users */}
+          {user?.role === "ADMIN" ? null : (
+            <NavbarLinks links={links} pathname={pathname} />
+          )}
 
           <div className="h-5 w-px bg-border" />
 

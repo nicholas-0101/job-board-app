@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import { AnimatedCounter } from "../../../components/ui/AnimatedCounter";
 import { GlowCard } from "../../../components/ui/GlowCard";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 const analyticsDataFallback = {
   overview: {
@@ -75,9 +78,9 @@ import { getOverview, getDemographics, getSalaryTrends, getInterests } from "@/l
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("30d");
   const [selectedMetric, setSelectedMetric] = useState("users");
-  const [companyId] = useState<number>(() => {
+  const [companyId, setCompanyId] = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
-    return raw ? Number(raw) : 1;
+    return raw ? Number(raw) : NaN;
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,11 +95,31 @@ export default function AnalyticsPage() {
       setLoading(true);
       setError(null);
       try {
+        // Resolve companyId if missing/stale
+        let cid = companyId;
+        if (!cid || Number.isNaN(cid)) {
+          const token = localStorage.getItem("token");
+          const resp = await fetch("http://localhost:4400/company/admin", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            const resolved = Number(data?.id ?? data?.data?.id);
+            if (resolved) {
+              cid = resolved;
+              localStorage.setItem("companyId", cid.toString());
+              setCompanyId(cid);
+            }
+          }
+        }
+
+        if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
+
         const [ov, dm, st, it] = await Promise.all([
-          getOverview(companyId),
-          getDemographics(companyId),
-          getSalaryTrends(companyId),
-          getInterests(companyId),
+          getOverview(cid),
+          getDemographics(cid),
+          getSalaryTrends(cid),
+          getInterests(cid),
         ]);
         if (mounted) {
           setOverview(ov);
@@ -114,64 +137,58 @@ export default function AnalyticsPage() {
   }, [companyId]);
 
   const StatCard = ({ title, value, change, icon: Icon, color }: any) => (
-    <GlowCard>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">
-            <AnimatedCounter end={value} />
-          </p>
-          <div className={`flex items-center gap-1 mt-2 text-sm ${
-            change >= 0 ? "text-green-600" : "text-red-600"
-          }`}>
-            {change >= 0 ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-            <span>{Math.abs(change)}% vs last month</span>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">{title}</p>
+            <p className="text-2xl font-semibold">
+              <AnimatedCounter end={value} />
+            </p>
+            <div className={`flex items-center gap-1 mt-2 text-sm ${
+              change >= 0 ? "text-green-600" : "text-red-600"
+            }`}>
+              {change >= 0 ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+              <span>{Math.abs(change)}% vs last month</span>
+            </div>
+          </div>
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
+            <Icon className="w-6 h-6 text-white" />
           </div>
         </div>
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-      </div>
-    </GlowCard>
+      </CardContent>
+    </Card>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="border-b">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-              <p className="text-gray-600 mt-1">Comprehensive insights into platform performance</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-semibold truncate">Analytics Dashboard</h1>
+              <p className="text-sm text-muted-foreground mt-1">Comprehensive insights into platform performance</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="px-3 py-2 border rounded-md bg-background"
               >
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>
                 <option value="90d">Last 90 days</option>
                 <option value="1y">Last year</option>
               </select>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              <Button className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]">
                 <RefreshCw className="w-4 h-4" />
                 Refresh
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
+              </Button>
+              <Button variant="outline" className="gap-2">
                 <Download className="w-4 h-4" />
                 Export
-              </motion.button>
+              </Button>
             </div>
           </div>
         </div>
@@ -179,7 +196,7 @@ export default function AnalyticsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Overview Stats */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
           <StatCard
             title="Total Users"
             value={(overview?.totalUsers ?? analyticsDataFallback.overview.totalUsers)}
@@ -211,15 +228,26 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Demographics Section */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
           {/* Age Demographics */}
-          <GlowCard>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-600" />
-              Age Demographics
-            </h3>
-            <div className="space-y-4">
-              {(demographics?.ageBuckets ? Object.entries(demographics.ageBuckets).map(([range, count]) => ({ range, count, percentage: 0 })) : analyticsDataFallback.demographics.ageGroups).map((group: any, index: number) => (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <Users className="w-5 h-5 text-blue-600" />
+                Age Demographics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                try {
+                  const ageData = demographics?.ageBuckets ? 
+                    Object.entries(demographics.ageBuckets).map(([range, count]) => ({ range, count, percentage: 0 })) : 
+                    analyticsDataFallback.demographics.ageGroups;
+                  return Array.isArray(ageData) ? ageData : [];
+                } catch (error) {
+                  return analyticsDataFallback.demographics.ageGroups;
+                }
+              })().map((group: any, index: number) => (
                 <div key={group.range} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-blue-500" style={{ 
@@ -238,17 +266,28 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </GlowCard>
+            </CardContent>
+          </Card>
 
           {/* Gender Distribution */}
-          <GlowCard>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-purple-600" />
-              Gender Distribution
-            </h3>
-            <div className="space-y-4">
-              {(demographics?.gender ? Object.entries(demographics.gender).map(([type, count]) => ({ type, count, percentage: 0 })) : analyticsDataFallback.demographics.gender).map((item: any, index: number) => (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <PieChart className="w-5 h-5 text-purple-600" />
+                Gender Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                try {
+                  const genderData = demographics?.gender ? 
+                    Object.entries(demographics.gender).map(([type, count]) => ({ type, count, percentage: 0 })) : 
+                    analyticsDataFallback.demographics.gender;
+                  return Array.isArray(genderData) ? genderData : [];
+                } catch (error) {
+                  return analyticsDataFallback.demographics.gender;
+                }
+              })().map((item: any, index: number) => (
                 <div key={item.type} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full" style={{ 
@@ -270,17 +309,26 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </GlowCard>
+            </CardContent>
+          </Card>
 
           {/* Location Distribution */}
-          <GlowCard>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-green-600" />
-              Top Locations
-            </h3>
-            <div className="space-y-4">
-              {(demographics?.locations ?? analyticsDataFallback.demographics.locations).map((location: any, index: number) => (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <MapPin className="w-5 h-5 text-green-600" />
+                Top Locations
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                try {
+                  const locationData = demographics?.locations ?? analyticsDataFallback.demographics.locations;
+                  return Array.isArray(locationData) ? locationData : [];
+                } catch (error) {
+                  return analyticsDataFallback.demographics.locations;
+                }
+              })().map((location: any, index: number) => (
                 <div key={location.city} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-green-500" style={{ 
@@ -299,20 +347,29 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </GlowCard>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Salary Trends */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid lg:grid-cols-2 gap-6 mb-8">
           {/* Salary by Position */}
-          <GlowCard>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-yellow-600" />
-              Average Salary by Position
-            </h3>
-            <div className="space-y-4">
-              {(salaryTrends?.byPosition ?? analyticsDataFallback.salaryTrends.byPosition).map((position: any, index: number) => (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <DollarSign className="w-5 h-5 text-yellow-600" />
+                Average Salary by Position
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                try {
+                  const positionData = salaryTrends?.byPosition ?? analyticsDataFallback.salaryTrends.byPosition;
+                  return Array.isArray(positionData) ? positionData : [];
+                } catch (error) {
+                  return analyticsDataFallback.salaryTrends.byPosition;
+                }
+              })().map((position: any, index: number) => (
                 <div key={position.position} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-900">{position.position}</h4>
@@ -334,17 +391,26 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </GlowCard>
+            </CardContent>
+          </Card>
 
           {/* Salary by Location */}
-          <GlowCard>
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-indigo-600" />
-              Salary Trends by Location
-            </h3>
-            <div className="space-y-4">
-              {(salaryTrends?.byLocation ?? analyticsDataFallback.salaryTrends.byLocation).map((location: any, index: number) => (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <BarChart3 className="w-5 h-5 text-indigo-600" />
+                Salary Trends by Location
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                try {
+                  const locationData = salaryTrends?.byLocation ?? analyticsDataFallback.salaryTrends.byLocation;
+                  return Array.isArray(locationData) ? locationData : [];
+                } catch (error) {
+                  return analyticsDataFallback.salaryTrends.byLocation;
+                }
+              })().map((location: any, index: number) => (
                 <div key={location.city} className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-900">{location.city}</h4>
@@ -369,24 +435,34 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </GlowCard>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Applicant Interests */}
-        <GlowCard>
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-red-600" />
-            Most Popular Job Categories
-          </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(interests ?? analyticsDataFallback.applicantInterests).map((interest: any, index: number) => (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <Activity className="w-5 h-5 text-red-600" />
+              Most Popular Job Categories
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(() => {
+              try {
+                const interestData = interests ?? analyticsDataFallback.applicantInterests;
+                return Array.isArray(interestData) ? interestData : [];
+              } catch (error) {
+                return analyticsDataFallback.applicantInterests;
+              }
+            })().map((interest: any, index: number) => (
               <motion.div
                 key={interest.category}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 hover:shadow-lg transition-all"
+                className="p-6 rounded-xl border hover:shadow-md transition-all bg-card"
               >
                 <div className="text-center">
                   <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -403,8 +479,9 @@ export default function AnalyticsPage() {
                 </div>
               </motion.div>
             ))}
-          </div>
-        </GlowCard>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
