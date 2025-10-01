@@ -30,6 +30,10 @@ export default function BadgeCard({ badge, onEdit, onDelete, onView }: BadgeCard
     });
   };
 
+  const isImageUrl = (icon: string) => {
+    return icon && (icon.startsWith('http') || icon.startsWith('/'));
+  };
+
   return (
     <Card className="hover:shadow-lg transition-all duration-200 border-l-4" 
           style={{ borderLeftColor: badge.color }}>
@@ -37,10 +41,23 @@ export default function BadgeCard({ badge, onEdit, onDelete, onView }: BadgeCard
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
             <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl overflow-hidden"
               style={{ backgroundColor: `${badge.color}20` }}
             >
-              {badge.icon}
+              {isImageUrl(badge.icon) ? (
+                <img 
+                  src={badge.icon} 
+                  alt={badge.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to emoji if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.textContent = '🏆';
+                  }}
+                />
+              ) : (
+                badge.icon
+              )}
             </div>
             <div>
               <CardTitle className="text-lg font-semibold">{badge.name}</CardTitle>

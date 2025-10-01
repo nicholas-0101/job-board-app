@@ -4,33 +4,32 @@ import DeveloperLayout from "../components/DeveloperLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Filter } from "lucide-react";
+import { FileText, Plus, Filter, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { SkillAssessment } from "./types";
-import { mockAssessments } from "./mockData";
-import AssessmentStats from "./components/AssessmentStats";
-import AssessmentCard from "./components/AssessmentCard";
+import { useRouter } from "next/navigation";
+import AssessmentCardSimple from "./components/AssessmentCardSimple";
+import { useAssessments, AssessmentData } from "./hooks/useAssessments";
 
 export default function SkillAssessmentPage() {
-  const [assessments, setAssessments] = useState<SkillAssessment[]>(mockAssessments);
+  const router = useRouter();
+  const { assessments, loading, deleteAssessment } = useAssessments();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const handleEditAssessment = (assessment: SkillAssessment) => {
-    // TODO: Implement edit functionality
-    console.log("Edit assessment:", assessment);
+  const handleCreateAssessment = () => {
+    router.push("/developer/skill-assessment/create");
   };
 
-  const handleDeleteAssessment = (assessmentId: number) => {
-    // TODO: Implement delete functionality
-    console.log("Delete assessment:", assessmentId);
+  const handleEditAssessment = (assessment: AssessmentData) => {
+    // Navigate to edit page
+    router.push(`/developer/skill-assessment/edit/${assessment.id}`);
   };
 
-  const handleViewAssessment = (assessment: SkillAssessment) => {
-    // TODO: Implement view functionality
-    console.log("View assessment:", assessment);
+  const handleViewAssessment = (assessment: AssessmentData) => {
+    // Navigate to view/results page
+    router.push(`/developer/skill-assessment/view/${assessment.id}`);
   };
 
-  const categories = ["all", ...Array.from(new Set(assessments.map(a => a.category)))];
+  const categories = ["all", ...Array.from(new Set(assessments.map(a => a.category).filter(Boolean)))];
   
   const filteredAssessments = selectedCategory === "all" 
     ? assessments 
@@ -53,7 +52,10 @@ export default function SkillAssessmentPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button className="bg-[#467EC7] hover:bg-[#467EC7]/90">
+                  <Button 
+                    className="bg-[#467EC7] hover:bg-[#467EC7]/90"
+                    onClick={handleCreateAssessment}
+                  >
                     <Plus className="w-4 h-4 mr-1" />
                     Create Assessment
                   </Button>
@@ -63,7 +65,30 @@ export default function SkillAssessmentPage() {
           </div>
 
           {/* Statistics Cards */}
-          <AssessmentStats assessments={assessments} />
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-[#467EC7]">{assessments.length}</p>
+                  <p className="text-sm text-gray-600">Total Assessments</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-[#24CFA7]">
+                    {assessments.reduce((sum, a) => sum + (a.attemptCount || 0), 0)}
+                  </p>
+                  <p className="text-sm text-gray-600">Total Attempts</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-purple-600">
+                    {assessments.length > 0 
+                      ? Math.round(assessments.reduce((sum, a) => sum + (a.passRate || 0), 0) / assessments.length)
+                      : 0}%
+                  </p>
+                  <p className="text-sm text-gray-600">Average Pass Rate</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Category Filter */}
           <Card>
@@ -80,7 +105,7 @@ export default function SkillAssessmentPage() {
                     key={category}
                     variant={selectedCategory === category ? "default" : "outline"}
                     className="cursor-pointer capitalize"
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => setSelectedCategory(category || "all")}
                   >
                     {category === "all" ? "All Categories" : category}
                   </Badge>
@@ -98,7 +123,11 @@ export default function SkillAssessmentPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {filteredAssessments.length === 0 ? (
+              {loading ? (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#467EC7]" />
+                </div>
+              ) : filteredAssessments.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -111,7 +140,10 @@ export default function SkillAssessmentPage() {
                     }
                   </p>
                   {selectedCategory === "all" && (
-                    <Button className="bg-[#467EC7] hover:bg-[#467EC7]/90">
+                    <Button 
+                      className="bg-[#467EC7] hover:bg-[#467EC7]/90"
+                      onClick={handleCreateAssessment}
+                    >
                       <Plus className="w-4 h-4 mr-1" />
                       Create Assessment
                     </Button>
@@ -120,11 +152,11 @@ export default function SkillAssessmentPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredAssessments.map((assessment) => (
-                    <AssessmentCard
+                    <AssessmentCardSimple
                       key={assessment.id}
                       assessment={assessment}
                       onEdit={handleEditAssessment}
-                      onDelete={handleDeleteAssessment}
+                      onDelete={deleteAssessment}
                       onView={handleViewAssessment}
                     />
                   ))}
