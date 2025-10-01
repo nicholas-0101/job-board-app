@@ -91,9 +91,11 @@ export function HomeJobCard({
                 </motion.div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-[#467EC7] transition-colors cursor-pointer">
-                    {title}
-                  </h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-[#467EC7] whitespace-nowrap overflow-hidden truncate transition-colors cursor-pointer">
+                      {title}
+                    </h3>
+                  </div>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-sm font-medium text-foreground/80">
                       {company}
@@ -118,8 +120,8 @@ export function HomeJobCard({
                 onClick={() => setIsBookmarked(!isBookmarked)}
                 className={`p-2 rounded-lg transition-colors ${
                   isBookmarked
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-secondary text-muted-foreground"
+                    ? "text-primary"
+                    : "text-muted-foreground"
                 }`}
                 aria-pressed={isBookmarked}
                 aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
@@ -161,7 +163,7 @@ export function HomeJobCard({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className="px-3 py-1 bg-gradient-to-r from-primary/5 to-secondary/5 text-primary text-xs font-medium rounded-full border border-primary/20"
+                  className="px-3 py-1 bg-primary/3 text-primary text-xs font-medium rounded-full border border-primary/20"
                 >
                   {tag}
                 </motion.span>
