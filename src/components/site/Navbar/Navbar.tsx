@@ -14,7 +14,6 @@ const hiddenRoutes = ["/auth", "/profile/complete"];
 const links = [
   { href: "/explore/jobs", label: "Jobs" },
   { href: "/explore/companies", label: "Companies" },
-  { href: "/cv-generator", label: "CV Generator" },
   { href: "/subscription", label: "Subscription" },
 ];
 

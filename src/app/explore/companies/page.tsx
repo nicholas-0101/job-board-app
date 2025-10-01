@@ -1,6 +1,6 @@
 import { CompanyCard } from "../../../components/companies/CompanyCard";
 import FilterSidebar from "@/components/jobboard/FilterSidebar";
-import SearchBarPro from "@/components/jobboard/SearchBarPro";
+import SearchBarPro from "@/components/jobs/SearchBar";
 import Container from "@/components/common/Container";
 import SectionHeader from "@/components/common/SectionHeader";
 
