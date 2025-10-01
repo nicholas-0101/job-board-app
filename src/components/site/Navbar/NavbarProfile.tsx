@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User2, LogOutIcon } from "lucide-react";
+import { User2, LogOutIcon, FileEditIcon } from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface Props {
@@ -59,12 +59,20 @@ export default function NavbarProfile({ user, logout, router }: Props) {
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-background border border-border rounded-lg shadow-lg z-50 flex flex-col">
           <Link
+            href="/cv-generator"
+            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            onClick={() => setOpen(false)}
+          >
+            <FileEditIcon size={18} /> CV Generator
+          </Link>
+          <Link
             href="/profile/edit"
             className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <User2 size={18} /> Profile
           </Link>
+          <div className="border-t border-border"></div>
           <button
             className="px-4 py-2 hover:bg-secondary text-sm text-left text-red-400 rounded-lg flex gap-2 items-center"
             onClick={() => {
