@@ -4,27 +4,71 @@ import DeveloperLayout from "../components/DeveloperLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Award, Plus } from "lucide-react";
-import { useState } from "react";
+import { Award, Plus, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Badge as BadgeType, Certificate } from "./types";
-import { mockBadges, mockCertificates } from "./mockData";
+import { mockCertificates } from "./mockData";
 import BadgeStats from "./components/BadgeStats";
 import BadgeCard from "./components/BadgeCard";
 import CertificateCard from "./components/CertificateCard";
+import { getAllBadgeTemplates, deleteBadgeTemplate } from "@/lib/skillAssessment";
+import toast from "react-hot-toast";
 
 export default function BadgesPage() {
-  const [badges, setBadges] = useState<BadgeType[]>(mockBadges);
+  const router = useRouter();
+  const [badges, setBadges] = useState<BadgeType[]>([]);
   const [certificates, setCertificates] = useState<Certificate[]>(mockCertificates);
   const [activeTab, setActiveTab] = useState<"badges" | "certificates">("badges");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBadges();
+  }, []);
+
+  const fetchBadges = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllBadgeTemplates();
+      const badgeData = response.data?.templates || response.templates || [];
+      const mappedBadges: BadgeType[] = Array.isArray(badgeData) ? badgeData.map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        description: b.description || "",
+        icon: b.icon || "🏆",
+        color: b.color || "#467EC7",
+        category: b.category || "General",
+        requirements: b.requirements || "Complete assessment",
+        issuedCount: b._count?.badges || 0,
+        status: (b.status || "active") as "active" | "draft" | "archived",
+        createdAt: b.createdAt,
+      })) : [];
+      setBadges(mappedBadges);
+    } catch (error: any) {
+      console.error("Error fetching badges:", error);
+      toast.error("Failed to load badges");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEditBadge = (badge: BadgeType) => {
     // TODO: Implement edit functionality
     console.log("Edit badge:", badge);
+    toast("Edit functionality coming soon", { icon: "ℹ️" });
   };
 
-  const handleDeleteBadge = (badgeId: number) => {
-    // TODO: Implement delete functionality
-    console.log("Delete badge:", badgeId);
+  const handleDeleteBadge = async (badgeId: number) => {
+    if (!confirm("Are you sure you want to delete this badge template?")) return;
+    
+    try {
+      await deleteBadgeTemplate(badgeId);
+      toast.success("Badge template deleted successfully");
+      fetchBadges(); // Refresh list
+    } catch (error: any) {
+      console.error("Error deleting badge:", error);
+      toast.error(error.response?.data?.message || "Failed to delete badge");
+    }
   };
 
   const handleViewBadge = (badge: BadgeType) => {
@@ -59,7 +103,10 @@ export default function BadgesPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button className="bg-[#467EC7] hover:bg-[#467EC7]/90">
+                  <Button 
+                    className="bg-[#467EC7] hover:bg-[#467EC7]/90"
+                    onClick={() => router.push("/developer/badges/create")}
+                  >
                     <Plus className="w-4 h-4 mr-1" />
                     Create Badge
                   </Button>
@@ -105,12 +152,20 @@ export default function BadgesPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {badges.length === 0 ? (
+                {loading ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="h-12 w-12 text-[#467EC7] animate-spin mx-auto mb-4" />
+                    <p className="text-gray-500">Loading badges...</p>
+                  </div>
+                ) : badges.length === 0 ? (
                   <div className="text-center py-12">
                     <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">No Badges Yet</h3>
                     <p className="text-gray-500 mb-4">Create your first badge template to get started.</p>
-                    <Button className="bg-[#467EC7] hover:bg-[#467EC7]/90">
+                    <Button 
+                      className="bg-[#467EC7] hover:bg-[#467EC7]/90"
+                      onClick={() => router.push("/developer/badges/create")}
+                    >
                       <Plus className="w-4 h-4 mr-1" />
                       Create Badge
                     </Button>
