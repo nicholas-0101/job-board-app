@@ -35,6 +35,7 @@ export default function SignInPage() {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("role", user.role);
+      localStorage.setItem("role", user.role);
       localStorage.setItem("userId", user.id.toString());
 
       // Get company ID for admin
@@ -50,13 +51,14 @@ export default function SignInPage() {
           );
           if (companyResponse.ok) {
             const companyData = await companyResponse.json();
-            if (companyData.data && companyData.data.id) {
-              localStorage.setItem("companyId", companyData.data.id.toString());
+            const companyId = Number(companyData?.id ?? companyData?.data?.id);
+            if (companyId) {
+              localStorage.setItem("companyId", companyId.toString());
             }
           }
         } catch (error) {
           console.log("Could not fetch company data, using default companyId");
-          localStorage.setItem("companyId", "16"); // Default company ID from our script
+          localStorage.setItem("companyId", "1"); // Default company ID from seed (admin's company)
         }
       }
 

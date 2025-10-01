@@ -10,16 +10,16 @@ interface ConditionalLayoutProps {
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
   
-  // Check if current path is developer page
   const isDeveloperPage = pathname?.startsWith('/developer');
+  const isAdminPage = pathname?.startsWith('/admin');
   
   return (
     <>
-      {!isDeveloperPage && <Navbar />}
-      <main className={isDeveloperPage ? "flex-1" : "flex-1 pt-16"}>
+      {!isDeveloperPage && !isAdminPage && <Navbar />}
+      <main className={!isDeveloperPage && !isAdminPage ? "flex-1 pt-16" : "flex-1"}>
         {children}
       </main>
-      {!isDeveloperPage && <Footer />}
+      {!isDeveloperPage && !isAdminPage && <Footer />}
     </>
   );
 }

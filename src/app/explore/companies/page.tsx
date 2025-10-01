@@ -8,7 +8,7 @@ export default function CompaniesPage() {
     <div className="min-h-screen bg-background">
       <section className="py-8 lg:max-w-6xl mx-auto">
   
-          <SearchBarPro />
+          {/* <SearchBarPro /> */}
 
       </section>
       <section className="pb-12 lg:max-w-6xl mx-auto">

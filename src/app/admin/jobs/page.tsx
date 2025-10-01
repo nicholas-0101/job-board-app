@@ -2,12 +2,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { listCompanyJobs, togglePublishJob, JobItemDTO } from "@/lib/jobs";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminJobsPage() {
   // NOTE: Replace with actual admin's companyId from profile
   const [companyId, setCompanyId] = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
-    return raw ? Number(raw) : 1;
+    return raw ? Number(raw) : NaN;
   });
 
   const [title, setTitle] = useState("");
@@ -21,18 +24,62 @@ export default function AdminJobsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<{ total: number; items: JobItemDTO[] }>({ total: 0, items: [] });
+  const [openRowId, setOpenRowId] = useState<number | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      console.log("Fetching jobs with params:", { companyId, title, category, sortBy, sortOrder, limit, offset });
-      const res = await listCompanyJobs({ companyId, title, category, sortBy, sortOrder, limit, offset });
+      // Always resolve companyId from backend to avoid stale localStorage
+      const token = localStorage.getItem("token");
+      let resolvedId = companyId;
+      try {
+        const resp = await fetch("http://localhost:4400/company/admin", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const backendId = Number(data?.id ?? data?.data?.id);
+          if (backendId) {
+            resolvedId = backendId;
+            if (backendId !== companyId) {
+              localStorage.setItem("companyId", backendId.toString());
+              setCompanyId(backendId);
+            }
+          }
+        }
+      } catch {}
+
+      if (!resolvedId || Number.isNaN(resolvedId)) throw new Error("Company not found");
+
+      console.log("Fetching jobs with params:", { companyId: resolvedId, title, category, sortBy, sortOrder, limit, offset });
+      let res = await listCompanyJobs({ companyId: resolvedId, title, category, sortBy, sortOrder, limit, offset });
       console.log("Jobs response:", res);
       setData({ total: res.total, items: res.items });
     } catch (e: any) {
-      console.error("Error fetching jobs:", e);
-      setError(e?.response?.data?.message || "Failed to load jobs");
+      // Fallback: if backend reports 404 due to stale id, refresh id and retry once
+      try {
+        const token = localStorage.getItem("token");
+        const resp = await fetch("http://localhost:4400/company/admin", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const backendId = Number(data?.id ?? data?.data?.id);
+          if (backendId) {
+            localStorage.setItem("companyId", backendId.toString());
+            setCompanyId(backendId);
+            const res = await listCompanyJobs({ companyId: backendId, title, category, sortBy, sortOrder, limit, offset });
+            setData({ total: res.total, items: res.items });
+            setError(null);
+            return;
+          }
+        }
+        throw e;
+      } catch (err: any) {
+        console.error("Error fetching jobs:", err);
+        setError(err?.response?.data?.message || "Failed to load jobs");
+      }
     } finally {
       setLoading(false);
     }
@@ -55,78 +102,145 @@ export default function AdminJobsPage() {
   const totalPages = Math.max(1, Math.ceil(data.total / limit));
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Company Jobs</h1>
-
-      <div>
-        <Link href="/admin/jobs/new" className="inline-block px-4 py-2 bg-blue-600 text-white rounded">New Job</Link>
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-2xl font-semibold">Company Jobs</h1>
+        <Link href="/admin/jobs/new">
+          <Button className="bg-[#24CFA7] hover:bg-[#1fc39c]">New Job</Button>
+        </Link>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-5">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="px-3 py-2 border rounded-lg" />
-        <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="px-3 py-2 border rounded-lg" />
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="px-3 py-2 border rounded-lg">
-          <option value="createdAt">Created</option>
-          <option value="deadline">Deadline</option>
-        </select>
-        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)} className="px-3 py-2 border rounded-lg">
-          <option value="desc">Desc</option>
-          <option value="asc">Asc</option>
-        </select>
-        <select value={limit} onChange={(e) => setLimit(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
-          {[5,10,20,50].map((n) => <option key={n} value={n}>{n} / page</option>)}
-        </select>
-      </div>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+            <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" />
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="px-3 py-2 border rounded-md bg-background">
+              <option value="createdAt">Created</option>
+              <option value="deadline">Deadline</option>
+            </select>
+            <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)} className="px-3 py-2 border rounded-md bg-background">
+              <option value="desc">Desc</option>
+              <option value="asc">Asc</option>
+            </select>
+            <select value={limit} onChange={(e) => setLimit(Number(e.target.value))} className="px-3 py-2 border rounded-md bg-background">
+              {[5,10,20,50].map((n) => <option key={n} value={n}>{n} / page</option>)}
+            </select>
+          </div>
+        </CardContent>
+      </Card>
 
       {loading ? (
         <div>Loading...</div>
       ) : error ? (
-        <div className="text-red-600">{error}</div>
+        <div className="text-destructive">{error}</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left p-2 border">Title</th>
-                <th className="text-left p-2 border">Category</th>
-                <th className="text-left p-2 border">City</th>
-                <th className="text-left p-2 border">Applicants</th>
-                <th className="text-left p-2 border">Published</th>
-                <th className="text-left p-2 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((j) => (
-                <tr key={j.id} className="border-b">
-                  <td className="p-2 border">{j.title}</td>
-                  <td className="p-2 border">{j.category}</td>
-                  <td className="p-2 border">{j.city}</td>
-                  <td className="p-2 border">{j.applicantsCount}</td>
-                  <td className="p-2 border">{j.isPublished ? "Yes" : "No"}</td>
-                  <td className="p-2 border">
-                    <div className="flex gap-2">
-                      <button onClick={() => onTogglePublish(j)} className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
+        <>
+          {/* Card list on small screens */}
+          <div className="grid gap-3 md:hidden">
+            {data.items.map((j) => (
+              <Card key={j.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold truncate">{j.title}</h3>
+                      <div className="text-sm text-muted-foreground flex flex-wrap gap-2 mt-1">
+                        <span className="truncate">{j.category}</span>
+                        <span className="truncate">• {j.city}</span>
+                        <span>• {j.applicantsCount} applicants</span>
+                        <span>• {j.isPublished ? "Published" : "Draft"}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <Button size="sm" onClick={() => onTogglePublish(j)} className="bg-[#467EC7] hover:bg-[#578BCC]">
                         {j.isPublished ? "Unpublish" : "Publish"}
-                      </button>
-                      <Link href={`/admin/jobs/${j.id}/edit`} className="px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700">
-                        Edit
+                      </Button>
+                      <Link href={`/admin/jobs/${j.id}/edit`}>
+                        <Button size="sm" className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]">Edit</Button>
                       </Link>
-                      <Link href={`/admin/jobs/${j.id}/applicants`} className="px-3 py-1 text-sm rounded bg-purple-600 text-white hover:bg-purple-700">
-                        Applicants ({j.applicantsCount})
+                      <Link href={`/admin/jobs/${j.id}/applicants`}>
+                        <Button size="sm" variant="outline" className="w-full">Applicants ({j.applicantsCount})</Button>
                       </Link>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Table on md and above */}
+          <Card className="hidden md:block">
+            <CardContent className="pt-6 overflow-auto">
+              <table className="w-full border rounded-md table-fixed">
+                <thead className="bg-accent text-sm">
+                  <tr>
+                    <th className="text-left p-2 border w-[28%]">Title</th>
+                    <th className="text-left p-2 border w-[18%]">Category</th>
+                    <th className="text-left p-2 border w-[18%]">City</th>
+                    <th className="text-left p-2 border w-[14%]">Applicants</th>
+                    <th className="text-left p-2 border w-[12%]">Published</th>
+                    <th className="text-left p-2 border w-[10%]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.items.map((j) => (
+                    <tr key={j.id} className="border-b">
+                      <td className="p-2 border truncate">{j.title}</td>
+                      <td className="p-2 border truncate">{j.category}</td>
+                      <td className="p-2 border truncate">{j.city}</td>
+                      <td className="p-2 border">{j.applicantsCount}</td>
+                      <td className="p-2 border">{j.isPublished ? "Yes" : "No"}</td>
+                      <td className="p-2 border">
+                      <div className="relative">
+                        <Button
+                          size="sm"
+                          className="px-3 bg-[#467EC7] hover:bg-[#578BCC] whitespace-nowrap"
+                          onClick={() => setOpenRowId(openRowId === j.id ? null : j.id)}
+                        >
+                          Actions
+                        </Button>
+                        {openRowId === j.id && (
+                          <div className="absolute right-0 z-10 mt-2 w-44 rounded-md border bg-background shadow-md p-1.5 space-y-1">
+                            <button
+                              onClick={() => { setOpenRowId(null); onTogglePublish(j); }}
+                              className="w-full text-left text-sm px-2 py-1 rounded hover:bg-accent"
+                            >
+                              {j.isPublished ? "Unpublish" : "Publish"}
+                            </button>
+                            <Link
+                              href={`/admin/jobs/${j.id}/edit`}
+                              onClick={() => setOpenRowId(null)}
+                              className="block text-sm px-2 py-1 rounded hover:bg-accent"
+                            >
+                              Edit
+                            </Link>
+                            <Link
+                              href={`/admin/jobs/${j.id}/applicants`}
+                              onClick={() => setOpenRowId(null)}
+                              className="block text-sm px-2 py-1 rounded hover:bg-accent"
+                            >
+                              Applicants ({j.applicantsCount})
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </>
       )}
 
       <div className="flex items-center gap-2">
-        <button disabled={page<=1} onClick={() => setPage((p) => Math.max(1, p-1))} className="px-3 py-2 border rounded">Prev</button>
+        <Button variant="outline" disabled={page<=1} onClick={() => setPage((p) => Math.max(1, p-1))}>Prev</Button>
         <span>Page {page} / {totalPages}</span>
-        <button disabled={page>=totalPages} onClick={() => setPage((p) => Math.min(totalPages, p+1))} className="px-3 py-2 border rounded">Next</button>
+        <Button variant="outline" disabled={page>=totalPages} onClick={() => setPage((p) => Math.min(totalPages, p+1))}>Next</Button>
       </div>
     </div>
   );

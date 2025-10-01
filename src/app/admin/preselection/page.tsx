@@ -7,6 +7,8 @@ import {
   Clock, Target, BarChart3, Settings
 } from "lucide-react";
 import { GlowCard } from "../../../components/ui/GlowCard";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Mock data for pre-selection tests
 const mockTests = [
@@ -66,25 +68,21 @@ export default function PreselectionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="border-b">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Pre-Selection Tests</h1>
-              <p className="text-gray-600 mt-1">Create and manage pre-selection tests for job applicants</p>
+              <h1 className="text-2xl font-semibold">Pre-Selection Tests</h1>
+              <p className="text-sm text-muted-foreground mt-1">Create and manage pre-selection tests for job applicants</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <Link href="/admin/jobs">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-600 text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
-                >
+                <Button variant="outline" className="gap-2">
                   <Settings className="w-5 h-5" />
                   Manage Jobs
-                </motion.button>
+                </Button>
               </Link>
             </div>
           </div>
@@ -93,7 +91,7 @@ export default function PreselectionPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats Overview */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
@@ -103,17 +101,17 @@ export default function PreselectionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <GlowCard>
-                  <div className="p-6">
+                <Card>
+                  <CardContent className="pt-6">
                     <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${stat.color} mb-4`}>
                       <IconComponent className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                    <h3 className="text-2xl font-semibold mb-1">
                       {stat.value}{stat.suffix || ""}
                     </h3>
-                    <p className="text-gray-600">{stat.label}</p>
-                  </div>
-                </GlowCard>
+                    <p className="text-muted-foreground">{stat.label}</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             );
           })}
@@ -121,17 +119,19 @@ export default function PreselectionPage() {
 
         {/* How to Create Tests */}
         <div className="mb-8">
-          <GlowCard>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">How to Create Pre-Selection Tests</h3>
-              <div className="grid md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">How to Create Pre-Selection Tests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4 md:gap-6">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <span className="text-blue-600 font-bold">1</span>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Go to Job Management</h4>
-                    <p className="text-sm text-gray-600">Navigate to the job you want to create a test for</p>
+                    <h4 className="font-medium">Go to Job Management</h4>
+                    <p className="text-sm text-muted-foreground">Navigate to the job you want to create a test for</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -139,8 +139,8 @@ export default function PreselectionPage() {
                     <span className="text-blue-600 font-bold">2</span>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Edit Job Posting</h4>
-                    <p className="text-sm text-gray-600">Click edit on the job posting</p>
+                    <h4 className="font-medium">Edit Job Posting</h4>
+                    <p className="text-sm text-muted-foreground">Click edit on the job posting</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -148,30 +148,26 @@ export default function PreselectionPage() {
                     <span className="text-blue-600 font-bold">3</span>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Create Test</h4>
-                    <p className="text-sm text-gray-600">Add 25 multiple choice questions and set passing score</p>
+                    <h4 className="font-medium">Create Test</h4>
+                    <p className="text-sm text-muted-foreground">Add 25 multiple choice questions and set passing score</p>
                   </div>
                 </div>
               </div>
               <div className="mt-6">
                 <Link href="/admin/jobs">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
-                  >
+                  <Button className="gap-2">
                     <Plus className="w-5 h-5" />
                     Go to Job Management
-                  </motion.button>
+                  </Button>
                 </Link>
               </div>
-            </div>
-          </GlowCard>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tests List */}
         <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Existing Tests</h3>
+          <h3 className="text-base font-semibold mb-4">Existing Tests</h3>
           <div className="grid gap-4">
             {tests.map((test, index) => (
               <motion.div
@@ -180,12 +176,12 @@ export default function PreselectionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <GlowCard>
-                  <div className="p-6">
+                <Card>
+                  <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-lg font-semibold text-gray-900">{test.jobTitle}</h4>
+                          <h4 className="text-base font-semibold">{test.jobTitle}</h4>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             test.isActive 
                               ? 'bg-green-100 text-green-700' 
@@ -194,7 +190,7 @@ export default function PreselectionPage() {
                             {test.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </div>
-                        <div className="grid md:grid-cols-4 gap-4 text-sm text-gray-600">
+                        <div className="grid md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
                             <TestTube className="w-4 h-4" />
                             <span>{test.totalQuestions} Questions</span>
@@ -215,30 +211,21 @@ export default function PreselectionPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Link href={`/admin/jobs/${test.jobId}/edit`}>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                          >
+                          <Button variant="ghost" className="p-2 text-blue-600 hover:bg-blue-50">
                             <Edit className="w-5 h-5" />
-                          </motion.button>
+                          </Button>
                         </Link>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                        <Button
+                          variant="ghost"
                           onClick={() => toggleTestStatus(test.id)}
-                          className={`p-2 rounded-lg transition ${
-                            test.isActive 
-                              ? 'text-red-600 hover:bg-red-50' 
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
+                          className={`${test.isActive ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
                         >
                           {test.isActive ? <XCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
-                        </motion.button>
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                </GlowCard>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
@@ -246,12 +233,12 @@ export default function PreselectionPage() {
 
         {/* Features Overview */}
         <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Pre-Selection Test Features</h3>
+          <h3 className="text-base font-semibold mb-4">Pre-Selection Test Features</h3>
           <div className="grid md:grid-cols-2 gap-6">
-            <GlowCard>
-              <div className="p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Test Creation</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+            <Card>
+              <CardContent className="pt-6">
+                <h4 className="text-base font-semibold mb-3">Test Creation</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
                     <span>Create 25 multiple choice questions</span>
@@ -269,13 +256,13 @@ export default function PreselectionPage() {
                     <span>Enable/disable tests</span>
                   </li>
                 </ul>
-              </div>
-            </GlowCard>
+              </CardContent>
+            </Card>
 
-            <GlowCard>
-              <div className="p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Application Control</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+            <Card>
+              <CardContent className="pt-6">
+                <h4 className="text-base font-semibold mb-3">Application Control</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
                     <span>Auto-block applications without test</span>
@@ -293,8 +280,8 @@ export default function PreselectionPage() {
                     <span>Track pass/fail rates</span>
                   </li>
                 </ul>
-              </div>
-            </GlowCard>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

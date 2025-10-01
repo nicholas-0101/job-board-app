@@ -14,7 +14,7 @@ export default function NewJobPage() {
     salaryMin: "",
     salaryMax: "",
     tags: "",
-    deadline: "",
+    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,6 +22,13 @@ export default function NewJobPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      // Validate deadline is in the future
+      if (form.deadline && new Date(form.deadline) <= new Date()) {
+        alert("Deadline must be in the future");
+        setSubmitting(false);
+        return;
+      }
+
       await createJob({
         companyId,
         title: form.title,
@@ -35,6 +42,7 @@ export default function NewJobPage() {
       });
       router.push("/admin/jobs");
     } catch (e: any) {
+      console.error("Job creation error:", e);
       alert(e?.response?.data?.message || "Failed to create job");
     } finally {
       setSubmitting(false);

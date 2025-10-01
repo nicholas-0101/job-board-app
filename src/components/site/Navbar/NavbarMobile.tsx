@@ -24,18 +24,36 @@ export default function NavbarMobileMenu({
   return (
     <div className="lg:hidden border-t bg-background">
       <div className="container mx-auto px-4 py-4 grid gap-3">
-        {links.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className={`text-sm font-medium ${
-              pathname?.startsWith(l.href) ? "text-primary" : "text-foreground/80"
-            }`}
-            onClick={closeMenu}
-          >
-            {l.label}
-          </Link>
-        ))}
+        {/* Hide public links for ADMIN users */}
+        {user ? (
+          (localStorage.getItem("role") === "ADMIN" ? null : (
+            links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`text-sm font-medium ${
+                  pathname?.startsWith(l.href) ? "text-primary" : "text-foreground/80"
+                }`}
+                onClick={closeMenu}
+              >
+                {l.label}
+              </Link>
+            ))
+          ))
+        ) : (
+          links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={`text-sm font-medium ${
+                pathname?.startsWith(l.href) ? "text-primary" : "text-foreground/80"
+              }`}
+              onClick={closeMenu}
+            >
+              {l.label}
+            </Link>
+          ))
+        )}
 
         <div className="flex gap-2 pt-2">
           {loading ? (
