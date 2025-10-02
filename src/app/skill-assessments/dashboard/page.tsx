@@ -154,7 +154,7 @@ export default function SkillAssessmentDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -175,7 +175,7 @@ export default function SkillAssessmentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
@@ -188,7 +188,7 @@ export default function SkillAssessmentDashboard() {
             </div>
             <Button 
               onClick={() => router.push("/skill-assessments")}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#467EC7] hover:bg-[#467EC7]/90 shadow-lg hover:shadow-xl transition-all duration-200"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Take New Assessment
@@ -200,8 +200,8 @@ export default function SkillAssessmentDashboard() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Target className="w-6 h-6 text-blue-600" />
+                  <div className="p-2 bg-[#467EC7]/10 rounded-lg">
+                    <Target className="w-6 h-6 text-[#467EC7]" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Assessments</p>
@@ -214,8 +214,8 @@ export default function SkillAssessmentDashboard() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  <div className="p-2 bg-[#24CFA7]/10 rounded-lg">
+                    <CheckCircle className="w-6 h-6 text-[#24CFA7]" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Passed</p>
@@ -228,8 +228,8 @@ export default function SkillAssessmentDashboard() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-yellow-600" />
+                  <div className="p-2 bg-[#A3B6CE]/10 rounded-lg">
+                    <TrendingUp className="w-6 h-6 text-[#A3B6CE]" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Average Score</p>
@@ -242,8 +242,8 @@ export default function SkillAssessmentDashboard() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Trophy className="w-6 h-6 text-purple-600" />
+                  <div className="p-2 bg-[#24CFA7]/20 rounded-lg">
+                    <Trophy className="w-6 h-6 text-[#24CFA7]" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Certificates</p>
@@ -283,7 +283,7 @@ export default function SkillAssessmentDashboard() {
                 </p>
                 <Button 
                   onClick={() => router.push("/skill-assessments")}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-[#467EC7] hover:bg-[#467EC7]/90 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   Browse Assessments
                 </Button>
@@ -305,7 +305,7 @@ export default function SkillAssessmentDashboard() {
                   className={`hover:shadow-lg transition-shadow ${
                     !result.isPassed 
                       ? 'border-l-4 border-l-red-400 bg-red-50/30' 
-                      : 'border-l-4 border-l-green-400 bg-green-50/30'
+                      : 'border-l-4 border-l-[#24CFA7] bg-[#24CFA7]/5'
                   }`}
                 >
                   <CardContent className="p-6">
@@ -383,7 +383,7 @@ export default function SkillAssessmentDashboard() {
                             variant="outline" 
                             size="sm"
                             onClick={() => router.push(`/skill-assessments/${result.assessmentId}`)}
-                            className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                            className="text-[#467EC7] border-[#467EC7] hover:bg-[#467EC7]/5"
                           >
                             Try Again
                           </Button>

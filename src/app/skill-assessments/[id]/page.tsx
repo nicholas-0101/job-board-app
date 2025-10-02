@@ -205,15 +205,15 @@ export default function TakeAssessmentPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#467EC7]"></div>
       </div>
     );
   }
 
   if (!assessment) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -233,7 +233,7 @@ export default function TakeAssessmentPage() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <Button
             variant="ghost"
@@ -267,28 +267,28 @@ export default function TakeAssessmentPage() {
             <CardContent className="space-y-6">
               {/* Assessment Info */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                  <Clock className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#467EC7]/10 rounded-lg border border-[#467EC7]/20">
+                  <Clock className="w-5 h-5 text-[#467EC7]" />
                   <div>
-                    <p className="text-sm text-blue-600">Duration</p>
+                    <p className="text-sm text-[#467EC7]">Duration</p>
                     <p className="font-semibold">30 minutes</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#24CFA7]/10 rounded-lg border border-[#24CFA7]/20">
+                  <CheckCircle className="w-5 h-5 text-[#24CFA7]" />
                   <div>
-                    <p className="text-sm text-green-600">Questions</p>
+                    <p className="text-sm text-[#24CFA7]">Questions</p>
                     <p className="font-semibold">
                       {assessment.questions.length} questions
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
-                  <Award className="w-5 h-5 text-purple-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#A3B6CE]/10 rounded-lg border border-[#A3B6CE]/20">
+                  <Award className="w-5 h-5 text-[#A3B6CE]" />
                   <div>
-                    <p className="text-sm text-purple-600">Passing Score</p>
+                    <p className="text-sm text-[#A3B6CE]">Passing Score</p>
                     <p className="font-semibold">75%</p>
                   </div>
                 </div>
@@ -296,11 +296,11 @@ export default function TakeAssessmentPage() {
 
               {/* Badge Info */}
               {assessment.badgeTemplate && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <h3 className="font-semibold text-yellow-900 mb-2">
+                <div className="p-4 bg-[#24CFA7]/5 border border-[#24CFA7]/20 rounded-lg">
+                  <h3 className="font-semibold text-[#24CFA7] mb-2">
                     🏆 Certificate Reward
                   </h3>
-                  <p className="text-yellow-800">
+                  <p className="text-gray-700">
                     Complete this assessment with a score of 75% or higher to
                     earn the
                     <strong> {assessment.badgeTemplate.name}</strong>{" "}
@@ -337,7 +337,7 @@ export default function TakeAssessmentPage() {
                     setStarted(true);
                   }}
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-[#467EC7] hover:bg-[#467EC7]/90 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   Start Assessment
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -353,7 +353,7 @@ export default function TakeAssessmentPage() {
   const currentQ = assessment.questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-6">
@@ -427,7 +427,7 @@ export default function TakeAssessmentPage() {
               <Button
                 onClick={handleManualSubmit}
                 disabled={submitting}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-[#24CFA7] hover:bg-[#24CFA7]/90 shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 {submitting ? "Submitting..." : "Submit Assessment"}
                 <CheckCircle className="w-4 h-4 ml-2" />
@@ -463,9 +463,9 @@ export default function TakeAssessmentPage() {
                     w-8 h-8 rounded text-sm font-medium transition-colors
                     ${
                       index === currentQuestion
-                        ? "bg-blue-600 text-white"
+                        ? "bg-[#467EC7] text-white"
                         : answers[assessment.questions[index].id]
-                        ? "bg-green-100 text-green-800 border border-green-300"
+                        ? "bg-[#24CFA7]/20 text-[#24CFA7] border border-[#24CFA7]/30"
                         : "bg-gray-100 text-gray-600 border border-gray-300"
                     }
                   `}
