@@ -65,7 +65,7 @@ export const FileUploader: FC<FileUploaderProps> = ({
         </div>
 
         <div className="flex-1">
-          <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-input bg-secondary cursor-pointer hover:bg-background transition relative w-full justify-center">
+          <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed bg-secondary cursor-pointer hover:bg-background transition relative w-full justify-center">
             <Upload className="w-5 h-5 text-gray-400" /> Upload {label}
             <input
               type="file"
