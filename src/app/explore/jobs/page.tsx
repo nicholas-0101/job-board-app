@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { apiCall } from "@/helper/axios";
 import SearchBar from "@/components/site/SearchBar";
-import { HomeJobCard } from "@/app/explore/jobs/components/JobCard";
+import { JobCard } from "@/app/explore/jobs/components/JobCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getCityFromCoords, getUserLocation } from "@/utils/location";
 
@@ -25,7 +25,6 @@ type Filters = {
 };
 
 export default function JobsPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -35,27 +34,27 @@ export default function JobsPage() {
     order: "desc",
   });
   const [page, setPage] = useState(1);
-  const [limit] = useState(6);
+  const [limit] = useState(9);
   const [jobs, setJobs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [searchInputs, setSearchInputs] = useState({
-    keyword: "",
-    location: "",
-  });
-  const [selectedLocation, setSelectedLocation] = useState(
-    searchParams.get("city") || ""
-  );
+const [selectedLocation, setSelectedLocation] = useState("");
+const [searchInputs, setSearchInputs] = useState({
+  keyword: "",
+  location: "",
+});
 
-  useEffect(() => {
-    const keyword = searchParams.get("keyword") || "";
-    const city = searchParams.get("city") || "";
-    const pageParam = parseInt(searchParams.get("page") || "1", 10);
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const keyword = params.get("keyword") || "";
+  const city = params.get("city") || "";
+  const pageParam = parseInt(params.get("page") || "1", 10);
 
-    setSearchInputs({ keyword, location: city });
-    setFilters((prev) => ({ ...prev, keyword, location: city }));
-    setPage(pageParam);
-  }, []);
+  setSearchInputs({ keyword, location: city });
+  setFilters((prev) => ({ ...prev, keyword, location: city }));
+  setPage(pageParam);
+  setSelectedLocation(city);
+}, []);
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -244,7 +243,7 @@ export default function JobsPage() {
                   }`}
                 >
                   {jobs.map((job) => (
-                    <HomeJobCard key={job.id} {...job} />
+                    <JobCard key={job.id} {...job} />
                   ))}
                 </motion.div>
               </AnimatePresence>

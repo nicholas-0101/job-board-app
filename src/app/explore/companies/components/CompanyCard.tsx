@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { Star, Users } from "lucide-react";
 
 interface CompanyCardProps {
   id: number;
@@ -9,6 +9,7 @@ interface CompanyCardProps {
   city?: string;
   logo?: string;
   jobs?: number;
+  rating?: number;
 }
 
 export function CompanyCard({
@@ -17,6 +18,7 @@ export function CompanyCard({
   city = "Unknown",
   logo,
   jobs = 0,
+  rating = 0,
 }: CompanyCardProps) {
   return (
     <Link href={`/explore/companies/${id}`}>
@@ -29,9 +31,9 @@ export function CompanyCard({
       >
         {/* Logo */}
         <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-14 h-14 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center text-2xl font-bold text-primary shadow-sm"
-                >
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          className="w-14 h-14 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center text-2xl font-bold text-primary shadow-sm"
+        >
           {logo ? (
             <img
               src={logo}
@@ -45,14 +47,31 @@ export function CompanyCard({
 
         {/* Name & City */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-[#467EC7] truncate">{name}</h3>
+          <h3 className="text-lg font-semibold text-[#467EC7] truncate">
+            {name}
+          </h3>
           <p className="text-sm text-muted-foreground">{city}</p>
         </div>
 
         {/* Jobs count */}
         <div className="mt-4 flex items-center gap-1 text-sm font-medium text-muted-foreground">
           <Users className="w-4 h-4" />
-          <span>{jobs} open {jobs === 1 ? "job" : "jobs"}</span>
+          <span>
+            {jobs} open {jobs === 1 ? "job" : "jobs"}
+          </span>
+        </div>
+
+         {/* Rating */}
+        <div className="mt-2 flex items-center gap-1 text-sm font-medium text-muted-foreground">
+          {Array.from({ length: 5 }, (_, i) => (
+            <Star
+              key={i}
+              className="w-4 h-4"
+              fill={i < Math.round(rating) ? "#FACC15" : "none"}
+              stroke="#FACC15"
+            />
+          ))}
+          <span className="ml-1">{rating.toFixed(1)}</span>
         </div>
       </motion.div>
     </Link>

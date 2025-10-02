@@ -11,11 +11,10 @@ import {
   SearchX,
 } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { HomeJobCard } from "./explore/jobs/components/JobCard";
+import { JobCard } from "./explore/jobs/components/JobCard";
 import SearchBar from "../components/site/SearchBar";
 import { AnimatedCounter } from "../components/ui/AnimatedCounter";
 import { apiCall } from "@/helper/axios";
-import { useSearchParams, usePathname } from "next/navigation";
 import { getCityFromCoords, getUserLocation } from "@/utils/location";
 
 const categories = [
@@ -51,13 +50,9 @@ export default function HomePage() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
-  const [selectedLocation, setSelectedLocation] = useState(
-    searchParams.get("city") || ""
-  );
+  const [keyword, setKeyword] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [pathname, setPathname] = useState("");
 
   const stats = [
     { label: "Active Jobs", value: 2340, icon: Briefcase },
@@ -66,10 +61,19 @@ export default function HomePage() {
     { label: "Success Rate", value: 92, icon: Award, suffix: "%" },
   ];
 
+  // Client-side only: read URL params safely
   useEffect(() => {
-    // If admin is logged in, redirect root to /admin
+    const searchParams = new URLSearchParams(window.location.search);
+    setKeyword(searchParams.get("keyword") || "");
+    setSelectedLocation(searchParams.get("city") || "");
+    setPathname(window.location.pathname);
+  }, []);
+
+  useEffect(() => {
+    // Redirect admin if logged in
     try {
-      const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+      const role =
+        typeof window !== "undefined" ? localStorage.getItem("role") : null;
       if (role === "ADMIN") {
         router.replace("/admin");
         return;
@@ -105,10 +109,12 @@ export default function HomePage() {
     };
 
     fetchJobs();
-  }, []);
+  }, [keyword, selectedLocation]);
 
   const handleSearch = useCallback(
     async (shouldScroll: boolean = true) => {
+      if (!pathname) return;
+
       try {
         const params = new URLSearchParams();
         if (keyword) params.set("keyword", keyword);
@@ -238,7 +244,10 @@ export default function HomePage() {
       </motion.section>
 
       {/* Jobs */}
-      <section ref={exploreRef} className="container mx-auto px-4 py-16 min-h-[100vh]">
+      <section
+        ref={exploreRef}
+        className="container mx-auto px-4 py-16 min-h-[100vh]"
+      >
         <div className="text-center mb-12 mt-10">
           <h2 className="text-3xl font-bold text-[#467EC7] mb-2">
             Explore Your Dream Career
@@ -268,7 +277,7 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: Math.min(index * 0.06, 0.24) }}
               >
-                <HomeJobCard {...job} />
+                <JobCard {...job} />
               </motion.div>
             ))}
           </div>
@@ -289,7 +298,7 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="bg-gradient-to-br from-secondary-50 to-background py-16">
+      {/* <section className="bg-gradient-to-br from-secondary-50 to-background py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-[#467EC7] mb-2">
@@ -316,7 +325,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Trusted Companies */}
       <section className="container mx-auto px-4 py-16 text-center">

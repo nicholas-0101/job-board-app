@@ -25,7 +25,7 @@ interface JobCardProps {
   rating: number;
 }
 
-export function HomeJobCard({
+export function JobCard({
   id,
   title,
   company,
@@ -46,7 +46,7 @@ export function HomeJobCard({
       .map((v) => {
         const num = parseInt(v.trim().replace(/\D/g, ""));
         if (isNaN(num)) return v;
-        return "Rp " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return "IDR " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       })
       .join(" - ");
   };
@@ -112,24 +112,6 @@ export function HomeJobCard({
                   </div>
                 </div>
               </div>
-
-              {/* Bookmark Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsBookmarked(!isBookmarked)}
-                className={`p-2 rounded-lg transition-colors ${
-                  isBookmarked
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
-                aria-pressed={isBookmarked}
-                aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-              >
-                <Bookmark
-                  className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`}
-                />
-              </motion.button>
             </div>
 
             {/* Job Details */}
