@@ -14,6 +14,36 @@ import toast from "react-hot-toast";
 import QuestionForm from "../../create/components/QuestionForm";
 import BadgeSelector from "../../create/components/BadgeSelector";
 
+// LocalStorage keys
+const STORAGE_KEY_PREFIX = "edit-assessment-draft-";
+
+// Helper functions for localStorage
+const saveToStorage = (assessmentId: string, data: any) => {
+  try {
+    localStorage.setItem(STORAGE_KEY_PREFIX + assessmentId, JSON.stringify(data));
+  } catch (error) {
+    console.error("Failed to save to localStorage:", error);
+  }
+};
+
+const loadFromStorage = (assessmentId: string) => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_PREFIX + assessmentId);
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    console.error("Failed to load from localStorage:", error);
+    return null;
+  }
+};
+
+const clearStorage = (assessmentId: string) => {
+  try {
+    localStorage.removeItem(STORAGE_KEY_PREFIX + assessmentId);
+  } catch (error) {
+    console.error("Failed to clear localStorage:", error);
+  }
+};
+
 export default function EditAssessmentPage() {
   const router = useRouter();
   const params = useParams();
@@ -21,10 +51,13 @@ export default function EditAssessmentPage() {
   
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [savingQuestion, setSavingQuestion] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [badgeTemplateId, setBadgeTemplateId] = useState<number | undefined>();
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [savedQuestions, setSavedQuestions] = useState<Set<number>>(new Set());
+  const [originalData, setOriginalData] = useState<any>(null);
 
   useEffect(() => {
     fetchAssessment();
@@ -63,6 +96,38 @@ export default function EditAssessmentPage() {
           });
           setQuestions([{ question: "", options: ["", "", "", ""], answer: "" }]);
         }
+        
+        // Store original data for comparison
+        setOriginalData({
+          title: data.title || "",
+          description: data.description || "",
+          badgeTemplateId: data.badgeTemplateId || undefined,
+          questions: mappedQuestions,
+        });
+        
+        // Mark all original questions as saved
+        const originalSavedQuestions = new Set<number>();
+        mappedQuestions.forEach((_: any, index: number) => {
+          originalSavedQuestions.add(index);
+        });
+        setSavedQuestions(originalSavedQuestions);
+        
+        // Check for draft data in localStorage
+        const storedData = loadFromStorage(assessmentId);
+        if (storedData) {
+          setTitle(storedData.title || data.title || "");
+          setDescription(storedData.description || data.description || "");
+          setBadgeTemplateId(storedData.badgeTemplateId || data.badgeTemplateId || undefined);
+          setQuestions(storedData.questions || mappedQuestions);
+          
+          // Restore saved questions set (prioritize stored data)
+          if (storedData.savedQuestions && Array.isArray(storedData.savedQuestions)) {
+            setSavedQuestions(new Set(storedData.savedQuestions));
+          }
+          
+          console.log("Loaded draft from localStorage:", storedData);
+          toast.success("Draft changes restored from previous session");
+        }
       }
     } catch (error: any) {
       console.error("Error fetching assessment:", error);
@@ -72,11 +137,64 @@ export default function EditAssessmentPage() {
     }
   };
 
+  // Auto-save to localStorage whenever form data changes
+  useEffect(() => {
+    if (!originalData || fetching) return; // Don't save during initial load
+    
+    const dataToSave = {
+      title,
+      description,
+      badgeTemplateId,
+      questions,
+      savedQuestions: Array.from(savedQuestions),
+      lastSaved: new Date().toISOString(),
+    };
+    
+    // Only save if there are changes from original data
+    const hasChanges = 
+      title !== originalData.title ||
+      description !== originalData.description ||
+      badgeTemplateId !== originalData.badgeTemplateId ||
+      JSON.stringify(questions) !== JSON.stringify(originalData.questions);
+    
+    if (hasChanges) {
+      saveToStorage(assessmentId, dataToSave);
+    }
+  }, [title, description, badgeTemplateId, questions, savedQuestions, originalData, fetching, assessmentId]);
+
+  // Warn user before leaving page with unsaved changes
+  useEffect(() => {
+    if (!originalData) return;
+    
+    const hasUnsavedData = 
+      title !== originalData.title ||
+      description !== originalData.description ||
+      badgeTemplateId !== originalData.badgeTemplateId ||
+      JSON.stringify(questions) !== JSON.stringify(originalData.questions);
+    
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedData) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return "You have unsaved changes. Are you sure you want to leave?";
+      }
+    };
+
+    if (hasUnsavedData) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [title, description, badgeTemplateId, questions, originalData]);
+
   const handleAddQuestion = () => {
     if (questions.length >= 25) {
       toast.error("Maximum 25 questions allowed");
       return;
     }
+    
     setQuestions([...questions, { question: "", options: ["", "", "", ""], answer: "" }]);
   };
 
@@ -85,13 +203,78 @@ export default function EditAssessmentPage() {
       toast.error("At least one question is required");
       return;
     }
+    
+    // Remove question and update saved questions set
     setQuestions(questions.filter((_, i) => i !== index));
+    
+    // Update saved questions set - remove the deleted index and shift down higher indices
+    const newSavedQuestions = new Set<number>();
+    savedQuestions.forEach(savedIndex => {
+      if (savedIndex < index) {
+        // Keep indices below the deleted one
+        newSavedQuestions.add(savedIndex);
+      } else if (savedIndex > index) {
+        // Shift down indices above the deleted one
+        newSavedQuestions.add(savedIndex - 1);
+      }
+      // Skip the deleted index (savedIndex === index)
+    });
+    setSavedQuestions(newSavedQuestions);
   };
 
   const handleQuestionChange = (index: number, updatedQuestion: Question) => {
     const newQuestions = [...questions];
     newQuestions[index] = updatedQuestion;
     setQuestions(newQuestions);
+    
+    // Remove from saved questions if modified
+    if (savedQuestions.has(index)) {
+      const newSavedQuestions = new Set(savedQuestions);
+      newSavedQuestions.delete(index);
+      setSavedQuestions(newSavedQuestions);
+    }
+  };
+
+  const validateQuestion = (question: Question, index: number) => {
+    if (!question.question.trim()) {
+      toast.error(`Question ${index + 1}: Question text is required`);
+      return false;
+    }
+    if (question.options.some((opt) => !opt.trim())) {
+      toast.error(`Question ${index + 1}: All options must be filled`);
+      return false;
+    }
+    if (!question.answer.trim()) {
+      toast.error(`Question ${index + 1}: Correct answer is required`);
+      return false;
+    }
+    if (!question.options.includes(question.answer)) {
+      toast.error(`Question ${index + 1}: Answer must match one of the options`);
+      return false;
+    }
+    return true;
+  };
+
+  const handleSaveQuestion = async (index: number) => {
+    const question = questions[index];
+    
+    if (!validateQuestion(question, index)) return;
+
+    // Save question to localStorage only
+    setSavingQuestion(index);
+    try {
+      // Mark question as saved
+      const newSavedQuestions = new Set(savedQuestions);
+      newSavedQuestions.add(index);
+      setSavedQuestions(newSavedQuestions);
+      
+      toast.success(`Question ${index + 1} saved to draft!`);
+    } catch (error: any) {
+      console.error("Error saving question:", error);
+      toast.error("Failed to save question");
+    } finally {
+      setSavingQuestion(null);
+    }
   };
 
   const validateForm = () => {
@@ -133,6 +316,13 @@ export default function EditAssessmentPage() {
 
     if (!validateForm()) return;
 
+    // Validate that all questions are saved
+    const hasUnsavedQuestions = questions.some((_, index) => !savedQuestions.has(index));
+    if (hasUnsavedQuestions) {
+      toast.error("Please save all questions before updating the assessment");
+      return;
+    }
+
     setLoading(true);
     try {
       await updateAssessment(parseInt(assessmentId), {
@@ -142,6 +332,7 @@ export default function EditAssessmentPage() {
         questions,
       });
 
+      clearStorage(assessmentId); // Clear draft when successfully updated
       toast.success("Assessment updated successfully!");
       router.push("/developer/skill-assessment");
     } catch (error: any) {
@@ -183,8 +374,41 @@ export default function EditAssessmentPage() {
                 Edit Assessment
               </h1>
               <p className="text-lg text-gray-600 mt-2">
-                Update your skill assessment test
+                Update your skill assessment test. Save each question as you modify them.
               </p>
+              {savedQuestions.size > 0 && (
+                <div className="mt-3 px-4 py-2 bg-green-100 border border-green-300 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    ✅ Questions saved to draft: {savedQuestions.size} of {questions.length}
+                  </p>
+                </div>
+              )}
+              
+              {/* Draft info */}
+              {originalData && (
+                title !== originalData.title ||
+                description !== originalData.description ||
+                badgeTemplateId !== originalData.badgeTemplateId ||
+                JSON.stringify(questions) !== JSON.stringify(originalData.questions)
+              ) && (
+                <div className="mt-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+                  <p className="text-sm text-blue-800">
+                    💾 Changes auto-saved (refreshing page will restore your work)
+                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      clearStorage(assessmentId);
+                      window.location.reload();
+                    }}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    Discard Changes
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -226,18 +450,7 @@ export default function EditAssessmentPage() {
             {/* Questions */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Questions ({questions.length}/25)</CardTitle>
-                  <Button
-                    type="button"
-                    onClick={handleAddQuestion}
-                    disabled={questions.length >= 25}
-                    size="sm"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Question
-                  </Button>
-                </div>
+                <CardTitle>Questions ({questions.length}/25)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {questions.map((question, index) => (
@@ -247,9 +460,29 @@ export default function EditAssessmentPage() {
                     question={question}
                     onChange={handleQuestionChange}
                     onRemove={handleRemoveQuestion}
+                    onSave={handleSaveQuestion}
+                    onAddQuestion={handleAddQuestion}
                     canRemove={questions.length > 1}
+                    isSaved={savedQuestions.has(index)}
+                    isSaving={savingQuestion === index}
+                    isLastQuestion={index === questions.length - 1}
+                    canAddMore={questions.length < 25}
                   />
                 ))}
+                
+                {/* Show add question button if no questions */}
+                {questions.length === 0 && (
+                  <div className="flex justify-center py-8">
+                    <Button
+                      type="button"
+                      onClick={handleAddQuestion}
+                      className="bg-gray-800 hover:bg-gray-700 text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add First Question
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

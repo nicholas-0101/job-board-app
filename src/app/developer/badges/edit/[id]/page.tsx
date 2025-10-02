@@ -1,115 +1,71 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import DeveloperAuthGuard from "@/components/auth/DeveloperAuthGuard";
-import DeveloperLayout from "../../components/DeveloperLayout";
+import DeveloperLayout from "../../../components/DeveloperLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Award, Loader2, Upload, X } from "lucide-react";
-import { createBadgeTemplate } from "@/lib/skillAssessment";
+import { getAllBadgeTemplates, updateBadgeTemplate } from "@/lib/skillAssessment";
 import toast from "react-hot-toast";
 
-// LocalStorage keys
-const STORAGE_KEY = "create-badge-draft";
-
-// Helper functions for localStorage
-const saveToStorage = (data: any) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error("Failed to save to localStorage:", error);
-  }
-};
-
-const loadFromStorage = () => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
-  } catch (error) {
-    console.error("Failed to load from localStorage:", error);
-    return null;
-  }
-};
-
-const clearStorage = () => {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (error) {
-    console.error("Failed to clear localStorage:", error);
-  }
-};
-
-export default function CreateBadgePage() {
+export default function EditBadgePage() {
   const router = useRouter();
+  const params = useParams();
+  const badgeId = Number(params.id);
+  
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    icon: "",
     category: "",
+    icon: "",
   });
 
-  // Load data from localStorage on component mount
   useEffect(() => {
-    const storedData = loadFromStorage();
-    if (storedData) {
+    fetchBadgeData();
+  }, [badgeId]);
+
+  const fetchBadgeData = async () => {
+    setFetching(true);
+    try {
+      const response = await getAllBadgeTemplates();
+      const badgeData = response.data?.templates || response.templates || [];
+      const badge = Array.isArray(badgeData) 
+        ? badgeData.find((b: any) => b.id === badgeId)
+        : null;
+
+      if (!badge) {
+        toast.error("Badge not found");
+        router.push("/developer/badges");
+        return;
+      }
+
       setFormData({
-        name: storedData.name || "",
-        description: storedData.description || "",
-        icon: storedData.icon || "",
-        category: storedData.category || "",
+        name: badge.name || "",
+        description: badge.description || "",
+        category: badge.category || "",
+        icon: badge.icon || "",
       });
       
-      // Restore icon preview if exists
-      if (storedData.iconPreview) {
-        setIconPreview(storedData.iconPreview);
+      // Set icon preview if exists
+      if (badge.icon) {
+        setIconPreview(badge.icon);
       }
-      
-      console.log("Loaded badge draft from localStorage:", storedData);
-      toast.success("Draft restored from previous session");
+    } catch (error: any) {
+      console.error("Error fetching badge:", error);
+      toast.error("Failed to load badge data");
+      router.push("/developer/badges");
+    } finally {
+      setFetching(false);
     }
-  }, []);
-
-  // Auto-save to localStorage whenever form data changes
-  useEffect(() => {
-    const dataToSave = {
-      ...formData,
-      iconPreview,
-      lastSaved: new Date().toISOString(),
-    };
-    
-    // Only save if there's meaningful data (not just empty initial state)
-    if (formData.name.trim() || formData.description.trim() || formData.category.trim() || iconPreview) {
-      saveToStorage(dataToSave);
-    }
-  }, [formData, iconPreview]);
-
-  // Warn user before leaving page with unsaved changes
-  useEffect(() => {
-    const hasUnsavedData = formData.name.trim() || formData.description.trim() || formData.category.trim() || iconPreview;
-    
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedData) {
-        e.preventDefault();
-        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
-        return "You have unsaved changes. Are you sure you want to leave?";
-      }
-    };
-
-    if (hasUnsavedData) {
-      window.addEventListener("beforeunload", handleBeforeUnload);
-    }
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [formData, iconPreview]);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -157,40 +113,31 @@ export default function CreateBadgePage() {
       return;
     }
 
-    // Validation for icon
-    if (!iconFile) {
-      toast.error("Please upload a badge icon");
-      return;
-    }
-
-    const payload = {
+    const payload: any = {
       name: formData.name,
       description: formData.description || undefined,
-      iconFile: iconFile,
       category: formData.category || undefined,
     };
 
-    console.log("Creating badge with file:", iconFile.name);
+    // Add icon file if uploaded
+    if (iconFile) {
+      payload.iconFile = iconFile;
+    } else if (formData.icon) {
+      // Keep existing icon URL if no new file uploaded
+      payload.icon = formData.icon;
+    }
 
     setLoading(true);
     try {
-      const response = await createBadgeTemplate(payload);
-      console.log("Badge created:", response);
-
-      clearStorage(); // Clear draft when successfully created
-      toast.success("Badge template created successfully!");
+      await updateBadgeTemplate(badgeId, payload);
+      toast.success("Badge template updated successfully!");
       router.push("/developer/badges");
     } catch (error: any) {
-      console.error("Error creating badge:", error);
-      console.error("Error response full:", error.response);
-      console.error("Error response data:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-      console.error("Error message:", error.message);
-      
+      console.error("Error updating badge:", error);
       const errorMsg = error.response?.data?.message || 
                        error.response?.data?.errors?.[0] || 
                        error.message ||
-                       "Failed to create badge template";
+                       "Failed to update badge template";
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -203,6 +150,21 @@ export default function CreateBadgePage() {
       [e.target.name]: e.target.value,
     });
   };
+
+  if (fetching) {
+    return (
+      <DeveloperAuthGuard>
+        <DeveloperLayout>
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <Loader2 className="h-12 w-12 animate-spin text-[#467EC7] mx-auto mb-4" />
+              <p className="text-gray-600">Loading badge data...</p>
+            </div>
+          </div>
+        </DeveloperLayout>
+      </DeveloperAuthGuard>
+    );
+  }
 
   return (
     <DeveloperAuthGuard>
@@ -225,34 +187,13 @@ export default function CreateBadgePage() {
                   <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center">
                       <Award className="w-6 h-6 mr-2 text-[#467EC7]" />
-                      Create Badge Template
+                      Edit Badge Template
                     </h1>
                     <p className="text-sm text-gray-600 mt-1">
-                      Create a new achievement badge for assessments
+                      Update badge information
                     </p>
                   </div>
                 </div>
-                
-                {/* Draft info */}
-                {(formData.name.trim() || formData.description.trim() || formData.category.trim() || iconPreview) && (
-                  <div className="mt-4 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
-                    <p className="text-sm text-blue-800">
-                      💾 Draft auto-saved (refreshing page will restore your work)
-                    </p>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        clearStorage();
-                        window.location.reload();
-                      }}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      Clear Draft
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -311,7 +252,7 @@ export default function CreateBadgePage() {
                           id="icon"
                           accept="image/*"
                           onChange={handleFileChange}
-                          disabled={loading || uploading}
+                          disabled={loading}
                           className="hidden"
                         />
                         <label 
@@ -320,15 +261,23 @@ export default function CreateBadgePage() {
                         >
                           <Upload className="w-12 h-12 text-gray-400 mb-2" />
                           <p className="text-sm font-medium text-gray-700">
-                            {uploading ? "Uploading..." : "Click to upload badge icon"}
+                            Click to upload badge icon
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            PNG, JPG up to 2MB
+                            PNG, JPG up to 1MB
                           </p>
                         </label>
                       </div>
                     ) : (
                       <div className="relative border-2 border-gray-200 rounded-lg p-4">
+                        <input
+                          type="file"
+                          id="icon"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          disabled={loading}
+                          className="hidden"
+                        />
                         <div className="flex items-center space-x-4">
                           <div className="w-16 h-16 rounded-full bg-[#467EC7]/20 flex items-center justify-center overflow-hidden">
                             <img 
@@ -339,28 +288,46 @@ export default function CreateBadgePage() {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-gray-900">
-                              {iconFile?.name}
+                              {iconFile ? iconFile.name : "Current icon"}
                             </p>
-                            <p className="text-xs text-gray-500">
-                              {iconFile && (iconFile.size / 1024).toFixed(2)} KB
-                            </p>
+                            {iconFile && (
+                              <p className="text-xs text-gray-500">
+                                {(iconFile.size / 1024).toFixed(2)} KB
+                              </p>
+                            )}
+                            {!iconFile && formData.icon && (
+                              <p className="text-xs text-gray-500 truncate max-w-xs">
+                                {formData.icon}
+                              </p>
+                            )}
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleRemoveIcon}
-                            disabled={loading || uploading}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={loading}
+                              onClick={() => document.getElementById('icon')?.click()}
+                            >
+                              Change
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleRemoveIcon}
+                              disabled={loading}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
-                    Upload an image for the badge icon
+                    Upload a new image to replace the current badge icon
                   </p>
                 </div>
 
@@ -398,12 +365,12 @@ export default function CreateBadgePage() {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating...
+                        Updating...
                       </>
                     ) : (
                       <>
                         <Award className="w-4 h-4 mr-2" />
-                        Create Badge
+                        Update Badge
                       </>
                     )}
                   </Button>

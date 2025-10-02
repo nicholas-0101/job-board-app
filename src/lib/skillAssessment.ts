@@ -39,6 +39,12 @@ export const createAssessment = async (data: CreateAssessmentData) => {
   return response.data;
 };
 
+// Get all assessments for users (public assessments)
+export const getAssessments = async (page: number = 1, limit: number = 10) => {
+  const response = await apiCall.get(`/skill-assessment/assessments?page=${page}&limit=${limit}`);
+  return response.data;
+};
+
 // Get all assessments for developer
 export const getDeveloperAssessments = async () => {
   const response = await apiCall.get("/skill-assessment/developer/assessments");
@@ -85,10 +91,58 @@ export const deleteAssessment = async (assessmentId: number) => {
   return response.data;
 };
 
-// Get assessment results
+// Get assessment for user to take (without answers)
+export const getAssessmentForUser = async (assessmentId: number) => {
+  const response = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/take`);
+  return response.data;
+};
+
+// Submit assessment answers
+export const submitAssessment = async (data: {
+  assessmentId: number;
+  startedAt: string;
+  answers: Array<{ questionId: number; selectedAnswer: string }>;
+}) => {
+  try {
+    
+    const response = await apiCall.post(`/skill-assessment/assessments/${data.assessmentId}/submit`, {
+      startedAt: data.startedAt,
+      answers: data.answers
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+// Get assessment results (for developers)
 export const getAssessmentResults = async (assessmentId: number) => {
   const response = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/results`);
   return response.data;
+};
+
+// Get user's assessment results
+export const getUserResults = async () => {
+  try {
+    console.log("📊 Fetching user results from API...");
+    const response = await apiCall.get("/skill-assessment/user/results");
+    console.log("📋 User results API response:", {
+      success: response.data.success,
+      dataType: typeof response.data.data,
+      hasResults: !!response.data.data?.results,
+      resultsCount: response.data.data?.results?.length || 0,
+      sampleData: response.data.data?.results?.[0] || null
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ Error fetching user results:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    });
+    throw error;
+  }
 };
 
 // Get all badge templates
@@ -130,7 +184,25 @@ export const updateBadgeTemplate = async (id: number, data: {
   description?: string;
   icon?: string;
   category?: string;
+  iconFile?: File;
 }) => {
+  // If iconFile is provided, use FormData
+  if (data.iconFile) {
+    const formData = new FormData();
+    if (data.name) formData.append('name', data.name);
+    if (data.description) formData.append('description', data.description);
+    if (data.category) formData.append('category', data.category);
+    formData.append('icon', data.iconFile);
+
+    const response = await apiCall.patch(`/skill-assessment/badge-templates/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+  
+  // Otherwise, use regular JSON
   const response = await apiCall.patch(`/skill-assessment/badge-templates/${id}`, data);
   return response.data;
 };
@@ -138,5 +210,16 @@ export const updateBadgeTemplate = async (id: number, data: {
 // Delete badge template
 export const deleteBadgeTemplate = async (id: number) => {
   const response = await apiCall.delete(`/skill-assessment/badge-templates/${id}`);
+  return response.data;
+};
+
+// Save individual question
+export const saveQuestion = async (data: {
+  assessmentId: number;
+  question: string;
+  options: string[];
+  answer: string;
+}) => {
+  const response = await apiCall.post("/skill-assessment/assessments/questions", data);
   return response.data;
 };
