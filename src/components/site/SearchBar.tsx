@@ -40,9 +40,9 @@ export default function SearchBar({
             className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
           />
           <input
-            aria-label="Job title or keyword"
+            aria-label="Job title, company or keyword"
             className="w-full h-12 pl-10 pr-4 rounded-xl border-2 border-input focus:border-primary focus:outline-none"
-            placeholder="Job title or keyword"
+            placeholder="Job title, company or keyword"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSearch(true)}
