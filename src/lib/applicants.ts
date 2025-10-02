@@ -12,6 +12,8 @@ export interface ApplicantItemDTO {
   status: "SUBMITTED" | "IN_REVIEW" | "INTERVIEW" | "ACCEPTED" | "REJECTED";
   appliedAt: string;
   cvFile: string;
+  testScore?: number | null;
+  testPassed?: boolean | null;
 }
 
 export interface ApplicantsListDTO {
@@ -36,11 +38,37 @@ export async function listApplicants(params: {
   offset?: number;
 }): Promise<ApplicantsListDTO> {
   const { companyId, jobId, ...query } = params;
-  const res = await apiCall.get<{ success: boolean; data: ApplicantsListDTO }>(
+  const res = await apiCall.get<{ success: boolean; data: any }>(
     `/job/companies/${companyId}/jobs/${jobId}/applicants`,
     { params: query }
   );
-  return res.data.data;
+  const data = res.data.data;
+  const toAge = (dob?: string | null) => {
+    if (!dob) return null;
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return null;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+    return age;
+  };
+  const items: ApplicantItemDTO[] = (data.items || []).map((a: any) => ({
+    id: a.applicationId,
+    userId: a.user?.id,
+    name: a.user?.name,
+    email: a.user?.email,
+    profilePicture: a.user?.profilePicture ?? null,
+    education: a.user?.education ?? null,
+    expectedSalary: a.expectedSalary ?? null,
+    age: toAge(a.user?.dob ?? null),
+    status: a.status,
+    appliedAt: a.appliedAt,
+    cvFile: a.cvFile,
+    testScore: a.testScore ?? null,
+    testPassed: typeof a.preselectionPassed === 'boolean' ? a.preselectionPassed : null,
+  }));
+  return { total: data.total, limit: data.limit, offset: data.offset, items };
 }
 
 export async function updateApplicantStatus(params: {

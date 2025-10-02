@@ -31,8 +31,27 @@ export default function AdminInterviewsPage() {
     setLoading(true);
     setError(null);
     try {
+      // Resolve companyId from backend if missing
+      let cid = companyId;
+      if (!cid || Number.isNaN(cid)) {
+        const token = localStorage.getItem("token");
+        const resp = await fetch("http://localhost:4400/company/admin", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const resolved = Number(data?.id ?? data?.data?.id);
+          if (resolved) {
+            cid = resolved;
+            localStorage.setItem("companyId", cid.toString());
+            setCompanyId(cid);
+          }
+        }
+      }
+      if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
+
       const res = await listCompanyInterviews({
-        companyId,
+        companyId: cid,
         jobId: filters.jobId ? Number(filters.jobId) : undefined,
         applicantId: filters.applicantId ? Number(filters.applicantId) : undefined,
         status: (filters.status || undefined) as any,
@@ -79,6 +98,7 @@ export default function AdminInterviewsPage() {
   };
 
   const onCancel = async (id: number) => {
+    if (!confirm('Cancel this interview schedule?')) return;
     try {
       await updateInterview({ companyId, id, status: "CANCELLED" });
       fetchData();

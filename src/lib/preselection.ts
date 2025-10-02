@@ -4,6 +4,8 @@ export interface PreselectionQuestionDTO {
   id: number;
   question: string;
   options: string[];
+  // For admin role, backend includes the answer
+  answer?: string;
 }
 
 export interface PreselectionTestDTO {
@@ -46,6 +48,13 @@ export async function upsertPreselectionTest(params: {
     questions,
   });
   return res.data;
+}
+
+export async function getMyPreselectionStatus(jobId: number) {
+  const res = await apiCall.get<{ success: boolean; data: { required: boolean; testId?: number; submitted?: boolean; score?: number | null; passingScore?: number | null; isPassed?: boolean } }>(
+    `/preselection/jobs/${jobId}/my-status`
+  );
+  return res.data.data;
 }
 
 

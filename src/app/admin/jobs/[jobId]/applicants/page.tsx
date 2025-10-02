@@ -62,6 +62,8 @@ export default function ApplicantsPage() {
   }, [companyId, jobId, filters, limit, offset]);
 
   const onUpdateStatus = async (app: ApplicantItemDTO, status: "IN_REVIEW" | "INTERVIEW" | "ACCEPTED" | "REJECTED") => {
+    const label = status === 'REJECTED' ? 'reject' : status === 'ACCEPTED' ? 'accept' : status === 'INTERVIEW' ? 'move to interview' : 'set to in-review';
+    if (!confirm(`Are you sure you want to ${label} this applicant?`)) return;
     try {
       await updateApplicantStatus({ companyId, jobId, applicationId: app.id, status });
       fetchData();
@@ -112,6 +114,7 @@ export default function ApplicantsPage() {
                 <th className="text-left p-2 border">Education</th>
                 <th className="text-left p-2 border">Age</th>
                 <th className="text-left p-2 border">Expected Salary</th>
+                <th className="text-left p-2 border">Test</th>
                 <th className="text-left p-2 border">Status</th>
                 <th className="text-left p-2 border">CV</th>
                 <th className="text-left p-2 border">Actions</th>
@@ -132,6 +135,15 @@ export default function ApplicantsPage() {
                   <td className="p-2 border">{a.education ?? "-"}</td>
                   <td className="p-2 border">{a.age ?? "-"}</td>
                   <td className="p-2 border">{a.expectedSalary ?? "-"}</td>
+                  <td className="p-2 border">
+                    {typeof a.testScore === 'number' ? (
+                      <span className={a.testPassed ? 'text-green-600' : 'text-red-600'}>
+                        {a.testScore}/25 {a.testPassed ? '(Passed)' : '(Failed)'}
+                      </span>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td className="p-2 border">{a.status}</td>
                   <td className="p-2 border">
                     <a href={a.cvFile} target="_blank" rel="noreferrer" className="text-blue-600 underline">View CV</a>

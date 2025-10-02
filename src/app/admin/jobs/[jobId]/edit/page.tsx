@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { updateJob, deleteJob, getJobDetail } from "@/lib/jobs";
-import { upsertPreselectionTest } from "@/lib/preselection";
-import { useRouter, useParams } from "next/navigation";
+import { upsertPreselectionTest, fetchPreselectionTest } from "@/lib/preselection";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { TestTube, Plus, Trash2, Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 export default function EditJobPage() {
   const router = useRouter();
   const params = useParams<{ jobId: string }>();
+  const searchParams = useSearchParams();
   const jobId = Number(params.jobId);
   const [companyId, setCompanyId] = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
@@ -27,6 +28,7 @@ export default function EditJobPage() {
   }>>([]);
   const [passingScore, setPassingScore] = useState(20);
   const [isTestActive, setIsTestActive] = useState(false);
+  const [testLoaded, setTestLoaded] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -62,6 +64,26 @@ export default function EditJobPage() {
           tags: detail.tags ?? [],
           deadline: (detail as any).deadline ?? null,
         });
+
+        // Activate test tab from query if provided
+        const tab = searchParams?.get("tab");
+        if (tab === "test") setActiveTab("test");
+
+        // Load existing preselection test for this job (if any)
+        try {
+          const test = await fetchPreselectionTest(jobId);
+          if (test) {
+            setIsTestActive(!!test.isActive);
+            setPassingScore(test.passingScore ?? 0);
+            const mapped = (test.questions || []).map((q: any) => ({
+              question: q.question || "",
+              options: Array.isArray(q.options) ? q.options : ["", "", "", ""],
+              answer: (q as any).answer || "",
+            }));
+            setTestQuestions(mapped);
+          }
+        } catch {}
+        setTestLoaded(true);
       } catch (e) {
         // noop
       } finally {
@@ -94,11 +116,8 @@ export default function EditJobPage() {
   };
 
   const addQuestion = () => {
-    setTestQuestions([...testQuestions, {
-      question: "",
-      options: ["", "", "", ""],
-      answer: ""
-    }]);
+    if (testQuestions.length >= 25) return;
+    setTestQuestions([...testQuestions, { question: "", options: ["", "", "", ""], answer: "" }]);
   };
 
   const updateQuestion = (index: number, field: string, value: any) => {
@@ -112,18 +131,24 @@ export default function EditJobPage() {
   };
 
   const saveTest = async () => {
-    if (testQuestions.length < 25) {
-      alert("Please add exactly 25 questions for the pre-selection test");
+    if (!isTestActive) {
+      await upsertPreselectionTest({ jobId, isActive: false, passingScore: 0, questions: [] });
+      alert("Preselection test disabled for this job.");
       return;
     }
-
-    // Validate all questions
+    if (testQuestions.length !== 25) {
+      alert("Pre-selection test must contain exactly 25 questions");
+      return;
+    }
     for (let i = 0; i < testQuestions.length; i++) {
       const q = testQuestions[i];
-      if (!q.question.trim() || q.options.some(opt => !opt.trim()) || !q.answer.trim()) {
-        alert(`Please complete question ${i + 1}`);
-        return;
-      }
+      if (!q.question.trim()) return alert(`Question ${i + 1} is empty`);
+      if (!Array.isArray(q.options) || q.options.length !== 4)
+        return alert(`Question ${i + 1} must have 4 options`);
+      if (q.options.some((opt) => !opt.trim()))
+        return alert(`All options must be filled for question ${i + 1}`);
+      if (!q.answer.trim() || !q.options.includes(q.answer))
+        return alert(`Answer for question ${i + 1} must match one of the options`);
     }
 
     try {
@@ -357,10 +382,19 @@ export default function EditJobPage() {
 
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-gray-600">
-                  Questions: {testQuestions.length}/25
-                </p>
-                <Button onClick={addQuestion} className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c]">
+                <div className="flex items-center gap-4">
+                  <label className="inline-flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={isTestActive} onChange={(e)=>setIsTestActive(e.target.checked)} />
+                    Enable Preselection Test
+                  </label>
+                  <p className="text-sm text-gray-600">Questions: {testQuestions.length}/25</p>
+                  {testLoaded ? (
+                    <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">{testQuestions.length ? 'Loaded from server' : 'No test yet'}</span>
+                  ) : (
+                    <span className="text-xs text-gray-500">Loading test…</span>
+                  )}
+                </div>
+                <Button onClick={addQuestion} className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c]" disabled={!isTestActive || testQuestions.length>=25}>
                   <Plus className="w-4 h-4" />
                   Add Question
                 </Button>
@@ -451,12 +485,6 @@ export default function EditJobPage() {
               <Button
                 onClick={async () => {
                   try {
-                    if (!isTestActive) {
-                      // Disable test for this job
-                      await upsertPreselectionTest({ jobId, isActive: false, passingScore: 0, questions: [] });
-                      alert("Preselection test disabled for this job.");
-                      return;
-                    }
                     await saveTest();
                   } catch (err: any) {
                     alert(err?.response?.data?.message || "Failed to save test");
@@ -465,7 +493,7 @@ export default function EditJobPage() {
                 className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
               >
                 <Save className="w-4 h-4" />
-                {isTestActive ? "Save Test" : "Save (Disable Test)"}
+                Save Test
               </Button>
               <Link href="/admin/preselection" className="ml-2 inline-flex items-center text-sm text-blue-600 hover:underline">Manage all tests</Link>
             </div>
