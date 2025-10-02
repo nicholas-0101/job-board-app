@@ -91,6 +91,8 @@ export default function AdminJobsPage() {
   }, [companyId, title, category, sortBy, sortOrder, limit, offset]);
 
   const onTogglePublish = async (job: JobItemDTO) => {
+    const next = job.isPublished ? 'unpublish' : 'publish';
+    if (!confirm(`Are you sure you want to ${next} "${job.title}"?`)) return;
     try {
       await togglePublishJob({ companyId, jobId: job.id, isPublished: !job.isPublished });
       fetchData();
@@ -154,15 +156,15 @@ export default function AdminJobsPage() {
                         <span>• {j.isPublished ? "Published" : "Draft"}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 shrink-0">
-                      <Button size="sm" onClick={() => onTogglePublish(j)} className="bg-[#467EC7] hover:bg-[#578BCC]">
+                    <div className="flex gap-2 shrink-0 flex-wrap">
+                      <Button size="sm" onClick={() => onTogglePublish(j)} className="bg-[#467EC7] hover:bg-[#578BCC] whitespace-nowrap">
                         {j.isPublished ? "Unpublish" : "Publish"}
                       </Button>
                       <Link href={`/admin/jobs/${j.id}/edit`}>
-                        <Button size="sm" className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]">Edit</Button>
+                        <Button size="sm" className="bg-[#24CFA7] hover:bg-[#1fc39c] whitespace-nowrap">Edit</Button>
                       </Link>
                       <Link href={`/admin/jobs/${j.id}/applicants`}>
-                        <Button size="sm" variant="outline" className="w-full">Applicants ({j.applicantsCount})</Button>
+                        <Button size="sm" variant="outline" className="whitespace-nowrap">Applicants ({j.applicantsCount})</Button>
                       </Link>
                     </div>
                   </div>
@@ -194,39 +196,17 @@ export default function AdminJobsPage() {
                       <td className="p-2 border">{j.applicantsCount}</td>
                       <td className="p-2 border">{j.isPublished ? "Yes" : "No"}</td>
                       <td className="p-2 border">
-                      <div className="relative">
-                        <Button
-                          size="sm"
-                          className="px-3 bg-[#467EC7] hover:bg-[#578BCC] whitespace-nowrap"
-                          onClick={() => setOpenRowId(openRowId === j.id ? null : j.id)}
-                        >
-                          Actions
-                        </Button>
-                        {openRowId === j.id && (
-                          <div className="absolute right-0 z-10 mt-2 w-44 rounded-md border bg-background shadow-md p-1.5 space-y-1">
-                            <button
-                              onClick={() => { setOpenRowId(null); onTogglePublish(j); }}
-                              className="w-full text-left text-sm px-2 py-1 rounded hover:bg-accent"
-                            >
-                              {j.isPublished ? "Unpublish" : "Publish"}
-                            </button>
-                            <Link
-                              href={`/admin/jobs/${j.id}/edit`}
-                              onClick={() => setOpenRowId(null)}
-                              className="block text-sm px-2 py-1 rounded hover:bg-accent"
-                            >
-                              Edit
-                            </Link>
-                            <Link
-                              href={`/admin/jobs/${j.id}/applicants`}
-                              onClick={() => setOpenRowId(null)}
-                              className="block text-sm px-2 py-1 rounded hover:bg-accent"
-                            >
-                              Applicants ({j.applicantsCount})
-                            </Link>
-                          </div>
-                        )}
-                      </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" className="bg-[#467EC7] hover:bg-[#578BCC]" onClick={() => onTogglePublish(j)}>
+                            {j.isPublished ? "Unpublish" : "Publish"}
+                          </Button>
+                          <Link href={`/admin/jobs/${j.id}/edit`}>
+                            <Button size="sm" className="bg-[#24CFA7] hover:bg-[#1fc39c]">Edit</Button>
+                          </Link>
+                          <Link href={`/admin/jobs/${j.id}/applicants`}>
+                            <Button size="sm" variant="outline">Applicants</Button>
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
