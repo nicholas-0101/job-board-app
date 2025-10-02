@@ -63,7 +63,7 @@ export default function SkillAssessmentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -79,13 +79,13 @@ export default function SkillAssessmentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Award className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-[#467EC7]/10 rounded-lg">
+              <Award className="w-6 h-6 text-[#467EC7]" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Skill Assessments</h1>
@@ -100,7 +100,7 @@ export default function SkillAssessmentsPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <BookOpen className="w-5 h-5 text-blue-600" />
+                  <BookOpen className="w-5 h-5 text-[#467EC7]" />
                   <div>
                     <p className="text-sm text-gray-600">Available Tests</p>
                     <p className="text-2xl font-bold text-gray-900">{assessments.length}</p>
@@ -112,7 +112,7 @@ export default function SkillAssessmentsPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-green-600" />
+                  <Users className="w-5 h-5 text-[#24CFA7]" />
                   <div>
                     <p className="text-sm text-gray-600">Total Participants</p>
                     <p className="text-2xl font-bold text-gray-900">
@@ -126,7 +126,7 @@ export default function SkillAssessmentsPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <Trophy className="w-5 h-5 text-yellow-600" />
+                  <Trophy className="w-5 h-5 text-[#A3B6CE]" />
                   <div>
                     <p className="text-sm text-gray-600">Certificates Available</p>
                     <p className="text-2xl font-bold text-gray-900">
@@ -168,7 +168,7 @@ export default function SkillAssessmentsPage() {
                     </div>
                     {assessment.badgeTemplate && (
                       <div className="ml-3">
-                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                        <Badge variant="secondary" className="bg-[#24CFA7]/10 text-[#24CFA7] border-[#24CFA7]/20">
                           <Trophy className="w-3 h-3 mr-1" />
                           Certificate
                         </Badge>
@@ -181,10 +181,10 @@ export default function SkillAssessmentsPage() {
                   <div className="space-y-4">
                     {/* Badge Info */}
                     {assessment.badgeTemplate && (
-                      <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="p-3 bg-[#467EC7]/5 rounded-lg border border-[#467EC7]/10">
                         <div className="flex items-center gap-2">
-                          <Award className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm font-medium text-blue-900">
+                          <Award className="w-4 h-4 text-[#467EC7]" />
+                          <span className="text-sm font-medium text-[#467EC7]">
                             Earn: {assessment.badgeTemplate.name}
                           </span>
                         </div>
@@ -216,7 +216,7 @@ export default function SkillAssessmentsPage() {
                     {/* Action Button */}
                     <Button 
                       onClick={() => handleTakeAssessment(assessment.id)}
-                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      className="w-full bg-[#467EC7] hover:bg-[#467EC7]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       Take Assessment
                       <ChevronRight className="w-4 h-4 ml-2" />

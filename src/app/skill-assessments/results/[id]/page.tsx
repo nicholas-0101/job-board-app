@@ -160,14 +160,14 @@ export default function AssessmentResultPage() {
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600";
-    if (score >= 75) return "text-blue-600";
+    if (score >= 75) return "text-[#467EC7]";
     if (score >= 60) return "text-yellow-600";
     return "text-red-600";
   };
 
   const getScoreBackground = (score: number) => {
     if (score >= 90) return "bg-green-50 border-green-200";
-    if (score >= 75) return "bg-blue-50 border-blue-200";
+    if (score >= 75) return "bg-[#467EC7]/5 border-[#467EC7]/20";
     if (score >= 60) return "bg-yellow-50 border-yellow-200";
     return "bg-red-50 border-red-200";
   };
@@ -183,15 +183,15 @@ export default function AssessmentResultPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#467EC7]"></div>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -211,7 +211,7 @@ export default function AssessmentResultPage() {
   const completionMinutes = Math.round(completionTime / (1000 * 60));
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-6">
@@ -227,7 +227,7 @@ export default function AssessmentResultPage() {
           <div className="text-center">
             <div className="mb-4">
               {result.isPassed ? (
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+                <CheckCircle className="w-16 h-16 text-[#24CFA7] mx-auto" />
               ) : (
                 <XCircle className="w-16 h-16 text-red-500 mx-auto" />
               )}
@@ -265,7 +265,7 @@ export default function AssessmentResultPage() {
                 <p className="text-sm text-gray-600">Status</p>
                 <p className="font-semibold">
                   {result.isPassed ? (
-                    <span className="text-green-600">PASSED</span>
+                    <span className="text-[#24CFA7]">PASSED</span>
                   ) : (
                     <span className="text-red-600">NOT PASSED</span>
                   )}
@@ -321,9 +321,9 @@ export default function AssessmentResultPage() {
 
         {/* Certificate Section */}
         {result.isPassed && result.assessment.badgeTemplate && (
-          <Card className="mb-6 bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+          <Card className="mb-6 bg-gradient-to-r from-[#24CFA7]/5 to-[#24CFA7]/10 border-[#24CFA7]/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-800">
+              <CardTitle className="flex items-center gap-2 text-[#24CFA7]">
                 <Trophy className="w-5 h-5" />
                 Certificate Earned!
               </CardTitle>
@@ -331,14 +331,14 @@ export default function AssessmentResultPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-lg text-yellow-900">
+                  <h3 className="font-semibold text-lg text-[#24CFA7]">
                     {result.assessment.badgeTemplate.name}
                   </h3>
-                  <p className="text-yellow-700 text-sm mb-2">
+                  <p className="text-gray-700 text-sm mb-2">
                     You've earned this certificate for your excellent performance!
                   </p>
                   {result.certificateCode && (
-                    <p className="text-xs text-yellow-600">
+                    <p className="text-xs text-gray-600">
                       Certificate ID: {result.certificateCode}
                     </p>
                   )}
@@ -353,10 +353,10 @@ export default function AssessmentResultPage() {
               </div>
               
               {result.certificateUrl && (
-                <div className="mt-4 pt-4 border-t border-yellow-200">
+                <div className="mt-4 pt-4 border-t border-[#24CFA7]/20">
                   <Button 
                     onClick={handleDownloadCertificate}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                    className="bg-[#24CFA7] hover:bg-[#24CFA7]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download Certificate
@@ -390,7 +390,7 @@ export default function AssessmentResultPage() {
             <Button
               onClick={() => router.push(`/skill-assessments/${result.assessmentId}`)}
               size="lg"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#467EC7] hover:bg-[#467EC7]/90 shadow-lg hover:shadow-xl transition-all duration-200"
             >
               Try Again
             </Button>
@@ -399,12 +399,12 @@ export default function AssessmentResultPage() {
 
         {/* Improvement Tips */}
         {!result.isPassed && (
-          <Card className="mt-6 bg-blue-50 border-blue-200">
+          <Card className="mt-6 bg-[#467EC7]/5 border-[#467EC7]/20">
             <CardHeader>
-              <CardTitle className="text-blue-800">💡 Tips for Improvement</CardTitle>
+              <CardTitle className="text-[#467EC7]">💡 Tips for Improvement</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="text-blue-700 space-y-2 text-sm">
+              <ul className="text-gray-700 space-y-2 text-sm">
                 <li>• Review the topics covered in this assessment</li>
                 <li>• Practice with similar questions and concepts</li>
                 <li>• Take your time to read each question carefully</li>
