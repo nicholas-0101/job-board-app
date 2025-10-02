@@ -1,13 +1,39 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Share2, Bookmark, MapPin, Clock, Building2 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface JobDetailCardProps {
-  job: any; // ideally replace `any` with a Job type
+  job: any;
 }
 
 export default function JobDetailCard({ job }: JobDetailCardProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handlePretestClick = () => {
+    if (!isAuthenticated) {
+      router.push("/go-to-signin");
+      return;
+    }
+    router.push(`/jobs/${job.id}/pretest`);
+  };
+
+  const handleApplyClick = () => {
+    if (!isAuthenticated) {
+      router.push("/go-to-signin");
+      return;
+    }
+    router.push(`/jobs/${job.id}/apply`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,13 +45,22 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         <h1 className="text-3xl font-bold text-[#467EC7]">{job.title}</h1>
 
         <div className="flex items-center gap-2">
-          <button className="px-4 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-sm font-medium transition-colors">
+          <button
+            onClick={handlePretestClick}
+            className="px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-sm font-medium transition-colors cursor-pointer"
+          >
+            Pretest
+          </button>
+          <button
+            onClick={handleApplyClick}
+            className="px-4 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-sm font-medium transition-colors cursor-pointer"
+          >
             Apply
           </button>
-          <button className="p-2 rounded-lg hover:text-muted-foreground">
+          <button className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer">
             <Share2 className="w-4 h-4 text-foreground" />
           </button>
-          <button className="p-2 rounded-lg hover:text-muted-foreground">
+          <button className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer">
             <Bookmark className="w-4 h-4 text-foreground" />
           </button>
         </div>

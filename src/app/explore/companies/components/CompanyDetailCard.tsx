@@ -36,10 +36,10 @@ export default function CompanyDetailCard({ company }: CompanyDetailCardProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="px-4 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-sm font-medium transition-colors">
+          <button className="px-4 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-sm font-medium transition-colors cursor-pointer">
             Review
           </button>
-          <button className="p-2 rounded-lg hover:text-muted-foreground">
+          <button className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer">
             <Share2 className="w-4 h-4 text-foreground" />
           </button>
         </div>

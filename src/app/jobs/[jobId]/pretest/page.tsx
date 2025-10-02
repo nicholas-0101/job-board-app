@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { fetchPreselectionTest, submitPreselectionAnswers, PreselectionTestDTO } from "@/lib/preselection";
+import {
+  fetchPreselectionTest,
+  submitPreselectionAnswers,
+  PreselectionTestDTO,
+} from "@/lib/preselection";
+import { Loader } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function JobPretestPage() {
   const params = useParams<{ jobId: string }>();
@@ -33,7 +39,9 @@ export default function JobPretestPage() {
 
   const canSubmit = useMemo(() => {
     if (!test) return false;
-    return test.questions.every((q) => typeof answers[q.id] === "string" && answers[q.id]!.length > 0);
+    return test.questions.every(
+      (q) => typeof answers[q.id] === "string" && answers[q.id]!.length > 0
+    );
   }, [test, answers]);
 
   const onSelect = (questionId: number, option: string) => {
@@ -49,10 +57,19 @@ export default function JobPretestPage() {
       const applicantId = raw ? Number(raw) : undefined;
       if (!applicantId) throw new Error("Not authenticated");
 
-      const payload = test.questions.map((q) => ({ questionId: q.id, selected: answers[q.id] }));
-      await submitPreselectionAnswers({ applicantId, testId: test.id, answers: payload });
-      alert("Test submitted successfully! You can now proceed with your job application.");
-      router.push(`/jobs/${jobId}`);
+      const payload = test.questions.map((q) => ({
+        questionId: q.id,
+        selected: answers[q.id],
+      }));
+      await submitPreselectionAnswers({
+        applicantId,
+        testId: test.id,
+        answers: payload,
+      });
+      alert(
+        "Test submitted successfully! You can now proceed with your job application."
+      );
+      router.push(`/explore/jobs/${jobId}`);
     } catch (e: any) {
       alert(e?.response?.data?.message || e?.message || "Failed to submit");
     } finally {
@@ -60,58 +77,69 @@ export default function JobPretestPage() {
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading pre-selection test...</p>
-      </div>
-    </div>
-  );
-  
-  if (error) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-red-600 text-lg mb-4">❌ Error</div>
-        <p className="text-gray-600">{error}</p>
-        <button 
-          onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+  if (loading)
+    return (
+      <div className="flex items-center justify-center py-20">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
-          Go Back
-        </button>
+          <Loader className="w-8 h-8 text-[#24CFA7]" />
+        </motion.div>
       </div>
-    </div>
-  );
-  
-  if (!test) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-gray-600 text-lg mb-4">📝 No Test Available</div>
-        <p className="text-gray-500">This job doesn't have a pre-selection test.</p>
-        <button 
-          onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Go Back
-        </button>
+    );
+
+  if (error)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-lg mb-4">Error</div>
+          <p className="text-gray-600">{error}</p>
+          <button
+            onClick={() => router.back()}
+            className="mt-4 px-4 py-2 bg-[#467EC7] text-white rounded-lg hover:bg-[#467EC7]/80"
+          >
+            Go Back
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+
+  if (!test)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-600 text-lg mb-4">No Test Available</div>
+          <p className="text-gray-500">
+            This job doesn't have a pre-selection test.
+          </p>
+          <button
+            onClick={() => router.back()}
+            className="mt-4 px-4 py-2 bg-[#467EC7] text-white rounded-lg hover:bg-[#467EC7]/80"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-6">
+      <div className="bg-background/80 backdrop-blur border-b border-gray-200 sticky top-16">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pre-Selection Test</h1>
-              <p className="text-gray-600">Complete this test to proceed with your job application</p>
+              <h1 className="text-2xl font-bold text-[#467EC7]">
+                Pre-Selection Test
+              </h1>
+              <p className="text-gray-600">
+                Complete this test to proceed with your job application
+              </p>
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-500">Progress</div>
-              <div className="text-lg font-semibold text-blue-600">
+              <div className="text-lg font-bold text-[#467EC7]">
                 {Object.keys(answers).length} / {test.questions.length}
               </div>
             </div>
@@ -124,22 +152,31 @@ export default function JobPretestPage() {
           {/* Test Info */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Test Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Test Information
+              </h2>
               {typeof test.passingScore === "number" && (
                 <div className="text-sm text-gray-600">
-                  Passing Score: <span className="font-semibold text-blue-600">{test.passingScore}</span> / {test.questions.length}
+                  Passing Score:{" "}
+                  <span className="font-semibold text-[#467EC7]">
+                    {test.passingScore}
+                  </span>{" "}
+                  / {test.questions.length}
                 </div>
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
               <div>
-                <span className="font-medium">Total Questions:</span> {test.questions.length}
+                <span className="font-medium">Total Questions:</span>{" "}
+                {test.questions.length}
               </div>
               <div>
-                <span className="font-medium">Answered:</span> {Object.keys(answers).length}
+                <span className="font-medium">Answered:</span>{" "}
+                {Object.keys(answers).length}
               </div>
               <div>
-                <span className="font-medium">Remaining:</span> {test.questions.length - Object.keys(answers).length}
+                <span className="font-medium">Remaining:</span>{" "}
+                {test.questions.length - Object.keys(answers).length}
               </div>
             </div>
           </div>
@@ -147,20 +184,26 @@ export default function JobPretestPage() {
           {/* Questions */}
           <div className="space-y-6">
             {test.questions.map((q, idx) => (
-              <div key={q.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div
+                key={q.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              >
                 <h3 className="font-semibold text-gray-900 mb-4 text-lg">
                   {idx + 1}. {q.question}
                 </h3>
                 <div className="space-y-3">
                   {q.options.map((opt) => (
-                    <label key={opt} className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                    <label
+                      key={opt}
+                      className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-[#24CFA7]/60 hover:bg-[#24CFA7]/5 transition-colors"
+                    >
                       <input
                         type="radio"
                         name={`q-${q.id}`}
                         value={opt}
                         checked={answers[q.id] === opt}
                         onChange={() => onSelect(q.id, opt)}
-                        className="text-blue-600 focus:ring-blue-500"
+                        className="text-[#24CFA7] focus:ring-[#24CFA7]"
                       />
                       <span className="text-gray-700">{opt}</span>
                     </label>
@@ -175,21 +218,22 @@ export default function JobPretestPage() {
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
                 {canSubmit ? (
-                  <span className="text-green-600">✅ All questions answered</span>
+                  <span className="text-muted-foreground">
+                    All questions answered
+                  </span>
                 ) : (
-                  <span className="text-orange-600">⚠️ Please answer all questions</span>
+                  <span className="text-red-400">
+                    Please answer all questions
+                  </span>
                 )}
               </div>
               <button
                 onClick={onSubmit}
                 disabled={!canSubmit || submitting}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-8 py-3 bg-[#24CFA7] text-white rounded-lg hover:bg-[#24CFA7]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {submitting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Submitting...
-                  </div>
+                  <div className="flex items-center gap-2">Submitting...</div>
                 ) : (
                   "Submit Test"
                 )}
@@ -201,5 +245,3 @@ export default function JobPretestPage() {
     </div>
   );
 }
-
-
