@@ -53,9 +53,7 @@ export default function BadgesPage() {
   };
 
   const handleEditBadge = (badge: BadgeType) => {
-    // TODO: Implement edit functionality
-    console.log("Edit badge:", badge);
-    toast("Edit functionality coming soon", { icon: "ℹ️" });
+    router.push(`/developer/badges/edit/${badge.id}`);
   };
 
   const handleDeleteBadge = async (badgeId: number) => {

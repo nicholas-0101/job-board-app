@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User2, LogOutIcon, FileEditIcon } from "lucide-react";
+import { User2, LogOutIcon, FileEditIcon, Award, Trophy } from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface Props {
@@ -57,13 +57,27 @@ export default function NavbarProfile({ user, logout, router }: Props) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-40 bg-background border border-border rounded-lg shadow-lg z-50 flex flex-col">
+        <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg z-50 flex flex-col">
           <Link
             href="/cv-generator"
             className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <FileEditIcon size={18} /> CV Generator
+          </Link>
+          <Link
+            href="/skill-assessments"
+            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            onClick={() => setOpen(false)}
+          >
+            <Award size={18} /> Skill Assessments
+          </Link>
+          <Link
+            href="/skill-assessments/dashboard"
+            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            onClick={() => setOpen(false)}
+          >
+            <Trophy size={18} /> My Results
           </Link>
           <Link
             href="/profile/edit"
