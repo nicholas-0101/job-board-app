@@ -16,6 +16,7 @@ export default function JobApplicationPage() {
 
   const [success, setSuccess] = useState(false);
   const [jobName, setJobName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const initialValues = {
     expectedSalary: "",
@@ -37,6 +38,8 @@ export default function JobApplicationPage() {
 
   const handleSubmit = async (values: typeof initialValues) => {
     try {
+      setIsLoading(true);
+
       const formData = new FormData();
       formData.append("expectedSalary", values.expectedSalary);
       if (values.cvFile) {
@@ -48,11 +51,12 @@ export default function JobApplicationPage() {
       });
 
       setSuccess(true);
-      setTimeout(() => router.replace(`/explore/jobs/${jobId}`), 1000);
+      alert("Application submitted successfully!");
+      router.replace(`/explore/jobs/${jobId}`);
     } catch (err: any) {
-      throw new Error(
-        err.response?.data?.message || "Failed to submit application"
-      );
+      alert(err.response?.data?.message || "Failed to submit application");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,7 +70,7 @@ export default function JobApplicationPage() {
           className="bg-card text-card-foreground border border-border rounded-2xl shadow-md p-8"
         >
           <h1 className="text-2xl text-center font-bold text-[#467EC7] mb-6">
-            Apply for Job {jobName}
+            Apply for {jobName}
           </h1>
 
           <Formik
@@ -186,25 +190,27 @@ export default function JobApplicationPage() {
                   />
                 </div>
 
-                {/* Success Message */}
-                {success && (
-                  <p className="text-muted-foreground text-sm font-medium">
-                    Application submitted successfully!
-                  </p>
-                )}
-
                 {/* Submit Button */}
-                <button
+                <motion.button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 rounded-xl bg-[#24CFA7] text-white font-semibold hover:bg-[#24CFA7]/90 transition-all flex items-center justify-center"
+                  className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+                    isLoading
+                      ? "cursor-not-allowed opacity-70"
+                      : "hover:shadow-xl cursor-pointer"
+                  }`}
+                  whileHover={isLoading ? {} : { scale: 1.02 }}
+                  whileTap={isLoading ? {} : { scale: 0.98 }}
+                  disabled={isLoading}
                 >
-                  {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Submiting...
+                    </span>
                   ) : (
                     "Submit Application"
                   )}
-                </button>
+                </motion.button>
               </Form>
             )}
           </Formik>

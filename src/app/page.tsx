@@ -15,7 +15,7 @@ import { JobCard } from "./explore/jobs/components/JobCard";
 import SearchBar from "../components/site/SearchBar";
 import { AnimatedCounter } from "../components/ui/AnimatedCounter";
 import { apiCall } from "@/helper/axios";
-import { getCityFromCoords, getUserLocation } from "@/utils/location";
+import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
 const categories = [
   { name: "Engineering", icon: "⚙️", count: 234 },
@@ -27,12 +27,12 @@ const categories = [
 ];
 
 const trustedCompanies = [
-  { name: "Google", logo: "🔍" },
-  { name: "Microsoft", logo: "🪟" },
-  { name: "Apple", logo: "🍎" },
-  { name: "Amazon", logo: "📦" },
-  { name: "Meta", logo: "👥" },
-  { name: "Netflix", logo: "🎬" },
+  { name: "Google", logo: "🔍", url: "https://www.google.com" },
+  { name: "Microsoft", logo: "🪟", url: "https://www.microsoft.com" },
+  { name: "Apple", logo: "🍎", url: "https://www.apple.com" },
+  { name: "Amazon", logo: "📦", url: "https://www.amazon.com" },
+  { name: "Meta", logo: "👥", url: "https://about.meta.com" },
+  { name: "Netflix", logo: "🎬", url: "https://www.netflix.com" },
 ];
 
 export default function HomePage() {
@@ -334,13 +334,16 @@ export default function HomePage() {
         </h3>
         <div className="flex justify-center items-center gap-12 flex-wrap">
           {trustedCompanies.map((company) => (
-            <div
+            <a
               key={company.name}
+              href={company.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 text-[#A3B6CE] hover:text-[#467EC7] transition-colors"
             >
               <span className="text-3xl">{company.logo}</span>
               <span className="text-xl font-semibold">{company.name}</span>
-            </div>
+            </a>
           ))}
         </div>
       </section>

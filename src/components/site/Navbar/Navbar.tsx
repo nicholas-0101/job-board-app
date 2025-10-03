@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useUserStore } from "@/lib/store/userStore";
-import { useKeepLogin } from "@/hooks/useKeepLogin";
+import { useKeepLogin } from "@/lib/hooks/useKeepLogin";
 import NavbarLinks from "./NavbarLinks";
 import NavbarProfile from "./NavbarProfile";
 import NavbarMobileMenu from "./NavbarMobile";

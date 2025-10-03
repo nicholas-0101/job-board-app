@@ -15,7 +15,7 @@ import { apiCall } from "@/helper/axios";
 import SearchBar from "@/components/site/SearchBar";
 import { JobCard } from "@/app/explore/jobs/components/JobCard";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getCityFromCoords, getUserLocation } from "@/utils/location";
+import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
 type Filters = {
   keyword?: string;

@@ -41,24 +41,23 @@ export default function SignInPage() {
       // Get company ID for admin
       if (user.role === "ADMIN") {
         try {
-          const companyResponse = await fetch(
-            "http://localhost:4400/company/admin",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+          const companyResponse = await apiCall.get("/company/admin", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const companyId = Number(
+            companyResponse.data?.id ?? companyResponse.data?.data?.id
           );
-          if (companyResponse.ok) {
-            const companyData = await companyResponse.json();
-            const companyId = Number(companyData?.id ?? companyData?.data?.id);
-            if (companyId) {
-              localStorage.setItem("companyId", companyId.toString());
-            }
+          if (companyId) {
+            localStorage.setItem("companyId", companyId.toString());
+          } else {
+            localStorage.setItem("companyId", "1");
           }
         } catch (error) {
           console.log("Could not fetch company data, using default companyId");
-          localStorage.setItem("companyId", "1"); // Default company ID from seed (admin's company)
+          localStorage.setItem("companyId", "1"); 
         }
       }
 

@@ -13,7 +13,7 @@ import { apiCall } from "@/helper/axios";
 import SearchBar from "@/components/site/SearchBar";
 import { CompanyCard } from "./components/CompanyCard";
 import { useRouter } from "next/navigation";
-import { getCityFromCoords, getUserLocation } from "@/utils/location";
+import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
 type Filters = {
   keyword?: string;

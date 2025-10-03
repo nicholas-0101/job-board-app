@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Loader } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -16,7 +18,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         
         if (!token || role !== "ADMIN") {
           console.log("No token or not admin role");
-          router.replace("/signin");
+          router.replace("/");
           return;
         }
 
@@ -31,7 +33,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
           setAllowed(true);
         } else {
           console.log("User is not admin");
-          router.replace("/signin");
+          router.replace("/");
         }
       } catch (error) {
         console.log("Auth verification failed:", error);
@@ -39,7 +41,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("userId");
-        router.replace("/signin");
+        router.replace("/");
       } finally {
         setLoading(false);
       }
@@ -51,9 +53,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verifying admin access...</p>
+        <div className="flex items-center justify-center py-20">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader className="w-8 h-8 text-[#24CFA7]" />
+          </motion.div>
         </div>
       </div>
     );
