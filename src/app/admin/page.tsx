@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { listCompanyJobs } from "@/lib/jobs";
 import { listCompanyInterviews } from "@/lib/interviews";
+import { apiCall } from "@/helper/axios";
 
 // Dummy data
 const jobPostings = [
@@ -107,18 +108,15 @@ export default function AdminPage() {
       // Ensure valid companyId (fetch from backend if not present)
       let cid = companyId;
       if (!cid || Number.isNaN(cid)) {
-        const token = localStorage.getItem("token");
-        const resp = await fetch("http://localhost:4400/company/admin", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
+        try {
+          const resp = await apiCall.get("/company/admin");
+          const data = resp.data?.data ?? resp.data;
           const resolved = Number(data?.id ?? data?.data?.id);
           if (resolved) {
             cid = resolved;
             localStorage.setItem("companyId", cid.toString());
           }
-        }
+        } catch {}
       }
 
       if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
@@ -131,12 +129,9 @@ export default function AdminPage() {
         ]);
       } catch (e: any) {
         // Fallback in case stale companyId (e.g., 16) is stored
-        const token = localStorage.getItem("token");
-        const resp = await fetch("http://localhost:4400/company/admin", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
+        try {
+          const resp = await apiCall.get("/company/admin");
+          const data = resp.data?.data ?? resp.data;
           const newCid = Number(data?.id ?? data?.data?.id);
           if (newCid && newCid !== cid) {
             localStorage.setItem("companyId", newCid.toString());
@@ -148,7 +143,7 @@ export default function AdminPage() {
           } else {
             throw e;
           }
-        } else {
+        } catch {
           throw e;
         }
       }

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { apiCall } from "@/helper/axios";
 import { Loader } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -23,11 +23,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         }
 
         // Verify token with backend
-        const response = await axios.get("http://localhost:4400/auth/keep", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await apiCall.get("/auth/keep");
 
         if (response.data.success && response.data.data.role === "ADMIN") {
           setAllowed(true);
