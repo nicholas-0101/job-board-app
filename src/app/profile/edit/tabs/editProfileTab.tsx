@@ -1,80 +1,87 @@
 "use client";
 import { Formik, Form } from "formik";
-import { useUserStore } from "@/lib/store/userStore";
-import { useCompanyStore } from "@/lib/store/companyStore";
-import { apiCall } from "@/helper/axios";
 import { motion } from "framer-motion";
 import InputField from "../../components/inputField";
 import SelectField from "../../components/selectField";
 import QuillField from "../../components/quillField";
 import CityField from "../../components/cityField";
 import { FileUploader } from "../../components/fileUploader";
-import { Phone, Building, Globe, CalendarDaysIcon, GraduationCap, Home } from "lucide-react";
-import { userProfileSchema, adminProfileSchema } from "../../changeProfileSchema";
+import {
+  Phone,
+  Building,
+  Globe,
+  CalendarDaysIcon,
+  GraduationCap,
+  Home,
+} from "lucide-react";
+import {
+  userProfileSchema,
+  adminProfileSchema,
+} from "../../changeProfileSchema";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { apiCall } from "@/helper/axios";
+import { mapPayloadToInitialValues } from "@/lib/utils/profileUtils";
 import { useState } from "react";
-
+import { useUserStore } from "@/lib/store/userStore";
+import { useCompanyStore } from "@/lib/store/companyStore";
 
 export default function ProfileTab() {
-  const { user, setUser } = useUserStore();
-  const { company, setCompany } = useCompanyStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const { user, initialValues, loadingProfile, setInitialValues } = useProfile();
+  const { setUser } = useUserStore();
+  const { setCompany } = useCompanyStore();
 
-  const formatDateForInput = (dateStr: string | null | undefined) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return `${date.getFullYear()}-${("0"+(date.getMonth()+1)).slice(-2)}-${("0"+date.getDate()).slice(-2)}`;
-  };
+  const [isSaving, setIsSaving] = useState(false);
+
+  if (loadingProfile || initialValues === null) {
+    return (
+      <div className="min-h-[200px] flex items-center justify-center">
+        <p className="text-muted-foreground">Loading profile…</p>
+      </div>
+    );
+  }
 
   const handleEditProfile = async (values: any) => {
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       const formData = new FormData();
-      for (const key in values) if (values[key]) formData.append(key, values[key]);
+      for (const key in values) {
+        if (values[key] !== undefined && values[key] !== null) {
+          formData.append(key, values[key]);
+        }
+      }
 
       const res = await apiCall.put("/profile/edit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (res.data.data.role === "USER") setUser(res.data.data);
-      else if (res.data.data.adminId) setCompany(res.data.data);
+      const payload = res.data?.data ?? res.data;
+      if (payload?.role === "USER") {
+        setUser(payload);
+      } else if (payload?.role === "ADMIN" || payload?.adminId) {
+        setCompany(payload);
+      }
 
-      alert(res.data.message || "Profile updated successfully!");
+      if (payload) setInitialValues(mapPayloadToInitialValues(payload));
+      alert(res.data?.message ?? "Profile updated");
     } catch (err: any) {
+      console.error("Failed to update profile:", err);
       alert(err.response?.data?.message || "Failed to update profile!");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
   return (
     <Formik
-      initialValues={
-        user?.role === "ADMIN"
-          ? {
-              phone: company?.phone || "",
-              location: company?.location || "",
-              city: company?.city || "",
-              description: company?.description || "",
-              website: company?.website || "",
-              logo: company?.logo || null,
-            }
-          : {
-              phone: user?.phone || "",
-              gender: user?.gender || "",
-              dob: formatDateForInput(user?.dob),
-              education: user?.education || "",
-              address: user?.address || "",
-              city: user?.city || "",
-              profilePicture: user?.profilePicture || null,
-            }
+      initialValues={initialValues}
+      enableReinitialize={false}
+      validationSchema={
+        user?.role === "ADMIN" ? adminProfileSchema : userProfileSchema
       }
-      enableReinitialize
-      validationSchema={user?.role === "ADMIN" ? adminProfileSchema : userProfileSchema}
       onSubmit={handleEditProfile}
     >
       {({ setFieldValue }) => (
         <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
-          {/* ADMIN Fields */}
           {user?.role === "ADMIN" ? (
             <>
               <InputField name="phone" label="Company Phone" placeholder="Enter company phone" icon={Phone} />
@@ -86,9 +93,8 @@ export default function ProfileTab() {
             </>
           ) : (
             <>
-              {/* USER Fields */}
               <InputField name="phone" label="Phone" placeholder="Enter your phone" icon={Phone} />
-              <SelectField name="gender" label="Gender" options={[{value:"Male",label:"Male"},{value:"Female",label:"Female"}]}  />
+              <SelectField name="gender" label="Gender" options={[{ value: "Male", label: "Male" }, { value: "Female", label: "Female" }]} />
               <InputField name="dob" label="Date of Birth" type="date" icon={CalendarDaysIcon} />
               <InputField name="education" label="Education" placeholder="Your education" icon={GraduationCap} />
               <InputField name="address" label="Full Address" placeholder="Your full address" icon={Home} />
@@ -100,10 +106,11 @@ export default function ProfileTab() {
           <motion.button
             type="submit"
             className={`w-full mt-6 px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
-              isLoading ? "cursor-not-allowed opacity-70" : "hover:shadow-xl cursor-pointer"
+              isSaving ? "cursor-not-allowed opacity-70" : "hover:shadow-xl cursor-pointer"
             }`}
+            disabled={isSaving}
           >
-            {isLoading ? "Updating..." : "Save Changes"}
+            {isSaving ? "Updating..." : "Save Changes"}
           </motion.button>
         </Form>
       )}

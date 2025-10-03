@@ -53,10 +53,10 @@ export default function CityField({
         <input
           type="text"
           placeholder={placeholder || "Search city..."}
-          value={field.value || query} 
+          value={field.value} // <-- always Formik's value
           onChange={(e) => {
             setQuery(e.target.value);
-            setFieldValue(name, e.target.value); 
+            setFieldValue(name, e.target.value); // update Formik state
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
@@ -75,7 +75,7 @@ export default function CityField({
                 type="button"
                 onClick={() => {
                   setQuery(city);
-                  setFieldValue(name, city);
+                  setFieldValue(name, city); // update Formik
                   setShowDropdown(false);
                 }}
                 className="w-full text-left px-4 py-2 hover:bg-secondary"
