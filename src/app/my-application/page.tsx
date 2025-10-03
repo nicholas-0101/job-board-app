@@ -34,8 +34,9 @@ interface Application {
   cvFile: string;
   expectedSalary: number;
   status: string;
+  reviewNote?: string;
   job: Job;
-  createdAt: string; 
+  createdAt: string;
 }
 
 interface DecodedToken {
@@ -223,6 +224,13 @@ export default function MyApplicationsPage() {
                       View CV
                     </a>
                   </p>
+
+                  {app.reviewNote && (
+                    <div className="mt-2 p-3 bg-[#E6F5F1] text-[#0F766E] rounded-lg text-sm border border-[#24CFA7]">
+                      <span className="font-medium">Review Note:</span>{" "}
+                      {app.reviewNote}
+                    </div>
+                  )}
                 </div>
 
                 {/* Action */}
