@@ -28,8 +28,10 @@ export const useAssessments = () => {
     setError(null);
     try {
       const response = await getDeveloperAssessments();
-      const rawData = response.data?.data || response.data || [];
-      const data = Array.isArray(rawData) ? rawData : [];
+      
+      // Backend sends: { success: true, data: { assessments: [...], pagination: {...} } }
+      const assessmentsData = response.data?.assessments || response.assessments || [];
+      const data = Array.isArray(assessmentsData) ? assessmentsData : [];
       
       // Map backend data to frontend format
       const mappedData = data.map((item: any) => ({
@@ -37,6 +39,7 @@ export const useAssessments = () => {
         questionCount: item._count?.questions || 0,
         attemptCount: item._count?.results || 0,
         passRate: 0, // Will be calculated from results if needed
+        category: item.badgeTemplate?.category || "General",
       }));
       
       setAssessments(mappedData);

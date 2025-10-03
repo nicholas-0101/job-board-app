@@ -53,30 +53,35 @@ export const getDeveloperAssessments = async () => {
 
 // Get single assessment by ID (for developers to edit - includes questions)
 export const getAssessmentById = async (assessmentId: number) => {
-  console.log("Fetching assessment with ID:", assessmentId);
   const response = await apiCall.get(`/skill-assessment/developer/assessments/${assessmentId}`);
-  console.log("Response from backend:", response);
   return response.data;
 };
 
 // Get assessment with results combined
 export const getAssessmentWithResults = async (assessmentId: number) => {
-  const [assessmentRes, resultsRes] = await Promise.all([
-    apiCall.get(`/skill-assessment/developer/assessments`),
-    apiCall.get(`/skill-assessment/assessments/${assessmentId}/results`)
-  ]);
-  
-  const assessments = assessmentRes.data?.data || assessmentRes.data || [];
-  const assessment = Array.isArray(assessments) 
-    ? assessments.find((a: any) => a.id === assessmentId)
-    : null;
-  
-  const results = resultsRes.data?.data || resultsRes.data || [];
-  
-  return {
-    assessment,
-    results
-  };
+  try {
+    // Get assessment details first
+    const assessmentRes = await apiCall.get(`/skill-assessment/developer/assessments/${assessmentId}`);
+    const assessment = assessmentRes.data?.data || assessmentRes.data || null;
+    
+    // Try to get results, but don't fail if no results exist
+    let results = [];
+    try {
+      const resultsRes = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/results`);
+      results = resultsRes.data?.data || resultsRes.data || [];
+    } catch (resultsError) {
+      console.log("No results found for assessment:", assessmentId);
+      results = [];
+    }
+    
+    return {
+      assessment,
+      results
+    };
+  } catch (error) {
+    console.error("Error fetching assessment with results:", error);
+    throw error;
+  }
 };
 
 // Update assessment
