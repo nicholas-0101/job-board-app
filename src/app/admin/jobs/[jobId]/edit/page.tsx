@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { updateJob, deleteJob, getJobDetail } from "@/lib/jobs";
 import { upsertPreselectionTest, fetchPreselectionTest } from "@/lib/preselection";
+import { apiCall } from "@/helper/axios";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { TestTube, Plus, Trash2, Save, ArrowLeft } from "lucide-react";
@@ -36,19 +37,16 @@ export default function EditJobPage() {
         // Resolve companyId from backend if missing/stale
         let cid = companyId;
         if (!cid || Number.isNaN(cid)) {
-          const token = localStorage.getItem("token");
-          const resp = await fetch("http://localhost:4400/company/admin", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (resp.ok) {
-            const data = await resp.json();
+          try {
+            const resp = await apiCall.get("/company/admin");
+            const data = resp.data?.data ?? resp.data;
             const resolved = Number(data?.id ?? data?.data?.id);
             if (resolved) {
               cid = resolved;
               localStorage.setItem("companyId", cid.toString());
               setCompanyId(cid);
             }
-          }
+          } catch {}
         }
 
         if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
@@ -152,28 +150,14 @@ export default function EditJobPage() {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:4400/preselection/jobs/${jobId}/tests`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          questions: testQuestions,
-          passingScore,
-          isActive: isTestActive
-        })
+      await apiCall.post(`/preselection/jobs/${jobId}/tests`, {
+        questions: testQuestions,
+        passingScore,
+        isActive: isTestActive,
       });
-
-      if (response.ok) {
-        alert("Pre-selection test saved successfully!");
-      } else {
-        const error = await response.json();
-        alert(error.message || "Failed to save test");
-      }
-    } catch (error) {
-      alert("Failed to save test");
+      alert("Pre-selection test saved successfully!");
+    } catch (error: any) {
+      alert(error?.response?.data?.message || "Failed to save test");
     }
   };
 

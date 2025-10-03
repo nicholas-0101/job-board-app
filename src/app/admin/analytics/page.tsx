@@ -74,6 +74,7 @@ const analyticsDataFallback = {
 };
 
 import { getOverview, getDemographics, getSalaryTrends, getInterests } from "@/lib/analytics";
+import { apiCall } from "@/helper/axios";
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("30d");
@@ -98,19 +99,16 @@ export default function AnalyticsPage() {
         // Resolve companyId if missing/stale
         let cid = companyId;
         if (!cid || Number.isNaN(cid)) {
-          const token = localStorage.getItem("token");
-          const resp = await fetch("http://localhost:4400/company/admin", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (resp.ok) {
-            const data = await resp.json();
+          try {
+            const resp = await apiCall.get("/company/admin");
+            const data = resp.data?.data ?? resp.data;
             const resolved = Number(data?.id ?? data?.data?.id);
             if (resolved) {
               cid = resolved;
               localStorage.setItem("companyId", cid.toString());
               setCompanyId(cid);
             }
-          }
+          } catch {}
         }
 
         if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
