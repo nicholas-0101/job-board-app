@@ -34,18 +34,15 @@ export default function AdminJobsPage() {
       const token = localStorage.getItem("token");
       let resolvedId = companyId;
       try {
-        const resp = await fetch("http://localhost:4400/company/admin", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          const backendId = Number(data?.id ?? data?.data?.id);
-          if (backendId) {
-            resolvedId = backendId;
-            if (backendId !== companyId) {
-              localStorage.setItem("companyId", backendId.toString());
-              setCompanyId(backendId);
-            }
+        // Prefer axios instance (baseURL + auth interceptor)
+        const resp = await (await import("@/helper/axios")).apiCall.get("/company/admin");
+        const data = resp.data?.data ?? resp.data;
+        const backendId = Number(data?.id ?? data?.data?.id);
+        if (backendId) {
+          resolvedId = backendId;
+          if (backendId !== companyId) {
+            localStorage.setItem("companyId", backendId.toString());
+            setCompanyId(backendId);
           }
         }
       } catch {}
@@ -59,21 +56,16 @@ export default function AdminJobsPage() {
     } catch (e: any) {
       // Fallback: if backend reports 404 due to stale id, refresh id and retry once
       try {
-        const token = localStorage.getItem("token");
-        const resp = await fetch("http://localhost:4400/company/admin", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          const backendId = Number(data?.id ?? data?.data?.id);
-          if (backendId) {
-            localStorage.setItem("companyId", backendId.toString());
-            setCompanyId(backendId);
-            const res = await listCompanyJobs({ companyId: backendId, title, category, sortBy, sortOrder, limit, offset });
-            setData({ total: res.total, items: res.items });
-            setError(null);
-            return;
-          }
+        const resp = await (await import("@/helper/axios")).apiCall.get("/company/admin");
+        const data = resp.data?.data ?? resp.data;
+        const backendId = Number(data?.id ?? data?.data?.id);
+        if (backendId) {
+          localStorage.setItem("companyId", backendId.toString());
+          setCompanyId(backendId);
+          const res = await listCompanyJobs({ companyId: backendId, title, category, sortBy, sortOrder, limit, offset });
+          setData({ total: res.total, items: res.items });
+          setError(null);
+          return;
         }
         throw e;
       } catch (err: any) {
@@ -141,6 +133,14 @@ export default function AdminJobsPage() {
         <div className="text-destructive">{error}</div>
       ) : (
         <>
+          {data.items.length === 0 && (
+            <Card className="mb-4">
+              <CardContent className="p-6 text-center text-muted-foreground">
+                <p>No jobs yet for this company.</p>
+                <p className="mt-2">Click "New Job" to create your first posting.</p>
+              </CardContent>
+            </Card>
+          )}
           {/* Card list on small screens */}
           <div className="grid gap-3 md:hidden">
             {data.items.map((j) => (
