@@ -20,7 +20,7 @@ import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 type Filters = {
   keyword?: string;
   location?: string;
-  sort?: "createdAt" | "deadline";
+  sort?: "createdAt";
   order?: "asc" | "desc";
 };
 
