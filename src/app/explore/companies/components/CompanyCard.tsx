@@ -6,7 +6,7 @@ import { Star, Users } from "lucide-react";
 interface CompanyCardProps {
   id: number;
   name: string;
-  city?: string;
+  locationCity?: string;
   logo?: string;
   jobs?: number;
   rating?: number;
@@ -15,7 +15,7 @@ interface CompanyCardProps {
 export function CompanyCard({
   id,
   name,
-  city = "Unknown",
+  locationCity = "Unknown",
   logo,
   jobs = 0,
   rating = 0,
@@ -27,7 +27,7 @@ export function CompanyCard({
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -5 }}
         className="relative group min-h-[150px] bg-[#F0F5F9] text-card-foreground rounded-2xl overflow-hidden p-6 flex flex-col justify-between"
-        aria-label={`${name} in ${city}`}
+        aria-label={`${name} in ${locationCity}`}
       >
         {/* Logo */}
         <motion.div
@@ -50,7 +50,7 @@ export function CompanyCard({
           <h3 className="text-lg font-semibold text-[#467EC7] truncate">
             {name}
           </h3>
-          <p className="text-sm text-muted-foreground">{city}</p>
+          <p className="text-sm text-muted-foreground">{locationCity}</p>
         </div>
 
         {/* Jobs count */}
