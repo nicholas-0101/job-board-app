@@ -89,7 +89,7 @@ export default function CompaniesPage() {
       const companiesData = res.data.data.map((c: any) => ({
         id: c.id,
         name: c.name,
-        city: c.city,
+        locationCity: c.locationCity,
         jobs: c._count?.jobs || 0,
         logo: c.logo || "",
         rating: Math.floor(Math.random() * 2) + 4,

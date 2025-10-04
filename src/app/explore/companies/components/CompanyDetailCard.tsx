@@ -56,11 +56,11 @@ export default function CompanyDetailCard({ company }: CompanyDetailCardProps) {
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <MapPin className="w-4 h-4 text-foreground" />
-          <span>{company.location || "N/A"}</span>
+          <span>{company.address || "N/A"}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Building2 className="w-4 h-4 text-foreground" />
-          <span>{company.city || "N/A"}</span>
+          <span>{company.locationCity || "N/A"}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Globe className="w-4 h-4 text-foreground" />

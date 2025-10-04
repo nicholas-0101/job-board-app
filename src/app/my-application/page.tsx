@@ -31,7 +31,7 @@ interface Job {
 
 interface Application {
   id: number;
-  cvFile: string;
+  cvUrl: string;
   expectedSalary: number;
   status: string;
   reviewNote?: string;
@@ -216,7 +216,7 @@ export default function MyApplicationsPage() {
                   <p>
                     <span className="font-medium">CV:</span>{" "}
                     <a
-                      href={app.cvFile}
+                      href={app.cvUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#467EC7] underline"
