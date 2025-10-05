@@ -88,6 +88,7 @@ export default function CompaniesPage() {
 
       const companiesData = res.data.data.map((c: any) => ({
         id: c.id,
+        slug: c.slug,
         name: c.name,
         locationCity: c.locationCity,
         jobs: c._count?.jobs || 0,

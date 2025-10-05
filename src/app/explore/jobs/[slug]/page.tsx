@@ -6,32 +6,70 @@ import { ExternalLink, Loader, SearchX } from "lucide-react";
 
 import { apiCall } from "@/helper/axios";
 import Container from "@/components/common/Container";
-import { JobCard } from "../../jobs/components/JobCard";
-import CompanyDetailCard from "../components/CompanyDetailCard";
+import { JobCard } from "../components/JobCard";
+import JobDetailCard from "../components/JobDetailCard";
 
-export default function CompanyDetailPage() {
+export default function JobDetailPage() {
   const params = useParams();
-  const companyId = params.companyId as string;
+  const slug = params.slug as string; 
 
-  const [company, setCompany] = useState<any>(null);
+  const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [relatedJobs, setRelatedJobs] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!companyId) return;
+    if (!slug) return;
 
-    const fetchCompany = async () => {
+    const fetchJob = async () => {
       try {
-        const res = await apiCall.get(`/company/${companyId}`);
-        setCompany(res.data.data);
+        const res = await apiCall.get(`/job/${slug}`);
+        setJob(res.data.data);
       } catch (err) {
-        console.error("Failed to fetch company:", err);
+        console.error("Failed to fetch job:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCompany();
-  }, [companyId]);
+    fetchJob();
+  }, [slug]);
+
+  useEffect(() => {
+    if (!job) return;
+
+    const fetchRelatedJobs = async () => {
+      try {
+        const res = await apiCall.get("/job/all", {
+          params: {
+            city: job.city,
+            category: job.category,
+            limit: 3,
+          },
+        });
+
+        const jobsData = res.data.data
+          .filter((j: any) => j.id !== job.id)
+          .map((j: any) => ({
+            id: j.id,
+            slug: j.slug,
+            title: j.title,
+            company: j.companyName,
+            logo: j.companyLogo || "",
+            city: j.city,
+            salary: j.salary || "",
+            category: j.category || "",
+            tags: j.tags || [],
+            rating: Math.floor(Math.random() * 2) + 4,
+          }));
+
+        setRelatedJobs(jobsData);
+      } catch (err) {
+        console.error("Failed to fetch related jobs:", err);
+      }
+    };
+
+    fetchRelatedJobs();
+  }, [job]);
 
   if (loading) {
     return (
@@ -46,14 +84,14 @@ export default function CompanyDetailPage() {
     );
   }
 
-  if (!company) {
+  if (!job) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20">
           <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-            <SearchX size={48} color="#24CFA7" /> Company not found.
+            <SearchX size={48} color="#24CFA7" /> Job not found.
           </h3>
-          <p className="text-muted-foreground">Please select another company.</p>
+          <p className="text-muted-foreground">Please select another job.</p>
         </div>
       </div>
     );
@@ -63,12 +101,12 @@ export default function CompanyDetailPage() {
     <div className="min-h-screen bg-background">
       <Container className="py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Company Detail */}
+          {/* Job Detail */}
           <div className="lg:col-span-8">
-            <CompanyDetailCard company={company} />
+            <JobDetailCard job={job} />
           </div>
 
-          {/* Company Jobs */}
+          {/* Related Jobs */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -77,7 +115,7 @@ export default function CompanyDetailPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-foreground">
-                Jobs at {company.name}
+                Related Jobs
               </h2>
               <a
                 href="/explore/jobs"
@@ -87,28 +125,11 @@ export default function CompanyDetailPage() {
               </a>
             </div>
             <div className="grid gap-3">
-              {company.jobs?.length > 0 ? (
-                company.jobs.map((job: any) => (
-                  <JobCard
-                    key={job.id}
-                    id={job.id}
-                    title={job.title}
-                    company={company.name}
-                    logo={company.logo}
-                    city={job.city}
-                    salary={
-                      job.salaryMin && job.salaryMax
-                        ? `${job.salaryMin} - ${job.salaryMax}`
-                        : ""
-                    }
-                    category={job.category}
-                    tags={job.tags || []}
-                    rating={company.companyRating || 0}
-                  />
-                ))
+              {relatedJobs.length > 0 ? (
+                relatedJobs.map((job) => <JobCard key={job.slug} {...job} />)
               ) : (
                 <p className="text-muted-foreground text-sm">
-                  No jobs available from this company.
+                  No related jobs found.
                 </p>
               )}
             </div>

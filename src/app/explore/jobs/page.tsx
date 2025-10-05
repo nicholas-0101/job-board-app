@@ -73,6 +73,7 @@ useEffect(() => {
 
       const jobsData = res.data.data.map((job: any) => ({
         id: job.id,
+        slug: job.slug,
         title: job.title,
         company: job.companyName,
         logo: job.companyLogo || "",
@@ -243,7 +244,7 @@ useEffect(() => {
                   }`}
                 >
                   {jobs.map((job) => (
-                    <JobCard key={job.id} {...job} />
+                    <JobCard key={job.slug} {...job} />
                   ))}
                 </motion.div>
               </AnimatePresence>

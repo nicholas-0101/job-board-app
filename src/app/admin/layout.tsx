@@ -16,7 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       localStorage.removeItem("role");
       localStorage.removeItem("companyId");
     } catch {}
-    router.replace("/auth/signin");
+    router.replace("/");
   };
   return (
     <AdminGuard>

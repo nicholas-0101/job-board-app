@@ -91,6 +91,7 @@ export default function HomePage() {
 
         const jobsData = res.data.data.map((job: any) => ({
           id: job.id,
+          slug: job.slug,
           title: job.title,
           company: job.companyName,
           logo: job.companyLogo || null,
@@ -131,6 +132,7 @@ export default function HomePage() {
 
         const jobsData = res.data.data.map((job: any) => ({
           id: job.id,
+          slug: job.slug,
           title: job.title,
           company: job.companyName,
           logo: job.companyLogo || null,

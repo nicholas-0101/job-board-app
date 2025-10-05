@@ -5,6 +5,7 @@ import { Star, Users } from "lucide-react";
 
 interface CompanyCardProps {
   id: number;
+  slug: string;
   name: string;
   locationCity?: string;
   logo?: string;
@@ -14,6 +15,7 @@ interface CompanyCardProps {
 
 export function CompanyCard({
   id,
+  slug,
   name,
   locationCity = "Unknown",
   logo,
@@ -21,7 +23,7 @@ export function CompanyCard({
   rating = 0,
 }: CompanyCardProps) {
   return (
-    <Link href={`/explore/companies/${id}`}>
+    <Link href={`/explore/companies/${slug}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

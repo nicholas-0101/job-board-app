@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { apiCall } from "@/helper/axios";
 import Container from "@/components/common/Container";
@@ -12,7 +12,7 @@ import { jobApplicationSchema } from "./applySchema";
 export default function JobApplicationPage() {
   const params = useParams();
   const router = useRouter();
-  const jobId = params.jobId as string;
+  const slug = params.slug as string;
 
   const [success, setSuccess] = useState(false);
   const [jobName, setJobName] = useState("");
@@ -26,15 +26,15 @@ export default function JobApplicationPage() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const response = await apiCall.get(`/job/${jobId}`);
+        const response = await apiCall.get(`/job/${slug}`);
         setJobName(response.data.data.title);
       } catch (err) {
         console.error("Failed to fetch job name", err);
       }
     }
 
-    if (jobId) fetchJob();
-  }, [jobId]);
+    if (slug) fetchJob();
+  }, [slug]);
 
   const handleSubmit = async (values: typeof initialValues) => {
     try {
@@ -46,13 +46,13 @@ export default function JobApplicationPage() {
         formData.append("cvFile", values.cvFile);
       }
 
-      await apiCall.post(`/application/${jobId}`, formData, {
+      await apiCall.post(`/application/${slug}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       setSuccess(true);
       alert("Application submitted successfully!");
-      router.replace(`/explore/jobs/${jobId}`);
+      router.replace(`/explore/jobs/${slug}`);
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to submit application");
     } finally {
@@ -86,7 +86,7 @@ export default function JobApplicationPage() {
               }
             }}
           >
-            {({ isSubmitting, setFieldValue, errors, touched, values }) => (
+            {({ setFieldValue, errors, touched, values }) => (
               <Form className="space-y-6">
                 {/* Expected Salary */}
                 <div className="mb-6">
@@ -205,7 +205,7 @@ export default function JobApplicationPage() {
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
                       <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Submiting...
+                      Submitting...
                     </span>
                   ) : (
                     "Submit Application"
