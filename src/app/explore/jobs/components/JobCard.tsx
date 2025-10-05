@@ -15,6 +15,7 @@ import Link from "next/link";
 
 interface JobCardProps {
   id: number;
+  slug: string;
   title: string;
   company: string;
   logo: string;
@@ -27,6 +28,7 @@ interface JobCardProps {
 
 export function JobCard({
   id,
+  slug,
   title,
   company,
   logo,
@@ -52,7 +54,7 @@ export function JobCard({
   };
 
   return (
-    <Link href={`/explore/jobs/${id}`}>
+    <Link href={`/explore/jobs/${slug}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
