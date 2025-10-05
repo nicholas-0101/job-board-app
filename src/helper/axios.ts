@@ -13,10 +13,6 @@ apiCall.interceptors.request.use((config) => {
   const token =
     localStorage.getItem("token") || localStorage.getItem("verifiedToken");
 
-  // if (token && config.headers) {
-  //   (config.headers as any).set?.("Authorization", `Bearer ${token}`);
-  // }
-
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }

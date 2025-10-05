@@ -68,8 +68,8 @@ export const getAssessmentWithResults = async (assessmentId: number) => {
     let results = [];
     try {
       const resultsRes = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/results`);
-      results = resultsRes.data?.data || resultsRes.data || [];
-    } catch (resultsError) {
+      results = resultsRes.data?.data?.results || resultsRes.data?.results || resultsRes.data || [];
+    } catch (resultsError: any) {
       console.log("No results found for assessment:", assessmentId);
       results = [];
     }
@@ -78,7 +78,7 @@ export const getAssessmentWithResults = async (assessmentId: number) => {
       assessment,
       results
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching assessment with results:", error);
     throw error;
   }
