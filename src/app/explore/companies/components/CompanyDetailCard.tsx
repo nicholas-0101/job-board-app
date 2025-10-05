@@ -5,14 +5,32 @@ import DOMPurify from "dompurify";
 import { Share2 } from "lucide-react";
 import { Mail, Phone, MapPin, Globe, Building2 } from "lucide-react";
 import ShareCompanyDialog from "./CompanyShareDialog";
+import CreateReviewDialog from "./CreateReviewDialog";
+import EmploymentEligibility from "./EmploymentEligibility";
 import { useState } from "react";
 
 interface CompanyDetailCardProps {
   company: any;
+  onReviewSubmitted?: () => void;
 }
 
-export default function CompanyDetailCard({ company }: CompanyDetailCardProps) {
+export default function CompanyDetailCard({ company, onReviewSubmitted }: CompanyDetailCardProps) {
   const [openShare, setOpenShare] = useState(false);
+  const [openReview, setOpenReview] = useState(false);
+  const [isEligibleToReview, setIsEligibleToReview] = useState(false);
+  const [userEmployment, setUserEmployment] = useState<any>(null);
+
+  const handleEligibilityCheck = (isEligible: boolean, employment?: any) => {
+    setIsEligibleToReview(isEligible);
+    setUserEmployment(employment);
+  };
+
+  const handleReviewClick = () => {
+    if (isEligibleToReview) {
+      setOpenReview(true);
+    }
+  };
+
   return (
     <>
       <motion.div
@@ -42,7 +60,15 @@ export default function CompanyDetailCard({ company }: CompanyDetailCardProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="px-4 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-sm font-medium transition-colors cursor-pointer">
+            <button 
+              onClick={handleReviewClick}
+              disabled={!isEligibleToReview}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isEligibleToReview
+                  ? "bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
               Review
             </button>
             <button className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer" onClick={() => setOpenShare(true)}>
@@ -94,10 +120,23 @@ export default function CompanyDetailCard({ company }: CompanyDetailCardProps) {
           />
         )}
       </motion.div>
+
+      {/* Employment Eligibility Check */}
+      <EmploymentEligibility
+        companyId={company.id}
+        onEligibilityCheck={handleEligibilityCheck}
+      />
       <ShareCompanyDialog
         open={openShare}
         onClose={() => setOpenShare(false)}
         company={company}
+      />
+      <CreateReviewDialog
+        open={openReview}
+        onClose={() => setOpenReview(false)}
+        company={company}
+        onReviewSubmitted={onReviewSubmitted}
+        userEmployment={userEmployment}
       />
     </>
   );
