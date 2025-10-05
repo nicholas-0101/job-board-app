@@ -50,6 +50,7 @@ export default function CreateAssessmentPage() {
   const [savingQuestion, setSavingQuestion] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [badgeTemplateId, setBadgeTemplateId] = useState<number | undefined>();
   const [questions, setQuestions] = useState<Question[]>([
     { question: "", options: ["", "", "", ""], answer: "" },
@@ -62,6 +63,7 @@ export default function CreateAssessmentPage() {
     if (storedData) {
       setTitle(storedData.title || "");
       setDescription(storedData.description || "");
+      setCategory(storedData.category || "");
       setBadgeTemplateId(storedData.badgeTemplateId);
       setQuestions(storedData.questions || [{ question: "", options: ["", "", "", ""], answer: "" }]);
       
@@ -80,6 +82,7 @@ export default function CreateAssessmentPage() {
     const dataToSave = {
       title,
       description,
+      category,
       badgeTemplateId,
       questions,
       savedQuestions: Array.from(savedQuestions),
@@ -87,10 +90,10 @@ export default function CreateAssessmentPage() {
     };
     
     // Only save if there's meaningful data (not just empty initial state)
-    if (title.trim() || description.trim() || questions.some(q => q.question.trim())) {
+    if (title.trim() || description.trim() || category.trim() || questions.some(q => q.question.trim())) {
       saveToStorage(dataToSave);
     }
-  }, [title, description, badgeTemplateId, questions, savedQuestions]);
+  }, [title, description, category, badgeTemplateId, questions, savedQuestions]);
 
   // Warn user before leaving page with unsaved changes
   useEffect(() => {
@@ -207,6 +210,11 @@ export default function CreateAssessmentPage() {
       return false;
     }
 
+    if (!category.trim()) {
+      toast.error("Category is required");
+      return false;
+    }
+
     if (questions.length < 1) {
       toast.error("At least 1 question is required");
       return false;
@@ -250,6 +258,7 @@ export default function CreateAssessmentPage() {
     // Create assessment with all questions
     const payload: any = {
       title,
+      category,
       questions,
     };
     
@@ -350,6 +359,16 @@ export default function CreateAssessmentPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g., JavaScript Fundamentals"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Input
+                    id="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="e.g., Programming, Mathematics, Science"
                     required
                   />
                 </div>

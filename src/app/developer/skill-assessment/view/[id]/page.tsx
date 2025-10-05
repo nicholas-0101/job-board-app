@@ -51,15 +51,15 @@ export default function ViewAssessmentPage() {
           id: assessmentData.id,
           title: assessmentData.title,
           description: assessmentData.description,
-          questionCount: assessmentData._count?.questions || 25,
+          questionCount: assessmentData._count?.questions || assessmentData.questions?.length || 0,
           results: Array.isArray(results) ? results.map((r: any) => ({
-            id: r.id,
-            userId: r.userId,
-            userName: r.user?.name || "Unknown",
-            userEmail: r.user?.email || "",
+            id: r.id || Math.random(),
+            userId: r.userId || 0,
+            userName: r.user?.name || r.userName || "Unknown User",
+            userEmail: r.user?.email || r.userEmail || "No email",
             score: r.score || 0,
             isPassed: r.isPassed || false,
-            finishedAt: r.finishedAt || r.createdAt,
+            finishedAt: r.finishedAt || r.createdAt || new Date().toISOString(),
           })) : [],
         });
       } else {
