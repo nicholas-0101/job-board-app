@@ -8,6 +8,7 @@ import { apiCall } from "@/helper/axios";
 import Container from "@/components/common/Container";
 import { JobCard } from "../../jobs/components/JobCard";
 import CompanyDetailCard from "../components/CompanyDetailCard";
+import CompanyReviews from "../components/CompanyReviews";
 
 export default function CompanyDetailPage() {
   const params = useParams();
@@ -15,6 +16,7 @@ export default function CompanyDetailPage() {
 
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (!slug) return;
@@ -32,6 +34,10 @@ export default function CompanyDetailPage() {
 
     fetchCompany();
   }, [slug]);
+
+  const handleReviewSubmitted = () => {
+    setReviewRefreshTrigger(prev => prev + 1);
+  };
 
   if (loading) {
     return (
@@ -66,8 +72,15 @@ export default function CompanyDetailPage() {
       <Container className="py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Company Detail */}
-          <div className="lg:col-span-8">
-            <CompanyDetailCard company={company} />
+          <div className="lg:col-span-8 space-y-6">
+            <CompanyDetailCard 
+              company={company} 
+              onReviewSubmitted={handleReviewSubmitted}
+            />
+            <CompanyReviews 
+              companyId={company.id} 
+              refreshTrigger={reviewRefreshTrigger}
+            />
           </div>
 
           {/* Company Jobs */}
