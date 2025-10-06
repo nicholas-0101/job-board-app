@@ -98,24 +98,47 @@ export const deleteAssessment = async (assessmentId: number) => {
 
 // Get assessment for user to take (without answers)
 export const getAssessmentForUser = async (assessmentId: number) => {
-  const response = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/take`);
-  return response.data;
+  try {
+    const response = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/take`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching assessment for user:", {
+      assessmentId,
+      status: error.response?.status,
+      message: error.response?.data?.message,
+      code: error.response?.data?.code
+    });
+    
+    if (error.response?.status === 404) {
+      throw new Error(`Assessment with ID ${assessmentId} not found`);
+    } else if (error.response?.status === 403) {
+      const errorData = error.response.data;
+      if (errorData.code === "SUBSCRIPTION_REQUIRED") {
+        throw new Error("Active subscription required to access skill assessments");
+      } else if (errorData.code === "ASSESSMENT_LIMIT_EXCEEDED") {
+        throw new Error(`Assessment limit reached: ${errorData.message}`);
+      }
+      throw new Error(errorData.message || "Access denied");
+    }
+    
+    throw error;
+  }
 };
 
 // Submit assessment answers
 export const submitAssessment = async (data: {
   assessmentId: number;
   startedAt: string;
-  answers: Array<{ questionId: number; selectedAnswer: string }>;
+  answers: Array<{ questionId: number; answer: string }>;
 }) => {
   try {
-    
     const response = await apiCall.post(`/skill-assessment/assessments/${data.assessmentId}/submit`, {
       startedAt: data.startedAt,
       answers: data.answers
     });
     return response.data;
   } catch (error: any) {
+    console.error("Submit error:", error.response?.data);
     throw error;
   }
 };
@@ -129,22 +152,12 @@ export const getAssessmentResults = async (assessmentId: number) => {
 // Get user's assessment results
 export const getUserResults = async () => {
   try {
-    console.log("📊 Fetching user results from API...");
     const response = await apiCall.get("/skill-assessment/user/results");
-    console.log("📋 User results API response:", {
-      success: response.data.success,
-      dataType: typeof response.data.data,
-      hasResults: !!response.data.data?.results,
-      resultsCount: response.data.data?.results?.length || 0,
-      sampleData: response.data.data?.results?.[0] || null
-    });
     return response.data;
   } catch (error: any) {
-    console.error("❌ Error fetching user results:", {
+    console.error("Error fetching user results:", {
       status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message
+      message: error.response?.data?.message
     });
     throw error;
   }

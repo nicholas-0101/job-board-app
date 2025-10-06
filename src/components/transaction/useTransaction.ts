@@ -26,10 +26,9 @@ export function useTransaction() {
 
   const loadBackendPlans = async () => {
     try {
-      const response = await apiCall.get("/subscription/plans");
-      console.log("Backend plans:", response.data);
+      await apiCall.get("/subscription/plans");
     } catch (error) {
-      console.error("Error loading backend plans:", error);
+      toast.error("Failed to load subscription plans");
     }
   };
 
@@ -63,19 +62,86 @@ export function useTransaction() {
       const plansResponse = await apiCall.get("/subscription/plans");
       const backendPlans = plansResponse.data;
       
-      // Find matching plan by name (case insensitive)
-      const matchingPlan = backendPlans.find((plan: any) => 
-        plan.planName.toLowerCase() === selectedPlan.name.toLowerCase()
-      );
+      // Validate backend plans data
+      if (!Array.isArray(backendPlans)) {
+        toast.error("Failed to load subscription plans");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Debug: Log available plans and selected plan for troubleshooting
+      console.log("Available backend plans:", backendPlans.map(p => ({
+        id: p.id,
+        planName: p.planName,
+        name: p.name,
+        title: p.title
+      })));
+      console.log("Selected plan:", selectedPlan);
+      
+      // Find matching plan by name (case insensitive and flexible matching)
+      let matchingPlan = backendPlans.find((plan: any) => {
+        if (!plan || !selectedPlan?.name) {
+          return false;
+        }
+        
+        // Try multiple field names that might contain the plan name
+        const planName = plan.planName || plan.name || plan.title || '';
+        const selectedName = selectedPlan.name || '';
+        
+        if (!planName || !selectedName) {
+          return false;
+        }
+        
+        // Case insensitive comparison with trimmed whitespace
+        const normalizedPlanName = planName.toString().toLowerCase().trim();
+        const normalizedSelectedName = selectedName.toString().toLowerCase().trim();
+        
+        // Exact match or contains match
+        return normalizedPlanName === normalizedSelectedName || 
+               normalizedPlanName.includes(normalizedSelectedName) ||
+               normalizedSelectedName.includes(normalizedPlanName);
+      });
+      
+      // Fallback: Try matching by common plan types if name matching fails
+      if (!matchingPlan && selectedPlan?.name) {
+        const selectedLower = selectedPlan.name.toLowerCase();
+        matchingPlan = backendPlans.find((plan: any) => {
+          const planName = (plan.planName || plan.name || plan.title || '').toLowerCase();
+          
+          // Check for common plan type keywords
+          if (selectedLower.includes('professional') && planName.includes('professional')) return true;
+          if (selectedLower.includes('standard') && planName.includes('standard')) return true;
+          if (selectedLower.includes('basic') && planName.includes('basic')) return true;
+          if (selectedLower.includes('premium') && planName.includes('premium')) return true;
+          
+          return false;
+        });
+      }
       
       if (!matchingPlan) {
-        toast.error(`Selected plan "${selectedPlan.name}" not found`);
+        const availablePlans = backendPlans.map(p => p.planName || p.name || p.title || 'Unnamed').join(', ');
+        toast.error(`Selected plan "${selectedPlan?.name || 'Unknown'}" not found. Available plans: ${availablePlans}`);
+        setIsSubmitting(false);
         return;
       }
 
       // Step 2: Subscribe user to plan
+      console.log("Matching plan found:", matchingPlan);
+      
+      // Check authentication token
+      const token = localStorage.getItem("token") || localStorage.getItem("verifiedToken");
+      if (!token) {
+        toast.error("Please sign in to subscribe");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Ensure planId is sent as integer
+      const planId = typeof matchingPlan.id === 'string' ? parseInt(matchingPlan.id) : matchingPlan.id;
+      console.log("Sending planId:", planId, "Type:", typeof planId);
+      
       const subscribeResponse = await apiCall.post("/subscription/subscribe", {
-        planId: matchingPlan.id
+        planId: planId
       });
 
       const paymentId = subscribeResponse.data.payment.id;
@@ -97,7 +163,11 @@ export function useTransaction() {
       router.push(`/transaction/success?paymentId=${paymentId}`);
       
     } catch (error: any) {
-      console.error("Transaction error:", error);
+      console.error("Full error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      console.error("Error response headers:", error.response?.headers);
       
       if (error.response?.status === 401) {
         toast.error("Please sign in to subscribe");
@@ -112,6 +182,9 @@ export function useTransaction() {
         } else {
           toast.error(message || "Failed to submit transaction");
         }
+      } else if (error.response?.status === 500) {
+        const message = error.response?.data?.message || error.response?.data?.error;
+        toast.error(`Server error: ${message || "Internal server error"}`);
       } else {
         toast.error("Failed to submit transaction. Please try again.");
       }
