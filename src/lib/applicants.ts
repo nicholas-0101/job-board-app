@@ -1,29 +1,39 @@
 import { apiCall } from "@/helper/axios";
 
-export interface ApplicantItemDTO {
-  id: number; // applicationId
+export interface ApplicantDTO {
+  applicationId: number;
   userId: number;
-  name: string;
-  email?: string;
-  profilePicture?: string | null;
-  education?: string | null;
-  expectedSalary?: number | null;
-  age?: number | null;
-  status: "SUBMITTED" | "IN_REVIEW" | "INTERVIEW" | "ACCEPTED" | "REJECTED";
+  userName: string;
+  userEmail: string;
+  profilePicture: string | null;
+  expectedSalary: number | null;
+  cvFile: string | null;
+  score: number | null;
+  preselectionPassed: boolean | undefined;
+  status: string;
   appliedAt: string;
-  cvFile: string;
-  testScore?: number | null;
-  testPassed?: boolean | null;
+  education?: string;
+  age?: number;
+  city?: string;
 }
 
-export interface ApplicantsListDTO {
+// Alias for backward compatibility
+export type ApplicantItemDTO = ApplicantDTO & {
+  id: number; // Same as applicationId
+  name: string; // Same as userName
+  email: string; // Same as userEmail
+  testScore: number | null; // Same as score
+  testPassed: boolean | undefined; // Same as preselectionPassed
+};
+
+export interface ApplicantsListResponse {
+  items: ApplicantDTO[];
   total: number;
   limit: number;
   offset: number;
-  items: ApplicantItemDTO[];
 }
 
-export async function listApplicants(params: {
+export async function listJobApplicants(params: {
   companyId: number;
   jobId: number;
   name?: string;
@@ -36,54 +46,38 @@ export async function listApplicants(params: {
   sortOrder?: "asc" | "desc";
   limit?: number;
   offset?: number;
-}): Promise<ApplicantsListDTO> {
-  const { companyId, jobId, ...query } = params;
-  const res = await apiCall.get<{ success: boolean; data: any }>(
-    `/job/companies/${companyId}/jobs/${jobId}/applicants`,
-    { params: query }
+}): Promise<ApplicantsListResponse> {
+  const { companyId, jobId, ...queryParams } = params;
+  
+  const cleanParams: Record<string, any> = {};
+  Object.entries(queryParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      cleanParams[key] = value;
+    }
+  });
+
+  const response = await apiCall.get(
+    `/job/company/${companyId}/jobs/${jobId}/applicants`,
+    { params: cleanParams }
   );
-  const data = res.data.data;
-  const toAge = (dob?: string | null) => {
-    if (!dob) return null;
-    const d = new Date(dob);
-    if (isNaN(d.getTime())) return null;
-    const now = new Date();
-    let age = now.getFullYear() - d.getFullYear();
-    const m = now.getMonth() - d.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
-    return age;
-  };
-  const items: ApplicantItemDTO[] = (data.items || []).map((a: any) => ({
-    id: a.applicationId,
-    userId: a.user?.id,
-    name: a.user?.name,
-    email: a.user?.email,
-    profilePicture: a.user?.profilePicture ?? null,
-    education: a.user?.education ?? null,
-    expectedSalary: a.expectedSalary ?? null,
-    age: toAge(a.user?.dob ?? null),
-    status: a.status,
-    appliedAt: a.appliedAt,
-    cvFile: a.cvFile,
-    testScore: a.testScore ?? null,
-    testPassed: typeof a.preselectionPassed === 'boolean' ? a.preselectionPassed : null,
-  }));
-  return { total: data.total, limit: data.limit, offset: data.offset, items };
+
+  return response.data.data;
 }
 
 export async function updateApplicantStatus(params: {
   companyId: number;
   jobId: number;
   applicationId: number;
-  status: "IN_REVIEW" | "INTERVIEW" | "ACCEPTED" | "REJECTED";
+  status: string;
   reviewNote?: string;
-}) {
-  const { companyId, jobId, applicationId, status, reviewNote } = params;
-  const res = await apiCall.put<{ success: boolean; data: { id: number; status: string; reviewNote?: string; updatedAt: string } }>(
-    `/job/companies/${companyId}/jobs/${jobId}/applications/${applicationId}/status`,
-    { status, reviewNote }
+}): Promise<void> {
+  const { companyId, jobId, applicationId, ...body } = params;
+  
+  await apiCall.patch(
+    `/job/company/${companyId}/jobs/${jobId}/applicants/${applicationId}/status`,
+    body
   );
-  return res.data.data;
 }
 
-
+// Alias for backward compatibility with existing code
+export const listApplicants = listJobApplicants;

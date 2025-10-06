@@ -53,7 +53,7 @@ export default function CityField({
         <input
           type="text"
           placeholder={placeholder || "Search city..."}
-          value={field.value} // <-- always Formik's value
+          value={field.value || ""} // <-- always a string, never undefined
           onChange={(e) => {
             setQuery(e.target.value);
             setFieldValue(name, e.target.value); // update Formik state

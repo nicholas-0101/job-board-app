@@ -18,12 +18,17 @@ export default function SignInPage() {
   const handleSignIn = async (values: { email: string; password: string }) => {
     setIsLoading(true);
     try {
+      // Validate input
+      if (!values.email || !values.password) {
+        alert("Email and password are required.");
+        setIsLoading(false);
+        return;
+      }
       // Sanitize input
       const sanitizedValues = {
         email: values.email.trim().toLowerCase(),
         password: values.password,
       };
-
       const res = await apiCall.post("/auth/signin", sanitizedValues);
       const { token, user } = res.data;
 
@@ -34,7 +39,6 @@ export default function SignInPage() {
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("role", user.role);
       localStorage.setItem("role", user.role);
       localStorage.setItem("userId", user.id.toString());
 
@@ -50,66 +54,69 @@ export default function SignInPage() {
           const companyId = Number(
             companyResponse.data?.id ?? companyResponse.data?.data?.id
           );
-          if (companyId) {
-            localStorage.setItem("companyId", companyId.toString());
-          } else {
-            localStorage.setItem("companyId", "1");
-          }
-        } catch (error) {
-          console.log("Could not fetch company data, using default companyId");
-          localStorage.setItem("companyId", "1"); 
+          localStorage.setItem("companyId", companyId.toString());
+        } catch (err) {
+          // Ignore company fetch error
         }
       }
 
       setUser(user);
-
-      alert(res.data.message || "Signed in successfully!");
-
+      
       // Redirect based on role
       if (user.role === "ADMIN") {
-        router.replace("/admin");
+        router.push("/admin");
       } else {
-        router.replace("/");
+        router.push("/");
       }
     } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Sign in failed!");
+      alert(err?.response?.data?.error || err.message || "Sign in failed");
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Google OAuth sign-in via popup. Defaults to USER role when creating a new account.
   const handleGoogleSignIn = () => {
-    const role = "USER";
+    const role = "USER" as const;
     const nonce = Math.random().toString(36).substring(2, 15);
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${window.location.origin}/auth/google/callback&response_type=token id_token&scope=email profile&nonce=${nonce}`;
     const width = 500;
     const height = 600;
     const left = window.innerWidth / 2 - width / 2;
     const top = window.innerHeight / 2 - height / 2;
-    window.open(
-      url,
-      "GoogleLogin",
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
+    window.open(url, "GoogleLogin", `width=${width},height=${height},top=${top},left=${left}`);
 
     const listener = async (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
-      const { token } = event.data;
+      const { token } = event.data as { token?: string };
       if (token) {
         try {
-          const res = await apiCall.post("/auth/social", {
-            provider: "GOOGLE",
-            token,
-            role,
-          });
+          const res = await apiCall.post("/auth/social", { provider: "GOOGLE", token, role });
           const userData = res.data.data;
+
+          // If admin, fetch companyId like in password sign-in
+          if (userData.role === "ADMIN") {
+            try {
+              const companyResponse = await apiCall.get("/company/admin", {
+                headers: {
+                  Authorization: `Bearer ${userData.token}`,
+                },
+              });
+              const companyId = Number(
+                companyResponse.data?.id ?? companyResponse.data?.data?.id
+              );
+              localStorage.setItem("companyId", companyId.toString());
+            } catch (err) {
+              // ignore company fetch error
+            }
+          }
 
           localStorage.setItem("token", userData.token);
           localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("role", userData.role);
+          localStorage.setItem("userId", userData.id.toString());
           setUser(userData);
-
-          router.replace("/");
+          router.push("/");
         } catch (err: any) {
           console.error(err);
           alert(err.response?.data?.message || "Google login failed");
@@ -118,6 +125,7 @@ export default function SignInPage() {
         }
       }
     };
+
     window.addEventListener("message", listener);
   };
 
