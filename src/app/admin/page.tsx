@@ -7,7 +7,7 @@ import {
   Users, Briefcase, Calendar, TrendingUp, DollarSign,
   Clock, MapPin, Star, CheckCircle, XCircle, AlertCircle,
   Settings, BarChart3, FileText, UserCheck, Mail, TestTube,
-  RefreshCw, ExternalLink
+  RefreshCw, ExternalLink, Building2
 } from "lucide-react";
 import { AnimatedCounter } from "../../components/ui/AnimatedCounter";
 import { Button } from "@/components/ui/button";
@@ -53,17 +53,29 @@ export default function AdminPage() {
             localStorage.setItem("companyId", cid.toString());
             setCompanyInfo(data); // Store company info for display
           }
-        } catch {}
+        } catch (err) {
+          console.error("Failed to fetch company:", err);
+          // Company doesn't exist yet - that's ok
+          setCompanyInfo(null);
+        }
       } else {
         // Fetch company info even if we have ID
         try {
           const resp = await apiCall.get("/company/admin");
           const data = resp.data?.data ?? resp.data;
           setCompanyInfo(data);
-        } catch {}
+        } catch (err) {
+          console.error("Failed to fetch company:", err);
+          setCompanyInfo(null);
+        }
       }
 
-      if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
+      if (!cid || Number.isNaN(cid)) {
+        // No company yet - show empty state
+        console.log("Company not found, admin should complete profile");
+        setLoading(false);
+        return;
+      }
 
       let jobsResponse, interviewsResponse;
       try {
@@ -114,56 +126,45 @@ export default function AdminPage() {
     }
   };
 
-  // Admin Features Menu
-  const adminFeatures = [
-    {
-      title: "Job Management",
-      description: "Create, edit, and manage job postings",
-      icon: Briefcase,
-      color: "from-blue-500 to-blue-600",
-      href: "/admin/jobs",
-      features: ["Create New Job", "Edit Existing Jobs", "Publish/Unpublish", "View Applications"]
-    },
-    {
-      title: "Pre-Selection Tests",
-      description: "Create and manage pre-selection tests for job applicants",
-      icon: TestTube,
-      color: "from-purple-500 to-purple-600",
-      href: "/admin/preselection",
-      features: ["Create 25-Question Tests", "Set Passing Scores", "View Test Results", "Auto-Block Applications"]
-    },
-    {
-      title: "Applicant Management",
-      description: "Review and manage job applicants",
-      icon: Users,
-      color: "from-green-500 to-green-600",
-      href: "/admin/applicants",
-      features: ["View All Applicants", "Filter by Criteria", "Update Status", "View CV Preview"]
-    },
-    {
-      title: "Interview Scheduling",
-      description: "Schedule and manage interview sessions",
-      icon: Calendar,
-      color: "from-orange-500 to-orange-600",
-      href: "/admin/interviews",
-      features: ["Schedule Interviews", "Email Notifications", "H-1 Reminders", "Multiple Candidates"]
-    },
-    {
-      title: "Analytics Dashboard",
-      description: "View comprehensive analytics and insights",
-      icon: BarChart3,
-      color: "from-indigo-500 to-indigo-600",
-      href: "/admin/analytics",
-      features: ["User Demographics", "Salary Trends", "Application Insights", "Company Metrics"]
-    }
-  ];
 
   const stats = [
-    { label: "Total Jobs", value: realStats.totalJobs, icon: Briefcase, color: "from-blue-500 to-blue-600", change: "+2" },
-    { label: "Published Jobs", value: realStats.publishedJobs, icon: CheckCircle, color: "from-green-500 to-green-600", change: "+5" },
-    { label: "Total Applicants", value: realStats.totalApplicants, icon: Users, color: "from-purple-500 to-purple-600", change: "+15" },
-    { label: "Scheduled Interviews", value: realStats.totalInterviews, icon: Calendar, color: "from-orange-500 to-orange-600", change: "+3" }
+    { label: "Total Jobs", value: realStats.totalJobs, icon: Briefcase, color: "from-blue-500 to-blue-600" },
+    { label: "Published Jobs", value: realStats.publishedJobs, icon: CheckCircle, color: "from-green-500 to-green-600" },
+    { label: "Total Applicants", value: realStats.totalApplicants, icon: Users, color: "from-purple-500 to-purple-600" },
+    { label: "Scheduled Interviews", value: realStats.totalInterviews, icon: Calendar, color: "from-orange-500 to-orange-600" }
   ];
+
+  // Show setup prompt if no company
+  if (!loading && !companyInfo) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-2xl w-full shadow-xl border-t-4 border-t-[#24CFA7]">
+          <CardContent className="p-12 text-center">
+            <div className="flex flex-col items-center gap-6">
+              <div className="p-6 bg-gradient-to-br from-[#24CFA7]/20 to-[#467EC7]/20 rounded-full">
+                <Building2 className="w-16 h-16 text-[#467EC7]" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold mb-3">Welcome to Admin Dashboard!</h1>
+                <p className="text-lg text-muted-foreground mb-2">
+                  Let's set up your company profile to get started
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  You'll need to complete your company information before posting jobs
+                </p>
+              </div>
+              <Link href="/profile/complete">
+                <Button size="lg" className="bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md px-8 py-6 text-lg">
+                  <Building2 className="w-5 h-5 mr-2" />
+                  Complete Company Profile
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -180,12 +181,14 @@ export default function AdminPage() {
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Link href="/admin/jobs/new">
-                <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
-                  <Plus className="w-5 h-5" />
-                  Post New Job
-                </Button>
-              </Link>
+              {companyInfo && (
+                <Link href="/admin/jobs/new">
+                  <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
+                    <Plus className="w-5 h-5" />
+                    Post New Job
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -241,166 +244,6 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Admin Features Section */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Quick Access</h2>
-          <p className="text-sm text-muted-foreground">Navigate to key administrative functions</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {adminFeatures.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Link href={feature.href}>
-                <Card className="h-full cursor-pointer group hover:shadow-lg transition-all duration-300 shadow-md">
-                  <CardContent className="p-6">
-                    <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${feature.color} mb-4`}>
-                      <feature.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">{feature.description}</p>
-                    <div className="space-y-2">
-                      {feature.features.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 flex items-center text-primary font-medium">
-                      <span>Access Feature</span>
-                      <motion.div className="ml-2" animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                        →
-                      </motion.div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h3 className="text-base font-semibold mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <Link href="/admin/jobs/new">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-                <Card>
-                  <CardContent className="p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Plus className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                        <h4 className="font-medium">Create New Job</h4>
-                        <p className="text-sm text-muted-foreground">Post a new job opening</p>
-                  </div>
-                </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-
-            <Link href="/admin/jobs">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-                <Card>
-                  <CardContent className="p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Briefcase className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                        <h4 className="font-medium">Manage Jobs</h4>
-                        <p className="text-sm text-muted-foreground">View and edit job postings</p>
-                  </div>
-                </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-
-            <Link href="/admin/applicants">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-                <Card>
-                  <CardContent className="p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Users className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                        <h4 className="font-medium">Manage Applicants</h4>
-                        <p className="text-sm text-muted-foreground">Review and manage applicants</p>
-                  </div>
-                </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-
-            <Link href="/admin/interviews">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-                <Card>
-                  <CardContent className="p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <Calendar className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                        <h4 className="font-medium">Schedule Interview</h4>
-                        <p className="text-sm text-muted-foreground">Manage interview sessions</p>
-                  </div>
-                </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-
-            <Link href="/admin/preselection">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-                <Card>
-                  <CardContent className="p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <TestTube className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                        <h4 className="font-medium">Pre-Selection Tests</h4>
-                        <p className="text-sm text-muted-foreground">Manage applicant tests</p>
-                  </div>
-                </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-
-            <Link href="/admin/analytics">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-                <Card>
-                  <CardContent className="p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <BarChart3 className="w-5 h-5 text-indigo-600" />
-                  </div>
-                  <div>
-                        <h4 className="font-medium">View Analytics</h4>
-                        <p className="text-sm text-muted-foreground">Check platform insights</p>
-                  </div>
-                </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-          </div>
-        </div>
-      </div>
 
       <div className="container mx-auto px-4 py-6">
         {/* Stats Overview */}

@@ -26,8 +26,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (data?.id) {
           localStorage.setItem("companyId", data.id.toString());
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to load company info:", err);
+        // If company doesn't exist, that's ok - admin can complete profile later
+        // Don't crash the app, just show "Complete Profile" in sidebar
+        setCompanyInfo(null);
       } finally {
         setLoadingCompany(false);
       }
@@ -50,58 +53,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-background">
-        <div className="container mx-auto px-4 py-6 md:py-8 grid gap-4 md:gap-6 md:grid-cols-[280px_1fr]">
-          <aside className="h-fit md:sticky md:top-24 space-y-4">
-            {/* Company Profile Card */}
-            <Card className="shadow-lg border-t-4 border-t-[#24CFA7]">
-              <CardContent className="p-6">
-                {loadingCompany ? (
-                  <div className="animate-pulse space-y-3">
-                    <div className="h-16 w-16 bg-gray-200 rounded-full mx-auto"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
-                  </div>
-                ) : companyInfo ? (
-                  <div className="text-center">
-                    {companyInfo.logoUrl ? (
-                      <img 
-                        src={companyInfo.logoUrl} 
-                        alt={companyInfo.name}
-                        className="w-16 h-16 rounded-full mx-auto mb-3 object-cover border-2 border-[#24CFA7]"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full mx-auto mb-3 bg-gradient-to-br from-[#24CFA7] to-[#467EC7] flex items-center justify-center">
-                        <Building2 className="w-8 h-8 text-white" />
-                      </div>
-                    )}
-                    <h3 className="font-semibold text-lg mb-1">{companyInfo.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-1">{companyInfo.email}</p>
-                    {companyInfo.locationCity && (
-                      <p className="text-xs text-muted-foreground mb-3">📍 {companyInfo.locationCity}</p>
-                    )}
-                    <Link href="/profile/edit">
-                      <Button size="sm" variant="outline" className="w-full gap-2 hover:bg-gradient-to-r hover:from-[#24CFA7]/10 hover:to-[#467EC7]/10">
-                        <Edit className="w-4 h-4" />
-                        Edit Company Profile
-                      </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <User className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground mb-3">No company info</p>
-                    <Link href="/profile/complete">
-                      <Button size="sm" className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]">
-                        Complete Profile
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
+        <div className="container mx-auto px-4 py-6 md:py-8 grid gap-4 md:gap-6 md:grid-cols-[260px_1fr]">
+          <aside className="h-fit md:sticky md:top-24">
             {/* Navigation Card */}
-            <Card className="shadow-lg">
+            <Card className="shadow-lg border-t-4 border-t-[#24CFA7]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2">
                   <div className="p-2 bg-gradient-to-br from-[#24CFA7] to-[#467EC7] rounded-lg">
