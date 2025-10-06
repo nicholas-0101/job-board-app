@@ -17,74 +17,7 @@ import { listCompanyJobs } from "@/lib/jobs";
 import { listCompanyInterviews } from "@/lib/interviews";
 import { apiCall } from "@/helper/axios";
 
-// Dummy data
-const jobPostings = [
-  {
-    id: 1,
-    title: "Senior Frontend Engineer",
-    category: "Engineering",
-    location: "Jakarta",
-    salary: "20-30M",
-    applicants: 23,
-    status: "published",
-    createdAt: "2024-01-15",
-    deadline: "2024-02-15"
-  },
-  {
-    id: 2,
-    title: "UI/UX Designer",
-    category: "Design",
-    location: "Bandung",
-    salary: "15-25M",
-    applicants: 45,
-    status: "draft",
-    createdAt: "2024-01-18",
-    deadline: "2024-02-18"
-  },
-  {
-    id: 3,
-    title: "Product Manager",
-    category: "Product",
-    location: "Remote",
-    salary: "25-35M",
-    applicants: 67,
-    status: "published",
-    createdAt: "2024-01-20",
-    deadline: "2024-02-20"
-  }
-];
-
-const applicants = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    position: "Senior Frontend Engineer",
-    expectedSalary: "25M",
-    experience: "5 years",
-    education: "S1 Computer Science",
-    status: "pending",
-    appliedAt: "2024-01-22",
-    avatar: "👨‍💻"
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    position: "UI/UX Designer",
-    expectedSalary: "20M",
-    experience: "3 years",
-    education: "S1 Design",
-    status: "interview",
-    appliedAt: "2024-01-23",
-    avatar: "👩‍🎨"
-  }
-];
-
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [realStats, setRealStats] = useState({
     totalJobs: 0,
@@ -92,6 +25,9 @@ export default function AdminPage() {
     totalApplicants: 0,
     totalInterviews: 0
   });
+  const [companyInfo, setCompanyInfo] = useState<any>(null);
+  const [recentJobs, setRecentJobs] = useState<any[]>([]);
+  const [upcomingInterviews, setUpcomingInterviews] = useState<any[]>([]);
 
   const companyId = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
@@ -115,7 +51,15 @@ export default function AdminPage() {
           if (resolved) {
             cid = resolved;
             localStorage.setItem("companyId", cid.toString());
+            setCompanyInfo(data); // Store company info for display
           }
+        } catch {}
+      } else {
+        // Fetch company info even if we have ID
+        try {
+          const resp = await apiCall.get("/company/admin");
+          const data = resp.data?.data ?? resp.data;
+          setCompanyInfo(data);
         } catch {}
       }
 
@@ -159,6 +103,10 @@ export default function AdminPage() {
         totalApplicants,
         totalInterviews
       });
+      
+      // Store recent jobs and upcoming interviews
+      setRecentJobs(jobsResponse.items.slice(0, 5));
+      setUpcomingInterviews(interviewsResponse.items.slice(0, 5));
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -217,42 +165,23 @@ export default function AdminPage() {
     { label: "Scheduled Interviews", value: realStats.totalInterviews, icon: Calendar, color: "from-orange-500 to-orange-600", change: "+3" }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "published": return "bg-green-100 text-green-700 border-green-200";
-      case "draft": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "closed": return "bg-red-100 text-red-700 border-red-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
-
-  const getApplicantStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "bg-yellow-100 text-yellow-700";
-      case "interview": return "bg-blue-100 text-blue-700";
-      case "accepted": return "bg-green-100 text-green-700";
-      case "rejected": return "bg-red-100 text-red-700";
-      default: return "bg-gray-100 text-gray-700";
-    }
-  };
-
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="border-b">
+      <div className="border-b bg-gradient-to-r from-primary-50 to-secondary-50">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
               <p className="text-sm text-muted-foreground mt-1">Manage your job board platform</p>
             </div>
             <div className="flex gap-3">
-              <Button onClick={fetchDashboardData} disabled={loading} className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]">
+              <Button onClick={fetchDashboardData} disabled={loading} className="gap-2 bg-[#467EC7] hover:bg-[#578BCC] shadow-md">
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Link href="/admin/jobs/new">
-                <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c]">
+                <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
                   <Plus className="w-5 h-5" />
                   Post New Job
                 </Button>
@@ -262,14 +191,64 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Company Info Banner */}
+      {companyInfo && (
+        <div className="container mx-auto px-4 py-6">
+          <Card className="shadow-lg border-l-4 border-l-[#24CFA7] bg-gradient-to-r from-white to-primary-50/30">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-6">
+                {companyInfo.logoUrl ? (
+                  <img 
+                    src={companyInfo.logoUrl} 
+                    alt={companyInfo.name}
+                    className="w-20 h-20 rounded-xl object-cover border-2 border-[#24CFA7] shadow-md"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#24CFA7] to-[#467EC7] flex items-center justify-center shadow-md">
+                    <Building2 className="w-10 h-10 text-white" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold mb-1">{companyInfo.name}</h2>
+                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      📧 {companyInfo.email}
+                    </span>
+                    {companyInfo.locationCity && (
+                      <span className="flex items-center gap-1">
+                        📍 {companyInfo.locationCity}
+                      </span>
+                    )}
+                    {companyInfo.website && (
+                      <a href={companyInfo.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[#467EC7] hover:underline">
+                        🌐 Website
+                      </a>
+                    )}
+                  </div>
+                  {companyInfo.description && (
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{companyInfo.description.replace(/<[^>]*>/g, '')}</p>
+                  )}
+                </div>
+                <Link href="/profile/edit">
+                  <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
+                    <Edit className="w-4 h-4" />
+                    Edit Company
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Admin Features Section */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">Admin Features</h2>
-          <p className="text-sm text-muted-foreground">Access all administrative functions for your job board platform</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Quick Access</h2>
+          <p className="text-sm text-muted-foreground">Navigate to key administrative functions</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {adminFeatures.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -278,12 +257,12 @@ export default function AdminPage() {
               transition={{ delay: index * 0.1 }}
             >
               <Link href={feature.href}>
-                <Card className="h-full cursor-pointer group hover:shadow-md transition-shadow">
+                <Card className="h-full cursor-pointer group hover:shadow-lg transition-all duration-300 shadow-md">
                   <CardContent className="p-6">
                     <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${feature.color} mb-4`}>
                       <feature.icon className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-base font-semibold mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
                       {feature.title}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">{feature.description}</p>
@@ -423,257 +402,184 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6">
         {/* Stats Overview */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
-              <Card key={stat.label}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-semibold">
-                        <AnimatedCounter end={stat.value} />
-                      </p>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                      {stat.change && (
-                        <p className="text-xs text-green-600 font-medium mt-1">
-                          {stat.change} this week
-                        </p>
-                      )}
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-2xl font-semibold">
+                          {loading ? <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div> : <AnimatedCounter end={stat.value} />}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      </div>
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
                     </div>
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
-                      <IconComponent className="w-5 h-5 text-white" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 p-1 rounded-xl shadow-sm mb-8 border overflow-x-auto">
-          {["overview", "jobs", "applicants", "interviews", "analytics"].map((tab) => (
-            <Button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              variant={activeTab === tab ? "default" : "ghost"}
-              className="flex-1 capitalize whitespace-nowrap"
-            >
-              {tab}
-            </Button>
-          ))}
-        </div>
-
-        {/* Content based on active tab */}
-        <AnimatePresence mode="wait">
-          {activeTab === "jobs" && (
-            <motion.div
-              key="jobs"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              {/* Job Postings Header */}
+        {/* Recent Jobs & Upcoming Interviews */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Recent Jobs */}
+          <Card className="shadow-md">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Job Postings</h2>
-                <div className="flex items-center gap-3">
-                  <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input type="text" placeholder="Search jobs..." className="pl-9" />
-                  </div>
-                  <Button variant="outline" size="icon">
-                    <Filter className="w-4 h-4" />
-                  </Button>
-                </div>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-[#467EC7]" />
+                  Recent Job Postings
+                </CardTitle>
+                <Link href="/admin/jobs">
+                  <Button size="sm" variant="ghost" className="text-xs">View All</Button>
+                </Link>
               </div>
-
-              {/* Job Postings List */}
-              <Card>
-                <CardContent className="p-0 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Job Title</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Category</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Location</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Applicants</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Status</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {jobPostings.map((job) => (
-                        <motion.tr
-                          key={job.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-6 py-4">
-                            <div>
-                              <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                              <p className="text-sm text-gray-500">Created {job.createdAt}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{job.category}</td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <MapPin className="w-4 h-4" />
-                              {job.location}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4 text-gray-400" />
-                              <span className="font-semibold text-gray-900">{job.applicants}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status)}`}>
-                              {job.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-3">
+                  {[1,2,3].map(i => (
+                    <div key={i} className="animate-pulse p-3 bg-secondary rounded-xl">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  ))}
                 </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {activeTab === "applicants" && (
-            <motion.div
-              key="applicants"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              <h2 className="text-2xl font-bold text-gray-900">Applicant Management</h2>
-              
-              <div className="grid gap-6">
-                {applicants.map((applicant, index) => (
-                  <Card
-                    key={applicant.id}
-                    className="hover:shadow-md transition-all"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center text-2xl">
-                          {applicant.avatar}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{applicant.name}</h3>
-                          <p className="text-sm text-gray-600">{applicant.email}</p>
-                          <p className="text-sm text-gray-500 mt-1">Applied for: {applicant.position}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span>💼 {applicant.experience}</span>
-                            <span>🎓 {applicant.education}</span>
-                            <span>💰 {applicant.expectedSalary}</span>
+              ) : recentJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {recentJobs.map((job, index) => (
+                    <motion.div
+                      key={job.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link href={`/admin/jobs/${job.id}/edit`}>
+                        <div className="p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#24CFA7]">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm truncate">{job.title}</h4>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {job.city}
+                                </span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {job.applicantsCount} applicants
+                                </span>
+                              </div>
+                            </div>
+                            {job.isPublished ? (
+                              <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+                                Published
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-medium">
+                                Draft
+                              </span>
+                            )}
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getApplicantStatusColor(applicant.status)}`}>
-                          {applicant.status}
-                        </span>
-                        <div className="flex items-center gap-1">
-                            <Button variant="ghost" className="text-green-600 hover:bg-green-50">
-                              <CheckCircle className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" className="text-red-600 hover:bg-red-50">
-                              <XCircle className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" className="text-blue-600 hover:bg-blue-50">
-                              <Calendar className="w-4 h-4" />
-                            </Button>
-                        </div>
-                      </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  <Briefcase className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>No jobs yet</p>
+                  <Link href="/admin/jobs/new">
+                    <Button size="sm" className="mt-2 bg-[#24CFA7] hover:bg-[#1fc39c]">Create Job</Button>
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Interviews */}
+          <Card className="shadow-md">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-[#24CFA7]" />
+                  Upcoming Interviews
+                </CardTitle>
+                <Link href="/admin/interviews">
+                  <Button size="sm" variant="ghost" className="text-xs">View All</Button>
+                </Link>
               </div>
-            </motion.div>
-          )}
-
-          {activeTab === "overview" && (
-            <motion.div
-              key="overview"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="grid gap-6 md:grid-cols-2"
-            >
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="w-4 h-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-3">
+                  {[1,2,3].map(i => (
+                    <div key={i} className="animate-pulse p-3 bg-secondary rounded-xl">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">New application received</p>
-                      <p className="text-xs text-gray-500">John Doe applied for Frontend Engineer</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Interview scheduled</p>
-                      <p className="text-xs text-gray-500">Jane Smith - UI/UX Designer position</p>
-                    </div>
-                  </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-3">
-                    <Button variant="outline" className="justify-start">
-                      <Plus className="w-5 h-5 mr-2" />
-                      Post New Job
-                    </Button>
-                    <Button variant="outline" className="justify-start">
-                      <Calendar className="w-5 h-5 mr-2" />
-                      Schedule Interview
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  ))}
+                </div>
+              ) : upcomingInterviews.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingInterviews.map((interview, index) => (
+                    <motion.div
+                      key={interview.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all border border-transparent hover:border-[#467EC7]"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm truncate">{interview.candidateName}</h4>
+                          <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
+                            <span className="truncate">{interview.jobTitle}</span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(interview.scheduleDate).toLocaleDateString('id-ID', { 
+                                day: 'numeric', 
+                                month: 'short', 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 font-medium">
+                          {interview.status}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>No upcoming interviews</p>
+                  <Link href="/admin/interviews">
+                    <Button size="sm" className="mt-2 bg-[#24CFA7] hover:bg-[#1fc39c]">Schedule Interview</Button>
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

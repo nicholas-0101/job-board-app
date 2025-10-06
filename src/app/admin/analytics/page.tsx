@@ -135,20 +135,22 @@ export default function AnalyticsPage() {
   }, [companyId]);
 
   const StatCard = ({ title, value, change, icon: Icon, color }: any) => (
-    <Card>
+    <Card className="shadow-md">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-1">{title}</p>
-            <p className="text-2xl font-semibold">
-              <AnimatedCounter end={value} />
-            </p>
-            <div className={`flex items-center gap-1 mt-2 text-sm ${
-              change >= 0 ? "text-green-600" : "text-red-600"
-            }`}>
-              {change >= 0 ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-              <span>{Math.abs(change)}% vs last month</span>
+            <div className="text-2xl font-semibold">
+              {value !== undefined && value !== null ? <AnimatedCounter end={value} /> : <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>}
             </div>
+            {change !== undefined && change !== null && (
+              <div className={`flex items-center gap-1 mt-2 text-sm ${
+                change >= 0 ? "text-green-600" : "text-red-600"
+              }`}>
+                {change >= 0 ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+                <span>{Math.abs(change)}% vs last month</span>
+              </div>
+            )}
           </div>
           <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
             <Icon className="w-6 h-6 text-white" />
@@ -194,39 +196,48 @@ export default function AnalyticsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Overview Stats */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <StatCard
-            title="Total Users"
-            value={(overview?.totalUsers ?? analyticsDataFallback.overview.totalUsers)}
-            change={(overview?.growth?.users ?? analyticsDataFallback.overview.growth.users)}
-            icon={Users}
-            color="from-blue-500 to-blue-600"
-          />
-          <StatCard
-            title="Active Jobs"
-            value={(overview?.activeJobs ?? analyticsDataFallback.overview.activeJobs)}
-            change={(overview?.growth?.jobs ?? analyticsDataFallback.overview.growth.jobs)}
-            icon={Briefcase}
-            color="from-green-500 to-green-600"
-          />
-          <StatCard
-            title="Applications"
-            value={(overview?.applications ?? analyticsDataFallback.overview.applications)}
-            change={(overview?.growth?.applications ?? analyticsDataFallback.overview.growth.applications)}
-            icon={TrendingUp}
-            color="from-purple-500 to-purple-600"
-          />
-          <StatCard
-            title="Companies"
-            value={(overview?.companies ?? analyticsDataFallback.overview.companies)}
-            change={(overview?.growth?.companies ?? analyticsDataFallback.overview.growth.companies)}
-            icon={Target}
-            color="from-orange-500 to-orange-600"
-          />
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading analytics...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+              <StatCard
+                title="Total Users"
+                value={overview?.totalUsers}
+                change={overview?.growth?.users}
+                icon={Users}
+                color="from-blue-500 to-blue-600"
+              />
+              <StatCard
+                title="Active Jobs"
+                value={overview?.activeJobs}
+                change={overview?.growth?.jobs}
+                icon={Briefcase}
+                color="from-green-500 to-green-600"
+              />
+              <StatCard
+                title="Applications"
+                value={overview?.applications}
+                change={overview?.growth?.applications}
+                icon={TrendingUp}
+                color="from-purple-500 to-purple-600"
+              />
+              <StatCard
+                title="Companies"
+                value={overview?.companies}
+                change={overview?.growth?.companies}
+                icon={Target}
+                color="from-orange-500 to-orange-600"
+              />
+            </div>
 
-        {/* Demographics Section */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+            {/* Demographics Section */}
+            <div className="grid lg:grid-cols-3 gap-6 mb-8">
           {/* Age Demographics */}
           <Card>
             <CardHeader>
@@ -236,16 +247,10 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(() => {
-                try {
-                  const ageData = demographics?.ageBuckets ? 
-                    Object.entries(demographics.ageBuckets).map(([range, count]) => ({ range, count, percentage: 0 })) : 
-                    analyticsDataFallback.demographics.ageGroups;
-                  return Array.isArray(ageData) ? ageData : [];
-                } catch (error) {
-                  return analyticsDataFallback.demographics.ageGroups;
-                }
-              })().map((group: any, index: number) => (
+              {demographics?.ageBuckets && Object.keys(demographics.ageBuckets).length > 0 ? (
+                Object.entries(demographics.ageBuckets).map(([range, count], index: number) => {
+                  const group = { range, count: count as number, percentage: 0 };
+                  return (
                 <div key={group.range} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-blue-500" style={{ 
@@ -263,7 +268,11 @@ export default function AnalyticsPage() {
                     <span className="text-sm font-medium text-gray-900 w-8">{group.percentage ?? 0}%</span>
                   </div>
                 </div>
-              ))}
+                  );
+                })
+              ) : (
+                <div className="text-center text-muted-foreground py-4">No age data available</div>
+              )}
             </CardContent>
           </Card>
 
@@ -276,16 +285,10 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(() => {
-                try {
-                  const genderData = demographics?.gender ? 
-                    Object.entries(demographics.gender).map(([type, count]) => ({ type, count, percentage: 0 })) : 
-                    analyticsDataFallback.demographics.gender;
-                  return Array.isArray(genderData) ? genderData : [];
-                } catch (error) {
-                  return analyticsDataFallback.demographics.gender;
-                }
-              })().map((item: any, index: number) => (
+              {demographics?.gender && Object.keys(demographics.gender).length > 0 ? (
+                Object.entries(demographics.gender).map(([type, count], index: number) => {
+                  const item = { type, count: count as number, percentage: 0 };
+                  return (
                 <div key={item.type} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full" style={{ 
@@ -306,7 +309,11 @@ export default function AnalyticsPage() {
                     <span className="text-sm font-medium text-gray-900 w-8">{item.percentage ?? 0}%</span>
                   </div>
                 </div>
-              ))}
+                  );
+                })
+              ) : (
+                <div className="text-center text-muted-foreground py-4">No gender data available</div>
+              )}
             </CardContent>
           </Card>
 
@@ -319,14 +326,8 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(() => {
-                try {
-                  const locationData = demographics?.locations ?? analyticsDataFallback.demographics.locations;
-                  return Array.isArray(locationData) ? locationData : [];
-                } catch (error) {
-                  return analyticsDataFallback.demographics.locations;
-                }
-              })().map((location: any, index: number) => (
+              {demographics?.locations && Array.isArray(demographics.locations) && demographics.locations.length > 0 ? (
+                demographics.locations.map((location: any, index: number) => (
                 <div key={location.city} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-green-500" style={{ 
@@ -344,13 +345,16 @@ export default function AnalyticsPage() {
                     <span className="text-sm font-medium text-gray-900 w-8">{location.percentage ?? 0}%</span>
                   </div>
                 </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-4">No location data available</div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Salary Trends */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+            {/* Salary Trends */}
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
           {/* Salary by Position */}
           <Card>
             <CardHeader>
@@ -360,35 +364,32 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(() => {
-                try {
-                  const positionData = salaryTrends?.byPosition ?? analyticsDataFallback.salaryTrends.byPosition;
-                  return Array.isArray(positionData) ? positionData : [];
-                } catch (error) {
-                  return analyticsDataFallback.salaryTrends.byPosition;
-                }
-              })().map((position: any, index: number) => (
-                <div key={position.position} className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900">{position.position}</h4>
-                    <span className="text-sm text-gray-500">{position.count} reports</span>
+              {salaryTrends?.byPosition && Array.isArray(salaryTrends.byPosition) && salaryTrends.byPosition.length > 0 ? (
+                salaryTrends.byPosition.map((position: any, index: number) => (
+                  <div key={position.position} className="p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900">{position.position}</h4>
+                      <span className="text-sm text-gray-500">{position.count} reports</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">
+                        IDR {(position.min / 1000000).toFixed(0)}M - {(position.max / 1000000).toFixed(0)}M
+                      </span>
+                      <span className="font-semibold text-green-600">
+                        Avg: IDR {(position.avg / 1000000).toFixed(0)}M
+                      </span>
+                    </div>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-1000"
+                        style={{ width: `${(position.avg / 35000000) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">
-                      IDR {(position.min / 1000000).toFixed(0)}M - {(position.max / 1000000).toFixed(0)}M
-                    </span>
-                    <span className="font-semibold text-green-600">
-                      Avg: IDR {(position.avg / 1000000).toFixed(0)}M
-                    </span>
-                  </div>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-1000"
-                      style={{ width: `${(position.avg / 35000000) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-8">No salary data available</div>
+              )}
             </CardContent>
           </Card>
 
@@ -401,85 +402,81 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(() => {
-                try {
-                  const locationData = salaryTrends?.byLocation ?? analyticsDataFallback.salaryTrends.byLocation;
-                  return Array.isArray(locationData) ? locationData : [];
-                } catch (error) {
-                  return analyticsDataFallback.salaryTrends.byLocation;
-                }
-              })().map((location: any, index: number) => (
-                <div key={location.city} className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900">{location.city}</h4>
-                    <div className={`flex items-center gap-1 text-sm ${
-                      location.growth >= 0 ? "text-green-600" : "text-red-600"
-                    }`}>
-                      {location.growth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                      {location.growth}%
+              {salaryTrends?.byLocation && Array.isArray(salaryTrends.byLocation) && salaryTrends.byLocation.length > 0 ? (
+                salaryTrends.byLocation.map((location: any, index: number) => (
+                  <div key={location.city} className="p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900">{location.city}</h4>
+                      <div className={`flex items-center gap-1 text-sm ${
+                        location.growth >= 0 ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {location.growth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                        {location.growth}%
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-gray-900">
+                        IDR {(location.avg / 1000000).toFixed(1)}M
+                      </span>
+                      <span className="text-sm text-gray-500">Average</span>
+                    </div>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-1000"
+                        style={{ width: `${(location.avg / 25000000) * 100}%` }}
+                      />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-gray-900">
-                      IDR {(location.avg / 1000000).toFixed(1)}M
-                    </span>
-                    <span className="text-sm text-gray-500">Average</span>
-                  </div>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-1000"
-                      style={{ width: `${(location.avg / 25000000) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-8">No salary trend data available</div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Applicant Interests */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <Activity className="w-5 h-5 text-red-600" />
-              Most Popular Job Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(() => {
-              try {
-                const interestData = interests ?? analyticsDataFallback.applicantInterests;
-                return Array.isArray(interestData) ? interestData : [];
-              } catch (error) {
-                return analyticsDataFallback.applicantInterests;
-              }
-            })().map((interest: any, index: number) => (
-              <motion.div
-                key={interest.category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-6 rounded-xl border hover:shadow-md transition-all bg-card"
-              >
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-2">
-                    <AnimatedCounter end={interest.applications} />
+            {/* Applicant Interests */}
+            <Card className="shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                  <Activity className="w-5 h-5 text-red-600" />
+                  Most Popular Job Categories
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {interests && Array.isArray(interests) && interests.length > 0 ? (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {interests.map((interest: any, index: number) => (
+                      <motion.div
+                        key={interest.category}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="p-6 rounded-xl border hover:shadow-md transition-all bg-card"
+                      >
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-gray-900 mb-2">
+                            <AnimatedCounter end={interest.applications} />
+                          </div>
+                          <div className="text-sm text-gray-600 mb-3">{interest.category}</div>
+                          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                            <div 
+                              className="bg-gradient-to-r from-red-400 to-red-600 h-2 rounded-full transition-all duration-1000"
+                              style={{ width: `${interest.percentage ?? 0}%` }}
+                            />
+                          </div>
+                          <div className="text-sm font-medium text-red-600">{interest.percentage ?? 0}%</div>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
-                  <div className="text-sm text-gray-600 mb-3">{interest.category}</div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div 
-                      className="bg-gradient-to-r from-red-400 to-red-600 h-2 rounded-full transition-all duration-1000"
-                      style={{ width: `${interest.percentage ?? 0}%` }}
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-red-600">{interest.percentage ?? 0}%</div>
-                </div>
-              </motion.div>
-            ))}
-            </div>
-          </CardContent>
-        </Card>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">No interest data available</div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );

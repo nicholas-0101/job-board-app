@@ -1,80 +1,168 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Users, Eye, CheckCircle, XCircle, Clock, FileText, Filter,
-  Search, Calendar, MapPin, GraduationCap, DollarSign
+  Users, Eye, CheckCircle, XCircle, Clock, FileText, Search,
+  Calendar, MapPin, GraduationCap, DollarSign, RefreshCw, Filter
 } from "lucide-react";
-import { GlowCard } from "../../../components/ui/GlowCard";
-
-// Mock data for applicants
-const mockApplicants = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    jobTitle: "Senior Frontend Developer",
-    jobId: 1,
-    expectedSalary: 25000000,
-    education: "S1 Computer Science",
-    age: 28,
-    location: "Jakarta",
-    status: "SUBMITTED",
-    appliedAt: "2024-01-22",
-    testScore: 22,
-    testPassed: true,
-    cvFile: "https://example.com/cv1.pdf",
-    profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    jobTitle: "UI/UX Designer",
-    jobId: 2,
-    expectedSalary: 20000000,
-    education: "S1 Design",
-    age: 25,
-    location: "Bandung",
-    status: "INTERVIEW",
-    appliedAt: "2024-01-23",
-    testScore: 18,
-    testPassed: true,
-    cvFile: "https://example.com/cv2.pdf",
-    profilePicture: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike@example.com",
-    jobTitle: "Backend Developer",
-    jobId: 3,
-    expectedSalary: 30000000,
-    education: "S1 Information Technology",
-    age: 30,
-    location: "Surabaya",
-    status: "ACCEPTED",
-    appliedAt: "2024-01-20",
-    testScore: 24,
-    testPassed: true,
-    cvFile: "https://example.com/cv3.pdf",
-    profilePicture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
-  }
-];
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { listCompanyJobs, JobItemDTO } from "@/lib/jobs";
+import { listJobApplicants, updateApplicantStatus, ApplicantDTO } from "@/lib/applicants";
+import { apiCall } from "@/helper/axios";
 
 export default function ApplicantsPage() {
-  const [applicants, setApplicants] = useState(mockApplicants);
-  const [selectedJob, setSelectedJob] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [companyId, setCompanyId] = useState<number>(() => {
+    const raw = localStorage.getItem("companyId");
+    return raw ? Number(raw) : NaN;
+  });
+  
+  const [loading, setLoading] = useState(true);
+  const [applicants, setApplicants] = useState<ApplicantDTO[]>([]);
+  const [total, setTotal] = useState(0);
+  const [jobs, setJobs] = useState<JobItemDTO[]>([]);
+  
+  // Filters
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [searchName, setSearchName] = useState("");
+  const [education, setEducation] = useState("");
+  const [ageMin, setAgeMin] = useState("");
+  const [ageMax, setAgeMax] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+  const [sortBy, setSortBy] = useState<"appliedAt" | "expectedSalary" | "age">("appliedAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
 
-  const stats = [
-    { label: "Total Applicants", value: applicants.length, icon: Users, color: "from-blue-500 to-blue-600" },
-    { label: "Pending Review", value: applicants.filter(a => a.status === "SUBMITTED").length, icon: Clock, color: "from-yellow-500 to-yellow-600" },
-    { label: "Interview Stage", value: applicants.filter(a => a.status === "INTERVIEW").length, icon: Calendar, color: "from-purple-500 to-purple-600" },
-    { label: "Accepted", value: applicants.filter(a => a.status === "ACCEPTED").length, icon: CheckCircle, color: "from-green-500 to-green-600" }
-  ];
+  const fetchCompanyId = async () => {
+    if (!companyId || Number.isNaN(companyId)) {
+      try {
+        const resp = await apiCall.get("/company/admin");
+        const data = resp.data?.data ?? resp.data;
+        const resolved = Number(data?.id ?? data?.data?.id);
+        if (resolved) {
+          setCompanyId(resolved);
+          localStorage.setItem("companyId", resolved.toString());
+          return resolved;
+        }
+      } catch {}
+    }
+    return companyId;
+  };
+
+  const fetchJobs = async (cid: number) => {
+    try {
+      const response = await listCompanyJobs({ companyId: cid, limit: 100, offset: 0 });
+      setJobs(response.items);
+      if (response.items.length > 0 && !selectedJobId) {
+        setSelectedJobId(response.items[0].id);
+      }
+    } catch (err) {
+      console.error("Failed to load jobs:", err);
+    }
+  };
+
+  const fetchApplicants = async () => {
+    if (!selectedJobId) return;
+    
+    setLoading(true);
+    try {
+      const cid = await fetchCompanyId();
+      if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
+
+      const response = await listJobApplicants({
+        companyId: cid,
+        jobId: selectedJobId,
+        name: searchName || undefined,
+        education: education || undefined,
+        ageMin: ageMin ? Number(ageMin) : undefined,
+        ageMax: ageMax ? Number(ageMax) : undefined,
+        expectedSalaryMin: salaryMin ? Number(salaryMin) : undefined,
+        expectedSalaryMax: salaryMax ? Number(salaryMax) : undefined,
+        sortBy,
+        sortOrder,
+        limit,
+        offset: (page - 1) * limit,
+      });
+
+      setApplicants(response.items);
+      setTotal(response.total);
+    } catch (err: any) {
+      console.error("Failed to load applicants:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      const cid = await fetchCompanyId();
+      if (cid && !Number.isNaN(cid)) {
+        await fetchJobs(cid);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (selectedJobId) {
+      fetchApplicants();
+    }
+  }, [selectedJobId, sortBy, sortOrder, page]);
+
+  const handleApplyFilters = () => {
+    setPage(1);
+    fetchApplicants();
+  };
+
+  const handleUpdateStatus = async (applicationId: number, newStatus: string) => {
+    if (!confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
+    
+    try {
+      const cid = await fetchCompanyId();
+      if (!cid || Number.isNaN(cid) || !selectedJobId) return;
+
+      await updateApplicantStatus({
+        companyId: cid,
+        jobId: selectedJobId,
+        applicationId,
+        status: newStatus,
+      });
+
+      fetchApplicants();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to update status");
+    }
+  };
+
+  const stats = useMemo(() => [
+    { 
+      label: "Total Applicants", 
+      value: total, 
+      icon: Users, 
+      color: "from-blue-500 to-blue-600" 
+    },
+    { 
+      label: "Pending Review", 
+      value: applicants.filter(a => a.status === "SUBMITTED").length, 
+      icon: Clock, 
+      color: "from-yellow-500 to-yellow-600" 
+    },
+    { 
+      label: "Interview Stage", 
+      value: applicants.filter(a => a.status === "INTERVIEW").length, 
+      icon: Calendar, 
+      color: "from-purple-500 to-purple-600" 
+    },
+    { 
+      label: "Accepted", 
+      value: applicants.filter(a => a.status === "ACCEPTED").length, 
+      icon: CheckCircle, 
+      color: "from-green-500 to-green-600" 
+    }
+  ], [applicants, total]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -87,52 +175,37 @@ export default function ApplicantsPage() {
     }
   };
 
-  const updateStatus = (applicantId: number, newStatus: string) => {
-    setApplicants(applicants.map(applicant => 
-      applicant.id === applicantId ? { ...applicant, status: newStatus } : applicant
-    ));
-  };
-
-  const filteredApplicants = applicants.filter(applicant => {
-    const matchesJob = selectedJob === "all" || applicant.jobId.toString() === selectedJob;
-    const matchesStatus = statusFilter === "all" || applicant.status === statusFilter;
-    const matchesSearch = searchTerm === "" || 
-      applicant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      applicant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      applicant.jobTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesJob && matchesStatus && matchesSearch;
-  });
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="border-b bg-gradient-to-r from-primary-50 to-secondary-50">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Applicant Management</h1>
-              <p className="text-gray-600 mt-1">Review and manage job applicants across all positions</p>
+              <h1 className="text-2xl font-semibold">Applicant Management</h1>
+              <p className="text-sm text-muted-foreground mt-1">Review and manage job applicants</p>
             </div>
             <div className="flex gap-3">
+              <Button onClick={fetchApplicants} disabled={loading} className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]">
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Link href="/admin/jobs">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-600 text-white font-medium rounded-xl shadow-sm hover:opacity-90 transition"
-                >
-                  <Users className="w-5 h-5" />
+                <Button variant="outline" className="gap-2">
+                  <FileText className="w-4 h-4" />
                   Manage Jobs
-                </motion.button>
+                </Button>
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Stats Overview */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
@@ -142,232 +215,271 @@ export default function ApplicantsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <GlowCard>
-                  <div className="p-6">
-                    <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${stat.color} mb-4`}>
-                      <IconComponent className="w-6 h-6 text-white" />
+                <Card className="shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-semibold">{stat.value}</p>
+                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      </div>
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                      {stat.value}
-                    </h3>
-                    <p className="text-gray-600">{stat.label}</p>
-                  </div>
-                </GlowCard>
+                  </CardContent>
+                </Card>
               </motion.div>
             );
           })}
         </div>
 
         {/* Filters */}
-        <div className="mb-8">
-          <GlowCard>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Applicants</h3>
-              <div className="grid md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by name, email, or job..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Position</label>
-                  <select
-                    value={selectedJob}
-                    onChange={(e) => setSelectedJob(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Jobs</option>
-                    <option value="1">Senior Frontend Developer</option>
-                    <option value="2">UI/UX Designer</option>
-                    <option value="3">Backend Developer</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="SUBMITTED">Submitted</option>
-                    <option value="IN_REVIEW">In Review</option>
-                    <option value="INTERVIEW">Interview</option>
-                    <option value="ACCEPTED">Accepted</option>
-                    <option value="REJECTED">Rejected</option>
-                  </select>
-                </div>
-                <div className="flex items-end">
-                  <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    <Filter className="w-4 h-4 inline mr-2" />
-                    Apply Filters
-                  </button>
-                </div>
+        <Card className="shadow-md">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Filter className="w-5 h-5 text-[#467EC7]" />
+              Filters
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Job Position</label>
+                <select
+                  value={selectedJobId || ""}
+                  onChange={(e) => setSelectedJobId(Number(e.target.value))}
+                  className="w-full px-3 py-2 border rounded-xl bg-background hover:border-primary transition-colors"
+                >
+                  {jobs.map((job) => (
+                    <option key={job.id} value={job.id}>
+                      {job.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Search Name</label>
+                <Input
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                  placeholder="Search by name..."
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Education</label>
+                <Input
+                  value={education}
+                  onChange={(e) => setEducation(e.target.value)}
+                  placeholder="e.g., S1, S2..."
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Sort By</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="w-full px-3 py-2 border rounded-xl bg-background hover:border-primary transition-colors"
+                >
+                  <option value="appliedAt">Applied Date</option>
+                  <option value="expectedSalary">Expected Salary</option>
+                  <option value="age">Age</option>
+                </select>
               </div>
             </div>
-          </GlowCard>
-        </div>
+            <div className="grid gap-3 md:grid-cols-5">
+              <div>
+                <label className="block text-sm font-medium mb-2">Min Age</label>
+                <Input
+                  type="number"
+                  value={ageMin}
+                  onChange={(e) => setAgeMin(e.target.value)}
+                  placeholder="Min"
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Max Age</label>
+                <Input
+                  type="number"
+                  value={ageMax}
+                  onChange={(e) => setAgeMax(e.target.value)}
+                  placeholder="Max"
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Min Salary</label>
+                <Input
+                  type="number"
+                  value={salaryMin}
+                  onChange={(e) => setSalaryMin(e.target.value)}
+                  placeholder="Min"
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Max Salary</label>
+                <Input
+                  type="number"
+                  value={salaryMax}
+                  onChange={(e) => setSalaryMax(e.target.value)}
+                  placeholder="Max"
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={handleApplyFilters} className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]">
+                  <Search className="w-4 h-4 mr-2" />
+                  Apply Filters
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Applicants List */}
-        <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Applicants ({filteredApplicants.length})</h3>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading applicants...</p>
+            </div>
+          </div>
+        ) : applicants.length === 0 ? (
+          <Card className="border-dashed shadow-md">
+            <CardContent className="p-12 text-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="p-4 bg-primary-100 rounded-full">
+                  <Users className="w-10 h-10 text-[#467EC7]" />
+                </div>
+                <div>
+                  <p className="text-lg font-medium text-foreground mb-1">No applicants yet</p>
+                  <p className="text-muted-foreground">Applications will appear here when candidates apply</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
           <div className="space-y-4">
-            {filteredApplicants.map((applicant, index) => (
+            {applicants.map((applicant, index) => (
               <motion.div
-                key={applicant.id}
+                key={applicant.applicationId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <GlowCard>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <img
-                          src={applicant.profilePicture}
-                          alt={applicant.name}
-                          className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h4 className="text-lg font-semibold text-gray-900">{applicant.name}</h4>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(applicant.status)}`}>
-                              {applicant.status}
+                <Card className="hover:shadow-lg transition-all duration-300 shadow-md">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                      <img
+                        src={applicant.profilePicture || "/fallback_pfp_image.jpg"}
+                        alt={applicant.userName}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="text-lg font-semibold text-foreground truncate">{applicant.userName}</h4>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(applicant.status)}`}>
+                            {applicant.status}
+                          </span>
+                          {applicant.score !== null && (
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                              applicant.preselectionPassed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            }`}>
+                              Test: {applicant.score}/25 {applicant.preselectionPassed ? '✓' : '✗'}
                             </span>
+                          )}
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-3 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4" />
+                            <span className="truncate">{applicant.userEmail}</span>
                           </div>
-                          <div className="grid md:grid-cols-4 gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4" />
-                              <span>{applicant.jobTitle}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <GraduationCap className="w-4 h-4" />
-                              <span>{applicant.education}</span>
-                            </div>
+                          {applicant.expectedSalary && (
                             <div className="flex items-center gap-2">
                               <DollarSign className="w-4 h-4" />
                               <span>Rp {applicant.expectedSalary.toLocaleString()}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4" />
-                              <span>{applicant.location}</span>
-                            </div>
-                          </div>
-                          {applicant.testScore && (
-                            <div className="mt-2 text-sm">
-                              <span className="text-gray-600">Test Score: </span>
-                              <span className={`font-medium ${applicant.testPassed ? 'text-green-600' : 'text-red-600'}`}>
-                                {applicant.testScore}/25 {applicant.testPassed ? '(Passed)' : '(Failed)'}
-                              </span>
-                            </div>
                           )}
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>{new Date(applicant.appliedAt).toLocaleDateString()}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <a
-                          href={applicant.cvFile}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                      <div className="flex flex-wrap gap-2">
+                        {applicant.cvFile && (
+                          <a
+                            href={applicant.cvFile}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition border border-blue-200"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </a>
+                        )}
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateStatus(applicant.applicationId, "INTERVIEW")}
+                          className="bg-purple-100 text-purple-700 hover:bg-purple-200"
+                          disabled={applicant.status === "INTERVIEW"}
                         >
-                          <Eye className="w-5 h-5" />
-                        </a>
-                        <div className="flex gap-1">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => updateStatus(applicant.id, "INTERVIEW")}
-                            className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition"
-                          >
-                            Interview
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => updateStatus(applicant.id, "ACCEPTED")}
-                            className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition"
-                          >
-                            Accept
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => updateStatus(applicant.id, "REJECTED")}
-                            className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition"
-                          >
-                            Reject
-                          </motion.button>
-                        </div>
+                          Interview
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateStatus(applicant.applicationId, "ACCEPTED")}
+                          className="bg-green-100 text-green-700 hover:bg-green-200"
+                          disabled={applicant.status === "ACCEPTED"}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateStatus(applicant.applicationId, "REJECTED")}
+                          className="bg-red-100 text-red-700 hover:bg-red-200"
+                          disabled={applicant.status === "REJECTED"}
+                        >
+                          Reject
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                </GlowCard>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* Features Overview */}
-        <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Applicant Management Features</h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            <GlowCard>
-              <div className="p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Review & Filter</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>View applicant profiles with photos</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Filter by job, status, education</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Search by name, email, or position</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>View pre-selection test scores</span>
-                  </li>
-                </ul>
-              </div>
-            </GlowCard>
-
-            <GlowCard>
-              <div className="p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Status Management</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Update application status</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Preview CV documents</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Track application timeline</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Bulk status updates</span>
-                  </li>
-                </ul>
-              </div>
-            </GlowCard>
+        {/* Pagination */}
+        {applicants.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <Button 
+              variant="outline" 
+              disabled={page <= 1} 
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="hover:bg-[#467EC7] hover:text-white transition-colors rounded-xl"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="m15 18-6-6 6-6"/></svg>
+              Prev
+            </Button>
+            <div className="px-4 py-2 bg-secondary rounded-xl">
+              <span className="font-medium">Page {page}</span>
+              <span className="text-muted-foreground"> of {totalPages}</span>
+            </div>
+            <Button 
+              variant="outline" 
+              disabled={page >= totalPages} 
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="hover:bg-[#467EC7] hover:text-white transition-colors rounded-xl"
+            >
+              Next
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><path d="m9 18 6-6-6-6"/></svg>
+            </Button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
