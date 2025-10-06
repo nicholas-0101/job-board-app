@@ -50,7 +50,6 @@ export default function SkillAssessmentsPage() {
         setHasMore(response.data.pagination.hasNext);
       }
     } catch (error: any) {
-      console.error("Error fetching assessments:", error);
       toast.error("Failed to load skill assessments");
     } finally {
       setLoading(false);
