@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Award, Clock, Users, ChevronRight, Trophy, BookOpen } from "lucide-react";
 import { getAssessments } from "@/lib/skillAssessment";
+import { useSubscription } from "@/hooks/useSubscription";
+import SubscriptionGuard from "@/components/skill-assessments/SubscriptionGuard";
 import toast from "react-hot-toast";
 
 interface Assessment {
@@ -35,10 +37,14 @@ export default function SkillAssessmentsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated, recheckSubscription } = useSubscription();
 
   useEffect(() => {
-    fetchAssessments();
-  }, []);
+    // Only fetch assessments if user has subscription
+    if (hasSubscription === true) {
+      fetchAssessments();
+    }
+  }, [hasSubscription]);
 
   const fetchAssessments = async () => {
     try {
@@ -60,9 +66,10 @@ export default function SkillAssessmentsPage() {
     router.push(`/skill-assessments/${assessmentId}`);
   };
 
-  if (loading) {
+  // Show loading state while checking subscription
+  if (subscriptionLoading || (hasSubscription === true && loading)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -77,8 +84,18 @@ export default function SkillAssessmentsPage() {
     );
   }
 
+  // Show subscription guard if not authenticated or no subscription
+  if (isAuthenticated === false || hasSubscription === false) {
+    return (
+      <SubscriptionGuard 
+        onCheckAgain={recheckSubscription}
+        isAuthenticated={isAuthenticated}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+    <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">

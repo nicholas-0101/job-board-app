@@ -28,9 +28,9 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background">
+    <div className="min-h-screen bg-[#F0F5F9]">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 text-foreground py-20">
+      <section className="relative bg-gradient-to-r from-[#467EC7] to-[#24CFA7] text-white py-20">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative container mx-auto px-4 text-center max-w-3xl">
           <motion.div
@@ -39,7 +39,7 @@ export default function SubscriptionPage() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-5xl font-bold mb-6">
-              Choose Your <span className="text-primary">Perfect Plan</span>
+              Choose Your <span className="text-white">Perfect Plan</span>
             </h1>
             <p className="text-xl opacity-90 mb-8">
               Unlock premium features and accelerate your career journey with

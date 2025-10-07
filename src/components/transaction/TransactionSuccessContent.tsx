@@ -127,11 +127,11 @@ export default function TransactionSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#467EC7] mx-auto mb-4"></div>
               <p className="text-gray-600">Loading transaction details...</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function TransactionSuccessContent() {
 
   if (error || !transactionData) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="container mx-auto px-4 max-w-2xl">
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-8">
@@ -175,7 +175,7 @@ export default function TransactionSuccessContent() {
 
   return (
     <AuthGuard showWarning={true}>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Success Header */}
           <motion.div
@@ -184,8 +184,8 @@ export default function TransactionSuccessContent() {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#24CFA7]/10 rounded-full mb-6">
+              <CheckCircle className="w-12 h-12 text-[#24CFA7]" />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Payment Submitted Successfully!
@@ -239,8 +239,8 @@ export default function TransactionSuccessContent() {
                     <div className="flex items-center gap-2">
                       {payment?.status?.toLowerCase() === 'approved' || subscription?.status?.toLowerCase() === 'active' ? (
                         <>
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-green-700 font-medium">Approved & Active</span>
+                          <CheckCircle className="w-4 h-4 text-[#24CFA7]" />
+                          <span className="text-[#24CFA7] font-medium">Approved & Active</span>
                         </>
                       ) : payment?.status?.toLowerCase() === 'rejected' ? (
                         <>
@@ -249,8 +249,8 @@ export default function TransactionSuccessContent() {
                         </>
                       ) : (
                         <>
-                          <Clock className="w-4 h-4 text-yellow-500" />
-                          <span className="text-yellow-700 font-medium">Pending Verification</span>
+                          <Clock className="w-4 h-4 text-[#467EC7]" />
+                          <span className="text-[#467EC7] font-medium">Pending Verification</span>
                         </>
                       )}
                     </div>
@@ -265,17 +265,17 @@ export default function TransactionSuccessContent() {
 
                 <div className={`p-4 rounded-lg border ${
                   payment?.status?.toLowerCase() === 'approved' || subscription?.status?.toLowerCase() === 'active' 
-                    ? 'bg-green-50 border-green-200' 
+                    ? 'bg-[#24CFA7]/5 border-[#24CFA7]/20' 
                     : payment?.status?.toLowerCase() === 'rejected'
                     ? 'bg-red-50 border-red-200'
-                    : 'bg-blue-50 border-blue-200'
+                    : 'bg-[#467EC7]/5 border-[#467EC7]/20'
                 }`}>
                   <p className={`text-sm ${
                     payment?.status?.toLowerCase() === 'approved' || subscription?.status?.toLowerCase() === 'active' 
-                      ? 'text-green-800' 
+                      ? 'text-[#24CFA7]' 
                       : payment?.status?.toLowerCase() === 'rejected'
                       ? 'text-red-800'
-                      : 'text-blue-800'
+                      : 'text-[#467EC7]'
                   }`}>
                     {payment?.status?.toLowerCase() === 'approved' || subscription?.status?.toLowerCase() === 'active' ? (
                       <><strong>🎉 Congratulations!</strong> Your payment has been approved and your subscription is now active. You can now access all premium features.</>
@@ -301,7 +301,7 @@ export default function TransactionSuccessContent() {
               <Home className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
-            <Button onClick={() => router.push("/subscription")} size="lg">
+            <Button onClick={() => router.push("/subscription")} size="lg" className="bg-[#467EC7] hover:bg-[#467EC7]/90">
               <ArrowRight className="w-4 h-4 mr-2" />
               View My Subscriptions
             </Button>

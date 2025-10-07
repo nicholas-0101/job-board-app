@@ -13,7 +13,15 @@ export const checkSubscriptionAndLoadData = async (
       "/subscription/my-active-subscription"
     );
 
-    if (subscriptionResponse.data && subscriptionResponse.data.isActive) {
+    // Check if response has isActive property (new format) or subscription data directly (current format)
+    const hasActiveSubscription = 
+      (subscriptionResponse.data && subscriptionResponse.data.isActive) || // New format
+      (subscriptionResponse.data && 
+       subscriptionResponse.data.status === 'ACTIVE' && 
+       subscriptionResponse.data.expiresAt && 
+       new Date(subscriptionResponse.data.expiresAt) > new Date()); // Current format with expiry check
+
+    if (hasActiveSubscription) {
       setHasSubscription(true);
       loadTemplates();
       loadUserCVs();

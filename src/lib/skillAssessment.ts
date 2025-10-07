@@ -138,7 +138,7 @@ export const submitAssessment = async (data: {
     });
     return response.data;
   } catch (error: any) {
-    console.error("Submit error:", error.response?.data);
+    console.error("Submit error:", error.response?.data || error.message);
     throw error;
   }
 };
