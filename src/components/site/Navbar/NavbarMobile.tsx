@@ -6,7 +6,7 @@ interface Props {
   links: { href: string; label: string }[];
   pathname: string | null;
   loading: boolean;
-  user: { id: number; name: string } | null;
+  user: { id: number; name: string; role?: string } | null;
   logout: () => void;
   closeMenu: () => void;
   router: AppRouterInstance;
@@ -26,7 +26,7 @@ export default function NavbarMobileMenu({
       <div className="container mx-auto px-4 py-4 grid gap-3">
         {/* Hide public links for ADMIN users */}
         {user ? (
-          (localStorage.getItem("role") === "ADMIN" ? null : (
+          (user?.role === "ADMIN" ? null : (
             links.map((l) => (
               <Link
                 key={l.href}
