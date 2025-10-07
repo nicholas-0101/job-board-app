@@ -3,11 +3,33 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2,
-  Users, Briefcase, Calendar, TrendingUp, DollarSign,
-  Clock, MapPin, Star, CheckCircle, XCircle, AlertCircle,
-  Settings, BarChart3, FileText, UserCheck, Mail, TestTube,
-  RefreshCw, ExternalLink, Building2
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  Users,
+  Briefcase,
+  Calendar,
+  TrendingUp,
+  DollarSign,
+  Clock,
+  MapPin,
+  Star,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Settings,
+  BarChart3,
+  FileText,
+  UserCheck,
+  Mail,
+  TestTube,
+  RefreshCw,
+  ExternalLink,
+  Building2,
 } from "lucide-react";
 import { AnimatedCounter } from "../../components/ui/AnimatedCounter";
 import { Button } from "@/components/ui/button";
@@ -23,7 +45,7 @@ export default function AdminPage() {
     totalJobs: 0,
     publishedJobs: 0,
     totalApplicants: 0,
-    totalInterviews: 0
+    totalInterviews: 0,
   });
   const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
@@ -81,7 +103,7 @@ export default function AdminPage() {
       try {
         [jobsResponse, interviewsResponse] = await Promise.all([
           listCompanyJobs({ companyId: cid, limit: 100, offset: 0 }),
-          listCompanyInterviews({ companyId: cid, limit: 100, offset: 0 })
+          listCompanyInterviews({ companyId: cid, limit: 100, offset: 0 }),
         ]);
       } catch (e: any) {
         // Fallback in case stale companyId (e.g., 16) is stored
@@ -94,7 +116,7 @@ export default function AdminPage() {
             cid = newCid;
             [jobsResponse, interviewsResponse] = await Promise.all([
               listCompanyJobs({ companyId: cid, limit: 100, offset: 0 }),
-              listCompanyInterviews({ companyId: cid, limit: 100, offset: 0 })
+              listCompanyInterviews({ companyId: cid, limit: 100, offset: 0 }),
             ]);
           } else {
             throw e;
@@ -105,17 +127,22 @@ export default function AdminPage() {
       }
 
       const totalJobs = jobsResponse.total;
-      const publishedJobs = jobsResponse.items.filter(job => job.isPublished).length;
-      const totalApplicants = jobsResponse.items.reduce((sum, job) => sum + (job.applicantsCount || 0), 0);
+      const publishedJobs = jobsResponse.items.filter(
+        (job) => job.isPublished
+      ).length;
+      const totalApplicants = jobsResponse.items.reduce(
+        (sum, job) => sum + (job.applicantsCount || 0),
+        0
+      );
       const totalInterviews = interviewsResponse.total;
 
       setRealStats({
         totalJobs,
         publishedJobs,
         totalApplicants,
-        totalInterviews
+        totalInterviews,
       });
-      
+
       // Store recent jobs and upcoming interviews
       setRecentJobs(jobsResponse.items.slice(0, 5));
       setUpcomingInterviews(interviewsResponse.items.slice(0, 5));
@@ -126,45 +153,32 @@ export default function AdminPage() {
     }
   };
 
-
   const stats = [
-    { label: "Total Jobs", value: realStats.totalJobs, icon: Briefcase, color: "from-blue-500 to-blue-600" },
-    { label: "Published Jobs", value: realStats.publishedJobs, icon: CheckCircle, color: "from-green-500 to-green-600" },
-    { label: "Total Applicants", value: realStats.totalApplicants, icon: Users, color: "from-purple-500 to-purple-600" },
-    { label: "Scheduled Interviews", value: realStats.totalInterviews, icon: Calendar, color: "from-orange-500 to-orange-600" }
+    {
+      label: "Total Jobs",
+      value: realStats.totalJobs,
+      icon: Briefcase,
+      color: "from-blue-500 to-blue-600",
+    },
+    {
+      label: "Published Jobs",
+      value: realStats.publishedJobs,
+      icon: CheckCircle,
+      color: "from-green-500 to-green-600",
+    },
+    {
+      label: "Total Applicants",
+      value: realStats.totalApplicants,
+      icon: Users,
+      color: "from-purple-500 to-purple-600",
+    },
+    {
+      label: "Scheduled Interviews",
+      value: realStats.totalInterviews,
+      icon: Calendar,
+      color: "from-orange-500 to-orange-600",
+    },
   ];
-
-  // Show setup prompt if no company
-  if (!loading && !companyInfo) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-2xl w-full shadow-xl border-t-4 border-t-[#24CFA7]">
-          <CardContent className="p-12 text-center">
-            <div className="flex flex-col items-center gap-6">
-              <div className="p-6 bg-gradient-to-br from-[#24CFA7]/20 to-[#467EC7]/20 rounded-full">
-                <Building2 className="w-16 h-16 text-[#467EC7]" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold mb-3">Welcome to Admin Dashboard!</h1>
-                <p className="text-lg text-muted-foreground mb-2">
-                  Let's set up your company profile to get started
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  You'll need to complete your company information before posting jobs
-                </p>
-              </div>
-              <Link href="/profile/complete">
-                <Button size="lg" className="bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md px-8 py-6 text-lg">
-                  <Building2 className="w-5 h-5 mr-2" />
-                  Complete Company Profile
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">
@@ -174,11 +188,19 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-              <p className="text-sm text-muted-foreground mt-1">Manage your job board platform</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Manage your job board platform
+              </p>
             </div>
             <div className="flex gap-3">
-              <Button onClick={fetchDashboardData} disabled={loading} className="gap-2 bg-[#467EC7] hover:bg-[#578BCC] shadow-md">
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <Button
+                onClick={fetchDashboardData}
+                disabled={loading}
+                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC] shadow-md"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
                 Refresh
               </Button>
               {companyInfo && (
@@ -201,8 +223,8 @@ export default function AdminPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-6">
                 {companyInfo.logoUrl ? (
-                  <img 
-                    src={companyInfo.logoUrl} 
+                  <img
+                    src={companyInfo.logoUrl}
                     alt={companyInfo.name}
                     className="w-20 h-20 rounded-xl object-cover border-2 border-[#24CFA7] shadow-md"
                   />
@@ -212,7 +234,9 @@ export default function AdminPage() {
                   </div>
                 )}
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1">{companyInfo.name}</h2>
+                  <h2 className="text-2xl font-bold mb-1">
+                    {companyInfo.name}
+                  </h2>
                   <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       📧 {companyInfo.email}
@@ -223,16 +247,23 @@ export default function AdminPage() {
                       </span>
                     )}
                     {companyInfo.website && (
-                      <a href={companyInfo.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[#467EC7] hover:underline">
+                      <a
+                        href={companyInfo.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[#467EC7] hover:underline"
+                      >
                         🌐 Website
                       </a>
                     )}
                   </div>
                   {companyInfo.description && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{companyInfo.description.replace(/<[^>]*>/g, '')}</p>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      {companyInfo.description.replace(/<[^>]*>/g, "")}
+                    </p>
                   )}
                 </div>
-                <Link href="/profile/edit">
+                <Link href="/admin/profile/edit">
                   <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
                     <Edit className="w-4 h-4" />
                     Edit Company
@@ -243,7 +274,6 @@ export default function AdminPage() {
           </Card>
         </div>
       )}
-
 
       <div className="container mx-auto px-4 py-6">
         {/* Stats Overview */}
@@ -262,11 +292,19 @@ export default function AdminPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-2xl font-semibold">
-                          {loading ? <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div> : <AnimatedCounter end={stat.value} />}
+                          {loading ? (
+                            <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+                          ) : (
+                            <AnimatedCounter end={stat.value} />
+                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {stat.label}
+                        </p>
                       </div>
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
+                      <div
+                        className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}
+                      >
                         <IconComponent className="w-5 h-5 text-white" />
                       </div>
                     </div>
@@ -288,15 +326,20 @@ export default function AdminPage() {
                   Recent Job Postings
                 </CardTitle>
                 <Link href="/admin/jobs">
-                  <Button size="sm" variant="ghost" className="text-xs">View All</Button>
+                  <Button size="sm" variant="ghost" className="text-xs">
+                    View All
+                  </Button>
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="space-y-3">
-                  {[1,2,3].map(i => (
-                    <div key={i} className="animate-pulse p-3 bg-secondary rounded-xl">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse p-3 bg-secondary rounded-xl"
+                    >
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                     </div>
@@ -315,7 +358,9 @@ export default function AdminPage() {
                         <div className="p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#24CFA7]">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-sm truncate">{job.title}</h4>
+                              <h4 className="font-semibold text-sm truncate">
+                                {job.title}
+                              </h4>
                               <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <MapPin className="w-3 h-3" />
@@ -348,7 +393,12 @@ export default function AdminPage() {
                   <Briefcase className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No jobs yet</p>
                   <Link href="/admin/jobs/new">
-                    <Button size="sm" className="mt-2 bg-[#24CFA7] hover:bg-[#1fc39c]">Create Job</Button>
+                    <Button
+                      size="sm"
+                      className="mt-2 bg-[#24CFA7] hover:bg-[#1fc39c]"
+                    >
+                      Create Job
+                    </Button>
                   </Link>
                 </div>
               )}
@@ -364,15 +414,20 @@ export default function AdminPage() {
                   Upcoming Interviews
                 </CardTitle>
                 <Link href="/admin/interviews">
-                  <Button size="sm" variant="ghost" className="text-xs">View All</Button>
+                  <Button size="sm" variant="ghost" className="text-xs">
+                    View All
+                  </Button>
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="space-y-3">
-                  {[1,2,3].map(i => (
-                    <div key={i} className="animate-pulse p-3 bg-secondary rounded-xl">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse p-3 bg-secondary rounded-xl"
+                    >
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                     </div>
@@ -390,16 +445,22 @@ export default function AdminPage() {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm truncate">{interview.candidateName}</h4>
+                          <h4 className="font-semibold text-sm truncate">
+                            {interview.candidateName}
+                          </h4>
                           <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
-                            <span className="truncate">{interview.jobTitle}</span>
+                            <span className="truncate">
+                              {interview.jobTitle}
+                            </span>
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
-                              {new Date(interview.scheduleDate).toLocaleDateString('id-ID', { 
-                                day: 'numeric', 
-                                month: 'short', 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                              {new Date(
+                                interview.scheduleDate
+                              ).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
                               })}
                             </span>
                           </div>
@@ -416,7 +477,12 @@ export default function AdminPage() {
                   <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No upcoming interviews</p>
                   <Link href="/admin/interviews">
-                    <Button size="sm" className="mt-2 bg-[#24CFA7] hover:bg-[#1fc39c]">Schedule Interview</Button>
+                    <Button
+                      size="sm"
+                      className="mt-2 bg-[#24CFA7] hover:bg-[#1fc39c]"
+                    >
+                      Schedule Interview
+                    </Button>
                   </Link>
                 </div>
               )}

@@ -94,7 +94,7 @@ export function JobCard({
 
                 <div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-[#467EC7] whitespace-nowrap overflow-hidden truncate transition-colors cursor-pointer">
+                    <h3 className="text-lg font-semibold text-[#467EC7] whitespace-nowrap overflow-hidden truncate max-w-65 transition-colors cursor-pointer">
                       {title}
                     </h3>
                   </div>

@@ -51,7 +51,7 @@ export default function CompleteProfilePage() {
       <CityField name="city" label="City" placeholder="Search your city..." />
       <InputField name="website" label="Website" placeholder="https://example.com" icon={Globe} />
       <QuillField name="description" label="Description" placeholder="Write something about your company..." />
-      <FileUploader name="logo" label="Logo" />
+      <FileUploader name="logoUrl" label="Logo" />
     </>
   );
 
