@@ -104,12 +104,14 @@ export default function ApplicantsPage() {
         await fetchJobs(cid);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (selectedJobId) {
       fetchApplicants();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJobId, sortBy, sortOrder, page]);
 
   const handleApplyFilters = () => {

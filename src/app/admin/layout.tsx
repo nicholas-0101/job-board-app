@@ -17,6 +17,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   
   useEffect(() => {
     const fetchCompanyInfo = async () => {
+      // Wait a bit to ensure AdminGuard has verified the token
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoadingCompany(false);
+        return;
+      }
+
       try {
         const resp = await apiCall.get("/company/admin");
         const data = resp.data?.data ?? resp.data;
@@ -36,18 +43,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     };
     
-    fetchCompanyInfo();
+    // Small delay to ensure AdminGuard completes first
+    const timer = setTimeout(fetchCompanyInfo, 100);
+    return () => clearTimeout(timer);
   }, []);
   
   const onLogout = () => {
     try {
+      // Clear all localStorage data
       localStorage.removeItem("token");
       localStorage.removeItem("verifiedToken");
       localStorage.removeItem("user");
       localStorage.removeItem("userId");
       localStorage.removeItem("role");
       localStorage.removeItem("companyId");
-    } catch {}
+      
+      // Clear user store
+      const { setUser } = useUserStore.getState();
+      setUser(null);
+      
+      console.log("🔓 Admin logged out successfully");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+    
+    // Redirect to homepage
     router.replace("/");
   };
   return (

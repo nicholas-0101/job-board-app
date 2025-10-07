@@ -1,58 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { apiCall } from "@/helper/axios";
-// import { useUserStore } from "@/lib/store/userStore";
-// import { useCompanyStore } from "@/lib/store/companyStore";
-// import { mapPayloadToInitialValues } from "@/lib/utils/profileUtils";
-
-// export const useProfile = () => {
-//   const { user, setUser } = useUserStore();
-//   const { setCompany } = useCompanyStore();
-
-//   const [loadingProfile, setLoadingProfile] = useState(true);
-//   const [initialValues, setInitialValues] = useState<any | null>(null);
-
-//   useEffect(() => {
-//     let mounted = true;
-
-//     const fetchProfile = async () => {
-//       try {
-//         const token = localStorage.getItem("token");
-//         if (!token) return;
-
-//         const endpoint =
-//           user?.role === "ADMIN" ? "/profile/admin" : "/profile/user";
-
-//         const res = await apiCall.get(endpoint, {
-//           headers: { Authorization: `Bearer ${token}` },
-//         });
-
-//         const payload = res.data?.data ?? res.data;
-
-//         if (payload?.role === "ADMIN" || payload?.adminId) {
-//           setCompany(payload);
-//           setUser({ ...user, ...payload });
-//         } else {
-//           setUser(payload);
-//           setCompany(null);
-//         }
-
-//         setInitialValues(mapPayloadToInitialValues(payload));
-//       } catch (err) {
-//         console.error("fetchProfile error:", err);
-//       } finally {
-//         if (mounted) setLoadingProfile(false);
-//       }
-//     };
-
-//     fetchProfile();
-//     return () => {
-//       mounted = false;
-//     };
-//   }, [user?.role, setUser, setCompany]);
-
-//   return { user, initialValues, loadingProfile, setInitialValues };
-// };
-
 import { useEffect, useState } from "react";
 import { apiCall } from "@/helper/axios";
 import { useUserStore } from "@/lib/store/userStore";
@@ -72,45 +17,83 @@ export const useProfile = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        const role = localStorage.getItem("role");
+        
+        console.log("🔑 Token exists:", !!token);
+        console.log("👤 Role from localStorage:", role);
+        
+        if (!token) {
+          console.warn("⚠️ No token found");
+          if (mounted) setLoadingProfile(false);
+          return;
+        }
 
-        const endpoint =
-          user?.role === "ADMIN" ? "/profile/admin" : "/profile/user";
+        if (!role) {
+          console.warn("⚠️ No role found in localStorage");
+          if (mounted) setLoadingProfile(false);
+          return;
+        }
+
+        // Use the same endpoints as dashboard for consistency
+        const endpoint = role === "ADMIN" ? "/company/admin" : "/profile/user";
+
+        console.log("🔍 Fetching profile from:", endpoint);
 
         const res = await apiCall.get(endpoint, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const payload = res.data?.data ?? res.data;
+        // For /company/admin, data is returned directly (not in .data)
+        // For /profile/user, data is in .data
+        const payload = role === "ADMIN" ? res.data : (res.data?.data ?? res.data);
+        
+        console.log("✅ Received payload:", payload);
 
         if (!user || user.id !== payload.id) {
           setUser(payload);
         }
 
-        if (payload?.role === "ADMIN" || payload?.adminId) {
+        if (payload?.ownerAdminId !== undefined || payload?.slug !== undefined) {
           setCompany(payload);
         } else {
           setCompany(null);
         }
 
         if (mounted) {
-          setInitialValues(mapPayloadToInitialValues(payload));
+          const mappedValues = mapPayloadToInitialValues(payload);
+          console.log("🎯 Mapped initial values:", mappedValues);
+          
+          if (mappedValues) {
+            setInitialValues(mappedValues);
+          } else {
+            console.error("❌ Mapping returned null!");
+          }
         }
-      } catch (err) {
-        console.error("fetchProfile error:", err);
+      } catch (err: any) {
+        console.error("❌ fetchProfile error:", err);
+        console.error("❌ Error details:", err?.response?.data || err?.message);
       } finally {
-        if (mounted) setLoadingProfile(false);
+        if (mounted) {
+          setLoadingProfile(false);
+        }
       }
     };
 
-    if (localStorage.getItem("token")) {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    
+    if (token && role) {
+      console.log("🚀 Starting profile fetch...");
       fetchProfile();
+    } else {
+      console.warn("⚠️ Missing token or role, skipping fetch");
+      setLoadingProfile(false);
     }
 
     return () => {
       mounted = false;
     };
-  }, []); 
+  }, [setUser, setCompany]);
 
   return { user, initialValues, loadingProfile, setInitialValues };
 };

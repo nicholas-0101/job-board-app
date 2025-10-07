@@ -425,15 +425,4 @@ export default function JobApplicantsPage() {
       </div>
     </div>
   );
-
-  function getStatusColor(status: string): string {
-    switch (status) {
-      case "SUBMITTED": return "bg-yellow-100 text-yellow-700";
-      case "IN_REVIEW": return "bg-blue-100 text-blue-700";
-      case "INTERVIEW": return "bg-purple-100 text-purple-700";
-      case "ACCEPTED": return "bg-green-100 text-green-700";
-      case "REJECTED": return "bg-red-100 text-red-700";
-      default: return "bg-gray-100 text-gray-700";
-    }
-  }
 }

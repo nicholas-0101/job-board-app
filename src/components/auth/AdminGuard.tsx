@@ -11,39 +11,53 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
         const role = localStorage.getItem("role");
         
         if (!token || role !== "ADMIN") {
-          console.log("No token or not admin role");
-          router.replace("/");
+          if (mounted) {
+            router.replace("/auth/signin");
+            setLoading(false);
+          }
           return;
         }
 
         // Verify token with backend
         const response = await apiCall.get("/auth/keep");
 
-        if (response.data.success && response.data.data.role === "ADMIN") {
-          setAllowed(true);
-        } else {
-          console.log("User is not admin");
-          router.replace("/");
+        if (mounted) {
+          if (response.data.success && response.data.data.role === "ADMIN") {
+            setAllowed(true);
+          } else {
+            router.replace("/auth/signin");
+          }
         }
       } catch (error) {
-        console.log("Auth verification failed:", error);
-        // Clear invalid tokens
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
-        localStorage.removeItem("userId");
-        router.replace("/");
+        console.error("Auth verification failed:", error);
+        if (mounted) {
+          // Clear invalid tokens
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("companyId");
+          router.replace("/auth/signin");
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkAuth();
+    
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
   if (loading) {

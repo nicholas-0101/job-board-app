@@ -66,10 +66,11 @@ export default function SignInPage() {
       if (user.role === "ADMIN") {
         router.push("/admin");
       } else {
-        router.push("/");
+        router.push("/explore/jobs");
       }
     } catch (err: any) {
-      alert(err?.response?.data?.error || err.message || "Sign in failed");
+      const errorMessage = err?.response?.data?.error || err?.response?.data?.message || err.message || "Sign in failed";
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +117,13 @@ export default function SignInPage() {
           localStorage.setItem("role", userData.role);
           localStorage.setItem("userId", userData.id.toString());
           setUser(userData);
-          router.push("/");
+          
+          // Redirect based on role
+          if (userData.role === "ADMIN") {
+            router.replace("/admin");
+          } else {
+            router.replace("/explore/jobs");
+          }
         } catch (err: any) {
           console.error(err);
           alert(err.response?.data?.message || "Google login failed");

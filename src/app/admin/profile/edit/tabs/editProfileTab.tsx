@@ -7,7 +7,7 @@ import SelectField from "../../components/selectField";
 import QuillField from "../../components/quillField";
 import CityField from "../../components/cityField";
 import { FileUploader } from "../../components/fileUploader";
-import { Phone, Building, Globe } from "lucide-react";
+import { Phone, Building, Globe, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram, Image } from "lucide-react";
 import { adminProfileSchema } from "../../changeProfileSchema";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { apiCall } from "@/helper/axios";
@@ -21,11 +21,30 @@ export default function AdminProfileTab() {
   const { setCompany } = useCompanyStore();
   const [isSaving, setIsSaving] = useState(false);
 
-  if (loadingProfile || !initialValues) {
-    console.log("Admin initialValues →", initialValues);
+  if (loadingProfile) {
     return (
       <div className="min-h-[200px] flex items-center justify-center">
-        <p className="text-muted-foreground">Loading profile…</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!initialValues) {
+    console.error("❌ NO INITIAL VALUES!", {
+      user,
+      initialValues,
+      loadingProfile
+    });
+    return (
+      <div className="min-h-[200px] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 font-semibold mb-2">No profile data available</p>
+          <p className="text-sm text-muted-foreground">Check browser console for details</p>
+          <p className="text-xs text-muted-foreground mt-2">User role: {user?.role || 'Unknown'}</p>
+        </div>
       </div>
     );
   }
@@ -81,35 +100,120 @@ export default function AdminProfileTab() {
           onSubmit={handleSubmit}
           className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8 space-y-6"
         >
-          <InputField
-            name="phone"
-            label="Company Phone"
-            placeholder="Enter company phone"
-            icon={Phone}
-          />
-          <InputField
-            name="address"
-            label="Full Address"
-            placeholder="Company full address"
-            icon={Building}
-          />
-          <CityField
-            name="locationCity"
-            label="City"
-            placeholder="Search your city..."
-          />
-          <InputField
-            name="website"
-            label="Website"
-            placeholder="https://example.com"
-            icon={Globe}
-          />
-          <QuillField
-            name="description"
-            label="Description"
-            placeholder="Write something about your company..."
-          />
-          <FileUploader name="logoUrl" label="Logo" />
+          {/* Company Basic Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b pb-2">Company Information</h3>
+            
+            <InputField
+              name="name"
+              label="Company Name"
+              placeholder="Enter company name"
+              icon={Building}
+            />
+            
+            <InputField
+              name="email"
+              label="Company Email"
+              placeholder="contact@company.com"
+              icon={Mail}
+              type="email"
+            />
+            
+            <InputField
+              name="phone"
+              label="Company Phone"
+              placeholder="+62812345678"
+              icon={Phone}
+            />
+            
+            <InputField
+              name="website"
+              label="Website"
+              placeholder="https://example.com"
+              icon={Globe}
+            />
+          </div>
+
+          {/* Location Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b pb-2">Location</h3>
+            
+            <InputField
+              name="address"
+              label="Full Address"
+              placeholder="Jl. Sudirman No. 123"
+              icon={MapPin}
+            />
+            
+            <div className="grid grid-cols-2 gap-4">
+              <CityField
+                name="locationCity"
+                label="City"
+                placeholder="Select city..."
+              />
+              
+              <InputField
+                name="locationProvince"
+                label="Province"
+                placeholder="DKI Jakarta"
+                icon={MapPin}
+              />
+            </div>
+          </div>
+
+          {/* Company Description */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b pb-2">About Company</h3>
+            
+            <QuillField
+              name="description"
+              label="Company Description"
+              placeholder="Write something about your company..."
+            />
+          </div>
+
+          {/* Images */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b pb-2">Images</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FileUploader name="logoUrl" label="Company Logo" />
+              <FileUploader name="bannerUrl" label="Company Banner" />
+            </div>
+          </div>
+
+          {/* Social Media */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b pb-2">Social Media (Optional)</h3>
+            
+            <InputField
+              name="socials.facebook"
+              label="Facebook"
+              placeholder="https://facebook.com/company"
+              icon={Facebook}
+            />
+            
+            <InputField
+              name="socials.twitter"
+              label="Twitter/X"
+              placeholder="https://twitter.com/company"
+              icon={Twitter}
+            />
+            
+            <InputField
+              name="socials.linkedin"
+              label="LinkedIn"
+              placeholder="https://linkedin.com/company/company"
+              icon={Linkedin}
+            />
+            
+            <InputField
+              name="socials.instagram"
+              label="Instagram"
+              placeholder="https://instagram.com/company"
+              icon={Instagram}
+            />
+          </div>
 
           <motion.button
             type="submit"

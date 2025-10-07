@@ -6,17 +6,19 @@ import {
   submitPreselectionAnswers,
   PreselectionTestDTO,
 } from "@/lib/preselection";
+import { apiCall } from "@/helper/axios";
 import { Loader } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function JobPretestPage() {
-  const params = useParams<{ jobId: string }>();
+  const params = useParams<{ slug: string }>();
   const router = useRouter();
-  const jobId = Number(params.jobId);
+  const slug = params.slug;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [test, setTest] = useState<PreselectionTestDTO | null>(null);
+  const [jobId, setJobId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -24,9 +26,84 @@ export default function JobPretestPage() {
     let mounted = true;
     (async () => {
       try {
-        const t = await fetchPreselectionTest(jobId);
+        // First, fetch the job by slug to get the job ID
+        const jobResponse = await apiCall.get(`/job/${slug}`);
+        const fetchedJobId = jobResponse.data.data.id;
+        if (mounted) setJobId(fetchedJobId);
+
+        // Then fetch the test using the job ID
+        console.log("🔍 Fetching test for job ID:", fetchedJobId);
+        console.log("🔍 API base URL:", process.env.NEXT_PUBLIC_BE_URL || "http://localhost:4400");
+        
+        let t;
+        // Try direct fetch as fallback
+        try {
+          t = await fetchPreselectionTest(fetchedJobId);
+          console.log("🔍 Success with apiCall");
+        } catch (apiError) {
+          console.log("🔍 apiCall failed, trying direct fetch...");
+          try {
+            const directResponse = await fetch(`http://localhost:4400/preselection/jobs/${fetchedJobId}/tests`);
+            console.log("🔍 Direct fetch response:", directResponse);
+            if (directResponse.ok) {
+              const directData = await directResponse.json();
+              console.log("🔍 Direct fetch data:", directData);
+              t = directData.data;
+            } else {
+              throw apiError;
+            }
+          } catch (directError) {
+            console.error("🔍 Direct fetch also failed:", directError);
+            throw apiError;
+          }
+        }
+        
+        console.log("🔍 Raw test data:", t);
+        console.log("🔍 Questions:", t?.questions);
+        
+        // Ensure options is always an array
+        if (t && t.questions) {
+          t.questions = t.questions.map((q: any) => {
+            console.log("🔍 Question:", q);
+            console.log("🔍 Options before:", q.options, typeof q.options);
+            
+            let processedOptions: string[] = [];
+            
+            if (Array.isArray(q.options)) {
+              processedOptions = q.options;
+              console.log("✅ Options is already array");
+            } else if (typeof q.options === 'string') {
+              try {
+                processedOptions = JSON.parse(q.options);
+                console.log("✅ Parsed options from string");
+              } catch (e) {
+                console.error("❌ Failed to parse options as JSON:", e);
+                processedOptions = [];
+              }
+            } else if (q.options && typeof q.options === 'object') {
+              // Handle Prisma Json type
+              processedOptions = Object.values(q.options) as string[];
+              console.log("✅ Converted object to array");
+            } else {
+              console.log("❌ Unknown options type, using empty array");
+              processedOptions = [];
+            }
+            
+            console.log("🔍 Options after:", processedOptions);
+            
+            return {
+              ...q,
+              options: processedOptions
+            };
+          });
+        }
+        
+        console.log("🔍 Final test data:", t);
+        console.log("🔍 Test ID:", t?.id);
+        console.log("🔍 Job ID:", t?.jobId);
         if (mounted) setTest(t);
       } catch (e: any) {
+        console.error("Failed to load test:", e);
         setError(e?.response?.data?.message || "Failed to load test");
       } finally {
         if (mounted) setLoading(false);
@@ -35,7 +112,7 @@ export default function JobPretestPage() {
     return () => {
       mounted = false;
     };
-  }, [jobId]);
+  }, [slug]);
 
   const canSubmit = useMemo(() => {
     if (!test) return false;
@@ -69,7 +146,7 @@ export default function JobPretestPage() {
       alert(
         "Test submitted successfully! You can now proceed with your job application."
       );
-      router.push(`/explore/jobs/${jobId}`);
+      router.push(`/explore/jobs/${slug}`);
     } catch (e: any) {
       alert(e?.response?.data?.message || e?.message || "Failed to submit");
     } finally {

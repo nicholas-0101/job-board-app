@@ -59,7 +59,7 @@ export default function CompaniesPage() {
         const { latitude, longitude } = pos.coords;
         const { city } = await getCityFromCoords(latitude, longitude);
 
-        if (city) {
+        if (city && !filters.location) {
           setSearchInputs((prev) => ({ ...prev, location: city }));
           setFilters((prev) => ({ ...prev, location: city }));
         }
@@ -68,7 +68,10 @@ export default function CompaniesPage() {
       }
     };
 
-    if (!filters.location) fetchLocationAndSetCity();
+    if (!filters.location) {
+      fetchLocationAndSetCity();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCompanies = async () => {
@@ -112,7 +115,12 @@ export default function CompaniesPage() {
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.location) params.set("city", filters.location);
     if (page > 1) params.set("page", page.toString());
-    router.replace(`/explore/companies?${params.toString()}`);
+    
+    const newUrl = `/explore/companies${params.toString() ? '?' + params.toString() : ''}`;
+    if (window.location.pathname + window.location.search !== newUrl) {
+      router.replace(newUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
