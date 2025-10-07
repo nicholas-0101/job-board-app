@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User2, LogOutIcon, FileEditIcon, Award, Trophy, FolderOpen, Bookmark } from "lucide-react";
+import { User2, LogOutIcon, FileEditIcon, Award, Trophy, FolderOpen, Bookmark, Shield } from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface Props {
@@ -92,6 +92,13 @@ export default function NavbarProfile({ user, logout, router }: Props) {
             onClick={() => setOpen(false)}
           >
             <Bookmark size={18} /> Saved Jobs
+          </Link>
+          <Link
+            href="/verify-certificate"
+            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            onClick={() => setOpen(false)}
+          >
+            <Shield size={18} /> Verify Certificate
           </Link>
           <Link
             href="/profile/edit"

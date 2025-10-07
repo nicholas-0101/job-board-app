@@ -28,7 +28,7 @@ export default function CertificateSection({
   result,
   onDownloadCertificate,
 }: CertificateSectionProps) {
-  if (!result.isPassed || !result.assessment.badgeTemplate) {
+  if (!result.isPassed) {
     return null;
   }
 
@@ -52,11 +52,11 @@ export default function CertificateSection({
                 Congratulations! 🎉
               </h3>
               <p className="text-gray-700 mb-4">
-                You have successfully earned the <strong>{result.assessment.badgeTemplate.name}</strong> certificate 
+                You have successfully earned the <strong>{result.assessment.badgeTemplate?.name || 'Completion'}</strong> certificate 
                 for completing the <strong>{result.assessment.title}</strong> assessment.
               </p>
               
-              {result.assessment.badgeTemplate.category && (
+              {result.assessment.badgeTemplate?.category && (
                 <Badge variant="outline" className="mb-4">
                   {result.assessment.badgeTemplate.category}
                 </Badge>

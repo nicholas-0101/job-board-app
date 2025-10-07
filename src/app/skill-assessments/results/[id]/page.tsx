@@ -29,8 +29,34 @@ export default function AssessmentResultPage() {
     router.push("/skill-assessments/dashboard");
   };
 
-  const handleDownloadCertificate = (certificateUrl: string) => {
-    window.open(certificateUrl, '_blank');
+  const handleDownloadCertificate = async (certificateUrl: string) => {
+    try {
+      // Fetch the PDF file
+      const response = await fetch(certificateUrl);
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Set filename with proper extension
+      const assessmentTitle = result?.assessment?.title || 'Assessment';
+      const fileName = `Certificate-${assessmentTitle.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+      link.download = fileName;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading certificate:', error);
+      // Fallback to opening in new tab
+      window.open(certificateUrl, '_blank');
+    }
   };
 
 
