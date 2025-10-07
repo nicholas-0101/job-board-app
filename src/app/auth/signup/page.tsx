@@ -74,10 +74,36 @@ export default function SignUpPage() {
             role,
           });
           const userData = res.data.data;
+          
+          // If admin, fetch companyId
+          if (userData.role === "ADMIN") {
+            try {
+              const companyResponse = await apiCall.get("/company/admin", {
+                headers: {
+                  Authorization: `Bearer ${userData.token}`,
+                },
+              });
+              const companyId = Number(
+                companyResponse.data?.id ?? companyResponse.data?.data?.id
+              );
+              localStorage.setItem("companyId", companyId.toString());
+            } catch (err) {
+              console.error("Failed to fetch company ID:", err);
+            }
+          }
+          
           localStorage.setItem("token", userData.token);
           localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("role", userData.role);
+          localStorage.setItem("userId", userData.id.toString());
           setUser(userData);
-          router.replace("/");
+          
+          // Redirect based on role
+          if (userData.role === "ADMIN") {
+            router.replace("/admin");
+          } else {
+            router.replace("/explore/jobs");
+          }
         } catch (err: any) {
           console.error(err);
           alert(err.response?.data?.message || "Google login failed");

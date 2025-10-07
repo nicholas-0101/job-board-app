@@ -32,10 +32,30 @@ export default function ProfileTab() {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  if (loadingProfile || initialValues === null) {
+  if (loadingProfile) {
     return (
       <div className="min-h-[200px] flex items-center justify-center">
-        <p className="text-muted-foreground">Loading profile…</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!initialValues) {
+    console.error("❌ USER PROFILE - NO INITIAL VALUES!", {
+      user,
+      initialValues,
+      loadingProfile
+    });
+    return (
+      <div className="min-h-[200px] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 font-semibold mb-2">No profile data available</p>
+          <p className="text-sm text-muted-foreground">Check browser console for details</p>
+          <p className="text-xs text-muted-foreground mt-2">User role: {user?.role || 'Unknown'}</p>
+        </div>
       </div>
     );
   }

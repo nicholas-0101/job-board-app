@@ -1,14 +1,12 @@
 import * as Yup from "yup";
 
 export const userProfileSchema = Yup.object().shape({
-  phone: Yup.string()
-    .matches(/^\+?\d{10,15}$/, "Invalid phone number")
-    .required("Phone is required"),
-  gender: Yup.string().required("Gender is required").oneOf(["Male", "Female"], "Invalid gender"),
-  dob: Yup.date().required("Date of birth is required").max(new Date(), "Date of birth must be in the past"),
-  education: Yup.string().required("Education is required").max(100, "Education must be less than 100 characters"),
-  address: Yup.string().required("Address is required").max(200, "Address too long"),
-  city: Yup.string().required("City is required"), 
+  phone: Yup.string().optional(),
+  gender: Yup.string().optional(),
+  dob: Yup.date().optional().max(new Date(), "Date of birth must be in the past").nullable(),
+  education: Yup.string().optional(),
+  address: Yup.string().optional(),
+  city: Yup.string().optional(),
 });
 
 export const adminProfileSchema = Yup.object().shape({

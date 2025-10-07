@@ -100,7 +100,12 @@ useEffect(() => {
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.location) params.set("city", filters.location);
     if (page > 1) params.set("page", page.toString());
-    router.replace(`/explore/jobs?${params.toString()}`);
+    
+    const newUrl = `/explore/jobs${params.toString() ? '?' + params.toString() : ''}`;
+    if (window.location.pathname + window.location.search !== newUrl) {
+      router.replace(newUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -147,7 +152,7 @@ useEffect(() => {
         const { latitude, longitude } = pos.coords;
         const { city } = await getCityFromCoords(latitude, longitude);
 
-        if (city) {
+        if (city && !filters.location) {
           setSearchInputs((prev) => ({ ...prev, location: city }));
           setFilters((prev) => ({ ...prev, location: city }));
         }
@@ -156,7 +161,11 @@ useEffect(() => {
       }
     };
 
-    fetchLocationAndSetFilter();
+    // Only fetch location if not already set from URL params
+    if (!selectedLocation) {
+      fetchLocationAndSetFilter();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

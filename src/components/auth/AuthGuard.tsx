@@ -22,23 +22,33 @@ export default function AuthGuard({
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
+    
     const checkAuth = () => {
       const token = localStorage.getItem("token");
       
       if (!token) {
-        setIsAuthenticated(false);
-        if (!showWarning) {
-          toast.error("Please sign in to access this page");
-          router.push(redirectTo);
+        if (mounted) {
+          setIsAuthenticated(false);
+          if (!showWarning) {
+            toast.error("Please sign in to access this page");
+            router.push(redirectTo);
+          }
         }
         return;
       }
 
       // You can add token validation here if needed
-      setIsAuthenticated(true);
+      if (mounted) {
+        setIsAuthenticated(true);
+      }
     };
 
     checkAuth();
+    
+    return () => {
+      mounted = false;
+    };
   }, [router, redirectTo, showWarning]);
 
   if (isAuthenticated === null) {

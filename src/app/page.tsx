@@ -39,16 +39,18 @@ export default function HomePage() {
   const router = useRouter();
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const heroRef = useRef(null);
   const exploreRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+  // Disable scroll animations to prevent hydration issues
+  // const { scrollYProgress } = useScroll({
+  //   target: heroRef,
+  //   offset: ["start start", "end start"],
+  // });
+  // const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   const [keyword, setKeyword] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -61,19 +63,27 @@ export default function HomePage() {
     { label: "Success Rate", value: 92, icon: Award, suffix: "%" },
   ];
 
+  // Handle mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Client-side only: read URL params safely
   useEffect(() => {
+    if (!mounted) return;
+    
     const searchParams = new URLSearchParams(window.location.search);
     setKeyword(searchParams.get("keyword") || "");
     setSelectedLocation(searchParams.get("city") || "");
     setPathname(window.location.pathname);
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
-    // Redirect admin if logged in
+    if (!mounted) return;
+    
+    // Only redirect admin, let regular users access homepage
     try {
-      const role =
-        typeof window !== "undefined" ? localStorage.getItem("role") : null;
+      const role = localStorage.getItem("role");
       if (role === "ADMIN") {
         router.replace("/admin");
         return;
@@ -110,7 +120,7 @@ export default function HomePage() {
     };
 
     fetchJobs();
-  }, [keyword, selectedLocation]);
+  }, [keyword, selectedLocation, mounted, router]);
 
   const handleSearch = useCallback(
     async (shouldScroll: boolean = true) => {
@@ -121,7 +131,10 @@ export default function HomePage() {
         if (keyword) params.set("keyword", keyword);
         if (selectedLocation) params.set("city", selectedLocation);
 
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        const newUrl = `${pathname}${params.toString() ? '?' + params.toString() : ''}`;
+        if (window.location.pathname + window.location.search !== newUrl) {
+          router.replace(newUrl, { scroll: false });
+        }
 
         const res = await apiCall.get("/job/all", {
           params: {
@@ -159,6 +172,8 @@ export default function HomePage() {
   );
 
   useEffect(() => {
+    if (!mounted) return;
+    
     const fetchLocationAndJobs = async () => {
       try {
         const pos = await getUserLocation();
@@ -166,8 +181,8 @@ export default function HomePage() {
 
         const { city } = await getCityFromCoords(latitude, longitude);
 
-        if (city) {
-          setSelectedLocation((prev) => prev || city);
+        if (city && !selectedLocation) {
+          setSelectedLocation(city);
         }
       } catch (err) {
         console.warn("User denied location or geolocation failed:", err);
@@ -175,14 +190,22 @@ export default function HomePage() {
     };
 
     fetchLocationAndJobs();
-  }, []);
+  }, [mounted, selectedLocation]);
+
+  // Show loading while checking auth status
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#24CFA7]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-background">
       {/* Hero */}
       <motion.section
         ref={heroRef}
-        style={{ opacity: heroOpacity, scale: heroScale }}
         className="relative min-h-[100vh] bg-grit overflow-hidden"
       >
         <div className="absolute inset-0">

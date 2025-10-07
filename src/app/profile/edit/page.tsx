@@ -4,12 +4,21 @@ import { useState } from "react";
 import { useUserStore } from "@/lib/store/userStore";
 import { useCompanyStore } from "@/lib/store/companyStore";
 import { useRouter } from "next/navigation";
+import UserOnlyGuard from "@/components/auth/UserOnlyGuard";
 
 import ProfileTab from "./tabs/editProfileTab";
 import EmailTab from "./tabs/changeEmailTab";
 import PasswordTab from "./tabs/changePasswordTab";
 
 export default function EditProfilePage() {
+  return (
+    <UserOnlyGuard>
+      <EditProfilePageContent />
+    </UserOnlyGuard>
+  );
+}
+
+function EditProfilePageContent() {
   const { user } = useUserStore();
   const [activeTab, setActiveTab] = useState<"profile" | "email" | "password">(
     "profile"

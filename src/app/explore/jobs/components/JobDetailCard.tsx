@@ -19,11 +19,60 @@ interface DecodedToken {
   [key: string]: any;
 }
 
+// Helper function to detect if text is HTML or plain text
+const isHtmlContent = (text: string): boolean => {
+  return /<[^>]+>/.test(text);
+};
+
+// Convert plain text to HTML with proper formatting
+const convertPlainTextToHtml = (text: string): string => {
+  if (!text) return '';
+  
+  // Split by double newlines for paragraphs
+  const paragraphs = text.split('\n\n').filter(p => p.trim());
+  
+  return paragraphs.map(para => {
+    const trimmed = para.trim();
+    
+    // Check if it looks like a heading (short line, usually title-like)
+    if (trimmed.length < 50 && !trimmed.includes('\n') && 
+        (trimmed.match(/^[A-Z]/) || trimmed.includes('Role') || 
+         trimmed.includes('Responsibilities') || trimmed.includes('Requirements') ||
+         trimmed.includes('About') || trimmed.includes('Qualifications') ||
+         trimmed.includes('Skills') || trimmed.includes('Benefits'))) {
+      return `<h3>${trimmed}</h3>`;
+    }
+    
+    // Check if it contains bullet points
+    if (trimmed.includes('\n') && !trimmed.startsWith('-')) {
+      const lines = trimmed.split('\n').filter(l => l.trim());
+      // If all lines are short, it's likely a list
+      if (lines.every(l => l.length < 100)) {
+        return '<ul>' + lines.map(line => `<li>${line.trim()}</li>`).join('') + '</ul>';
+      }
+    }
+    
+    // Check if it starts with dash (bullet points)
+    if (trimmed.startsWith('-')) {
+      const items = trimmed.split('\n').map(line => line.replace(/^-\s*/, '').trim()).filter(Boolean);
+      return '<ul>' + items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+    }
+    
+    // Otherwise, treat as paragraph
+    return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+  }).join('\n');
+};
+
 export default function JobDetailCard({ job }: JobDetailCardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [openShare, setOpenShare] = useState(false);
   const [saved, setSaved] = useState(false);
   const router = useRouter();
+  
+  // Format description based on whether it's HTML or plain text
+  const formattedDescription = isHtmlContent(job.description) 
+    ? job.description 
+    : convertPlainTextToHtml(job.description);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,7 +84,7 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
       router.push("/go-to-signin");
       return;
     }
-    router.push(`/jobs/${job.id}/pretest`);
+    router.push(`/jobs/${job.slug}/pretest`);
   };
 
   const handleApplyClick = () => {
@@ -198,9 +247,23 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         )}
 
         {/* Description */}
-        <div className="text-muted-foreground whitespace-pre-line">
-          {job.description}
-        </div>
+        <div 
+          className="text-muted-foreground prose prose-sm max-w-none 
+                     prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-3
+                     prose-h1:text-2xl prose-h1:text-foreground prose-h1:font-bold prose-h1:mb-4
+                     prose-h2:text-xl prose-h2:text-foreground prose-h2:font-bold prose-h2:mb-3
+                     prose-h3:text-lg prose-h3:text-foreground prose-h3:font-semibold prose-h3:mb-3
+                     prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-p:text-base
+                     prose-ul:text-muted-foreground prose-ul:mb-4 prose-ul:list-disc prose-ul:pl-6
+                     prose-ol:text-muted-foreground prose-ol:mb-4 prose-ol:list-decimal prose-ol:pl-6
+                     prose-li:text-muted-foreground prose-li:mb-2 prose-li:text-base
+                     prose-strong:text-foreground prose-strong:font-semibold
+                     prose-em:text-foreground prose-em:italic
+                     prose-a:text-[#467EC7] prose-a:underline prose-a:hover:text-[#24CFA7]
+                     prose-blockquote:border-l-4 prose-blockquote:border-[#24CFA7] prose-blockquote:pl-4 prose-blockquote:italic
+                     prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
+          dangerouslySetInnerHTML={{ __html: formattedDescription }}
+        />
       </motion.div>
       <ShareJobDialog
         open={openShare}

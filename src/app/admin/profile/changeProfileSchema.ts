@@ -12,18 +12,20 @@ export const userProfileSchema = Yup.object().shape({
 });
 
 export const adminProfileSchema = Yup.object().shape({
-  phone: Yup.string()
-    .matches(/^\+?\d{10,15}$/, "Invalid phone number")
-    .required("Phone is required"),
-  address: Yup.string().required("Location is required"),
-  locationCity: Yup.string().required("City is required"), 
-  website: Yup.string().required("Website URL is required").url("Invalid website URL"),
-  description: Yup.string().required("Description is required")
-  .test("not-empty", "Description is required", (val) => {
-    if (!val) return false;
-    const stripped = val.replace(/<(.|\n)*?>/g, "").trim();
-    return stripped.length > 0;
-  }),
+  name: Yup.string().optional(),
+  email: Yup.string().email("Invalid email").optional(),
+  phone: Yup.string().optional(),
+  address: Yup.string().optional(),
+  locationCity: Yup.string().optional(), 
+  locationProvince: Yup.string().optional(),
+  website: Yup.string().optional(),
+  description: Yup.string().optional(),
+  socials: Yup.object().shape({
+    facebook: Yup.string().optional(),
+    twitter: Yup.string().optional(),
+    linkedin: Yup.string().optional(),
+    instagram: Yup.string().optional(),
+  }).optional(),
 });
 
 export const changeEmailSchema = Yup.object().shape({

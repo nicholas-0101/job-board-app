@@ -17,10 +17,23 @@ export interface PreselectionTestDTO {
 }
 
 export async function fetchPreselectionTest(jobId: number) {
-  const res = await apiCall.get<{ success: boolean; data: PreselectionTestDTO }>(
-    `/preselection/jobs/${jobId}/tests`
-  );
-  return res.data.data;
+  console.log("🔍 fetchPreselectionTest called with jobId:", jobId);
+  console.log("🔍 API base URL:", apiCall.defaults.baseURL);
+  console.log("🔍 Full URL will be:", `${apiCall.defaults.baseURL}/preselection/jobs/${jobId}/tests`);
+  
+  try {
+    const res = await apiCall.get<{ success: boolean; data: PreselectionTestDTO }>(
+      `/preselection/jobs/${jobId}/tests`
+    );
+    console.log("🔍 API Response:", res);
+    return res.data.data;
+  } catch (error: any) {
+    console.error("🔍 API Error:", error);
+    console.error("🔍 Error response:", error.response);
+    console.error("🔍 Error status:", error.response?.status);
+    console.error("🔍 Error data:", error.response?.data);
+    throw error;
+  }
 }
 
 export async function submitPreselectionAnswers(params: {

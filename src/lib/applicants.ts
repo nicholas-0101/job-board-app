@@ -57,7 +57,7 @@ export async function listJobApplicants(params: {
   });
 
   const response = await apiCall.get(
-    `/job/company/${companyId}/jobs/${jobId}/applicants`,
+    `/job/companies/${companyId}/jobs/${jobId}/applicants`,
     { params: cleanParams }
   );
 
@@ -73,8 +73,8 @@ export async function updateApplicantStatus(params: {
 }): Promise<void> {
   const { companyId, jobId, applicationId, ...body } = params;
   
-  await apiCall.patch(
-    `/job/company/${companyId}/jobs/${jobId}/applicants/${applicationId}/status`,
+  await apiCall.put(
+    `/job/companies/${companyId}/jobs/${jobId}/applications/${applicationId}/status`,
     body
   );
 }
