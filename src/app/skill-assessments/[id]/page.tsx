@@ -3,15 +3,19 @@ import { useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAssessmentState } from "./hooks/useAssessmentState";
 import { useAssessmentTimer } from "./hooks/useAssessmentTimer";
+import { useSubscription } from "@/hooks/useSubscription";
 import AssessmentHeader from "./components/AssessmentHeader";
 import StartScreen from "./components/StartScreen";
 import QuestionDisplay from "./components/QuestionDisplay";
 import NavigationControls from "./components/NavigationControls";
+import SubscriptionGuard from "@/components/skill-assessments/SubscriptionGuard";
+import AssessmentLimitGuard from "@/components/skill-assessments/AssessmentLimitGuard";
 
 export default function TakeAssessmentPage() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = parseInt(params.id as string);
+  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated, recheckSubscription } = useSubscription();
   
   const {
     assessment,
@@ -41,8 +45,11 @@ export default function TakeAssessmentPage() {
   }, [submitAssessmentData]);
 
   useEffect(() => {
-    fetchAssessment();
-  }, [fetchAssessment]);
+    // Only fetch assessment if user has subscription
+    if (hasSubscription === true) {
+      fetchAssessment();
+    }
+  }, [fetchAssessment, hasSubscription]);
 
   // Cleanup timer on unmount or submission
   useEffect(() => {
@@ -76,9 +83,10 @@ export default function TakeAssessmentPage() {
     submitAssessmentData(false);
   };
 
-  if (loading) {
+  // Show loading state while checking subscription
+  if (subscriptionLoading || (hasSubscription === true && loading)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -89,9 +97,19 @@ export default function TakeAssessmentPage() {
     );
   }
 
+  // Show subscription guard if not authenticated or no subscription
+  if (isAuthenticated === false || hasSubscription === false) {
+    return (
+      <SubscriptionGuard 
+        onCheckAgain={recheckSubscription}
+        isAuthenticated={isAuthenticated}
+      />
+    );
+  }
+
   if (!assessment) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Assessment not found</h1>
@@ -105,9 +123,10 @@ export default function TakeAssessmentPage() {
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <AssessmentHeader
+    <AssessmentLimitGuard assessmentId={assessmentId}>
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <AssessmentHeader
           title={assessment.title}
           description={assessment.description}
           creatorName={assessment.creator.name}
@@ -150,5 +169,6 @@ export default function TakeAssessmentPage() {
         )}
       </div>
     </div>
+    </AssessmentLimitGuard>
   );
 }

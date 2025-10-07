@@ -30,7 +30,7 @@ export default function VerifyCertificatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+    <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -47,7 +47,7 @@ export default function VerifyCertificatePage() {
         </div>
 
         {/* Verification Form */}
-        <Card className="max-w-2xl mx-auto mb-8">
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="w-5 h-5 text-[#467EC7]" />

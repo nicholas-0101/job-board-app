@@ -2,12 +2,15 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDashboardState } from "./hooks/useDashboardState";
+import { useSubscription } from "@/hooks/useSubscription";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardStats from "./components/DashboardStats";
 import ResultsList from "./components/ResultsList";
+import SubscriptionGuard from "@/components/skill-assessments/SubscriptionGuard";
 
 export default function SkillAssessmentDashboard() {
   const router = useRouter();
+  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated, recheckSubscription } = useSubscription();
   
   const {
     results,
@@ -18,8 +21,11 @@ export default function SkillAssessmentDashboard() {
   } = useDashboardState();
 
   useEffect(() => {
-    fetchResults();
-  }, [fetchResults]);
+    // Only fetch results if user has subscription
+    if (hasSubscription === true) {
+      fetchResults();
+    }
+  }, [fetchResults, hasSubscription]);
 
   const handleViewResult = (resultId: number) => {
     router.push(`/skill-assessments/results/${resultId}`);
@@ -29,9 +35,10 @@ export default function SkillAssessmentDashboard() {
     window.open(certificateUrl, '_blank');
   };
 
-  if (loading) {
+  // Show loading state while checking subscription
+  if (subscriptionLoading || (hasSubscription === true && loading)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -51,8 +58,18 @@ export default function SkillAssessmentDashboard() {
     );
   }
 
+  // Show subscription guard if not authenticated or no subscription
+  if (isAuthenticated === false || hasSubscription === false) {
+    return (
+      <SubscriptionGuard 
+        onCheckAgain={recheckSubscription}
+        isAuthenticated={isAuthenticated}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+    <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-6xl mx-auto px-4">
         <DashboardHeader />
         

@@ -16,7 +16,7 @@ export default function OrderSummary({ selectedPlan }: OrderSummaryProps) {
       <CardContent>
         <div className="space-y-4">
           {/* Plan Details */}
-          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-4 p-4 bg-[#F0F5F9] rounded-lg">
             <div className={`p-3 rounded-xl bg-gradient-to-br ${selectedPlan.color}`}>
               <IconComponent className="w-6 h-6 text-white" />
             </div>
@@ -32,7 +32,7 @@ export default function OrderSummary({ selectedPlan }: OrderSummaryProps) {
             <ul className="space-y-1">
               {selectedPlan.features.map((feature, index) => (
                 <li key={index} className="text-sm text-gray-600 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-[#24CFA7] rounded-full"></div>
                   {feature}
                 </li>
               ))}
@@ -56,8 +56,8 @@ export default function OrderSummary({ selectedPlan }: OrderSummaryProps) {
           </div>
 
           {/* Billing Info */}
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-xs text-blue-800">
+          <div className="bg-[#467EC7]/5 p-3 rounded-lg">
+            <p className="text-xs text-[#467EC7]">
               You will be charged IDR {selectedPlan.price.toLocaleString()} monthly. 
               Cancel anytime from your account settings.
             </p>

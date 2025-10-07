@@ -67,10 +67,10 @@ export function useResultsState(resultId: number) {
   }, [resultId, router]);
 
   const getScoreColor = useCallback((score: number) => {
-    if (score >= 90) return "text-green-600";
-    if (score >= 75) return "text-blue-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 90) return "text-[#24CFA7]";
+    if (score >= 75) return "text-[#467EC7]";
+    if (score >= 60) return "text-orange-500";
+    return "text-red-500";
   }, []);
 
   const getPerformanceLevel = useCallback((score: number) => {

@@ -57,19 +57,19 @@ export default function ResultsHeader({
 
           <div className="flex items-center gap-3">
             {result.isPassed ? (
-              <Badge className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
+              <Badge className="bg-[#24CFA7]/10 text-[#24CFA7] border-[#24CFA7]/20 px-3 py-1">
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Passed
               </Badge>
             ) : (
-              <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200 px-3 py-1">
+              <Badge variant="destructive" className="bg-red-50 text-red-600 border-red-200 px-3 py-1">
                 <XCircle className="w-4 h-4 mr-2" />
                 Failed
               </Badge>
             )}
 
             {result.assessment.badgeTemplate && result.isPassed && (
-              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 px-3 py-1">
+              <Badge variant="secondary" className="bg-[#467EC7]/10 text-[#467EC7] border-[#467EC7]/20 px-3 py-1">
                 <Trophy className="w-4 h-4 mr-2" />
                 Certificate Earned
               </Badge>

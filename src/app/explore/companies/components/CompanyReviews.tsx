@@ -70,7 +70,7 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
   const fetchReviews = async (pageNum = 1) => {
     try {
       const response = await apiCall.get(
-        `/reviews/companies/${companyId}/reviews?page=${pageNum}&limit=5`
+        `/reviews/companies/${companyId}/reviews?page=${pageNum}&limit=3`
       );
       
       if (pageNum === 1) {
@@ -79,7 +79,7 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
         setReviews(prev => [...prev, ...(response.data.data?.reviews || response.data.data || [])]);
       }
       
-      setHasMore((response.data.data?.reviews || []).length === 5);
+      setHasMore((response.data.data?.reviews || []).length === 3);
       setPage(pageNum);
     } catch (error: any) {
       console.error("Error fetching reviews:", error);

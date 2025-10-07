@@ -62,7 +62,7 @@ export default function AssessmentResultPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -79,7 +79,7 @@ export default function AssessmentResultPage() {
 
   if (!result) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Result not found</h1>
@@ -90,7 +90,7 @@ export default function AssessmentResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+    <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-4xl mx-auto px-4">
         <ResultsHeader
           result={result}

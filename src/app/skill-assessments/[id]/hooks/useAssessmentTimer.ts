@@ -6,7 +6,7 @@ interface UseAssessmentTimerProps {
 }
 
 export function useAssessmentTimer({ onTimeUp, started }: UseAssessmentTimerProps) {
-  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(2 * 60); // 2 minutes in seconds (for testing)
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = useCallback(() => {
@@ -46,8 +46,8 @@ export function useAssessmentTimer({ onTimeUp, started }: UseAssessmentTimerProp
   };
 
   const getTimeWarning = () => {
-    if (timeLeft <= 60) return "danger"; // 1 minute
-    if (timeLeft <= 300) return "warning"; // 5 minutes
+    if (timeLeft <= 30) return "danger"; // 30 seconds
+    if (timeLeft <= 60) return "warning"; // 1 minute
     return "normal";
   };
 

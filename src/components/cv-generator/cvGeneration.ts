@@ -20,6 +20,12 @@ export const handleGenerateCV = async (
     const backendData = {
       templateType: formData.templateType,
       additionalInfo: {
+        // Personal info from form
+        fullName: formData.fullName || undefined,
+        email: formData.email || undefined,
+        phone: formData.phone || undefined,
+        address: formData.address || undefined,
+        
         objective: formData.objective || undefined,
         linkedin: formData.linkedin || undefined,
         portfolio: formData.portfolio || undefined,

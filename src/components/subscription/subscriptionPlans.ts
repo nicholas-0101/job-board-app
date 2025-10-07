@@ -23,7 +23,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     popular: false,
     color: "from-blue-500 to-blue-600",
     icon: Briefcase,
-    features: ["CV Generator", "Skill Assessment 2x"],
+    features: ["CV Generator", "Skill Assessment 2x", "Basic email reminders"],
     limitations: [],
   },
   {
@@ -39,6 +39,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       "CV Generator",
       "Skill Assessment unlimited",
       "Priority review when apply job",
+      "Exclusive templates",
     ],
     limitations: [],
   },

@@ -69,6 +69,8 @@ export function useAssessmentState(assessmentId: number) {
 
     const answeredCount = Object.keys(answers).length;
     
+    // For manual submit, require at least one answer
+    // For auto-submit, allow submission even with 0 answers
     if (!isAutoSubmit && answeredCount === 0) {
       toast.error("Please answer at least one question before submitting");
       return;
@@ -78,11 +80,12 @@ export function useAssessmentState(assessmentId: number) {
       setSubmitting(true);
       setIsSubmitted(true);
 
-      const formattedAnswers = assessment.questions.map((question) => ({
-        questionId: question.id,
-        answer: answers[question.id] || "",
-      }));
-
+      const formattedAnswers = assessment.questions
+        .map((question) => ({
+          questionId: question.id,
+          answer: answers[question.id] || "",
+        }))
+        .filter(answer => answer.answer !== ""); // Only send answered questions
 
       const response = await submitAssessment({
         assessmentId,

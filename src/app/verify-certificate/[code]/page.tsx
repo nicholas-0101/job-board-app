@@ -36,7 +36,7 @@ export default function VerifyCertificatePage() {
   useEffect(() => {
     const verifyCertificate = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BE_URL}/skill-assessment/verify/${certificateCode}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BE_URL || 'http://localhost:4400'}/skill-assessment/verify/${certificateCode}`);
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -67,7 +67,7 @@ export default function VerifyCertificatePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0F5F9] flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center p-8">
             <Loader2 className="w-8 h-8 animate-spin text-[#467EC7] mb-4" />
@@ -80,7 +80,7 @@ export default function VerifyCertificatePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0F5F9] flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center p-8">
             <XCircle className="w-16 h-16 text-red-500 mb-4" />
@@ -94,7 +94,7 @@ export default function VerifyCertificatePage() {
 
   if (!certificate) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0F5F9] flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center p-8">
             <XCircle className="w-16 h-16 text-red-500 mb-4" />
@@ -107,7 +107,7 @@ export default function VerifyCertificatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F5F9] to-[#E1F1F3] py-8">
+    <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -196,7 +196,7 @@ export default function VerifyCertificatePage() {
 
               <div className="pt-4">
                 <a
-                  href={`${process.env.NEXT_PUBLIC_BE_URL}/skill-assessment/certificates/${certificate.certificateCode}/view`}
+                  href={`${process.env.NEXT_PUBLIC_BE_URL || 'http://localhost:4400'}/skill-assessment/certificates/${certificate.certificateCode}/view`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#467EC7] text-white px-4 py-2 rounded-lg hover:bg-[#3a6ba5] transition-colors"

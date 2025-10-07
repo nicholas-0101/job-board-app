@@ -39,14 +39,14 @@ export default function PaymentForm({
           <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
           <div className="space-y-3">
             {/* Bank Transfer */}
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-500 transition-colors">
+            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#467EC7] transition-colors">
               <input
                 type="radio"
                 name="payment"
                 value="transfer"
                 checked={paymentMethod === "transfer"}
                 onChange={(e) => onPaymentMethodChange(e.target.value)}
-                className="w-4 h-4 text-blue-600"
+                className="w-4 h-4 text-[#467EC7]"
               />
               <div className="flex-1">
                 <div className="font-medium">Bank Transfer</div>
@@ -63,9 +63,9 @@ export default function PaymentForm({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+            className="bg-[#467EC7]/5 border border-[#467EC7]/20 rounded-lg p-4"
           >
-            <h4 className="font-semibold text-blue-900 mb-3">
+            <h4 className="font-semibold text-[#467EC7] mb-3">
               Bank Transfer Details
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -74,7 +74,7 @@ export default function PaymentForm({
                 <p><strong>Account:</strong> 1234567890</p>
               </div>
               <div>
-                <p><strong>Name:</strong> ProHire Indonesia</p>
+                <p><strong>Name:</strong> PT. Workoo Job</p>
                 <p><strong>Amount:</strong> IDR {selectedPlan.price.toLocaleString()}</p>
               </div>
             </div>
@@ -100,7 +100,7 @@ export default function PaymentForm({
                 Upload screenshot or photo of your transfer receipt (JPG, PNG, PDF - Max 5MB)
               </p>
               {paymentProof && (
-                <div className="mt-2 flex items-center gap-2 text-green-600">
+                <div className="mt-2 flex items-center gap-2 text-[#24CFA7]">
                   <FileText className="w-4 h-4" />
                   <span className="text-sm">{paymentProof.name}</span>
                 </div>
@@ -114,7 +114,7 @@ export default function PaymentForm({
           <Button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg"
+            className="w-full bg-[#467EC7] hover:bg-[#467EC7]/90 text-white py-3 text-lg"
             size="lg"
           >
             {isSubmitting ? (
