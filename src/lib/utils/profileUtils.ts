@@ -9,14 +9,15 @@ export const formatDateForInput = (dateStr: string | null | undefined) => {
 export const mapPayloadToInitialValues = (payload: any) => {
   if (!payload) return null;
 
-  if (payload?.role === "ADMIN" || payload?.adminId) {
+  console.log("payload:", payload)
+  if (payload?.role === "ADMIN" || payload?.ownerAdminId || payload?.slug) {
     return {
       phone: payload?.phone ?? "",
-      location: payload?.location ?? "",
-      city: payload?.city ?? "",
+      address: payload?.address ?? "",
+      locationCity: payload?.locationCity ?? "",
       description: payload?.description ?? "",
       website: payload?.website ?? "",
-      logo: payload?.logo ?? null,
+      logoUrl: payload?.logoUrl ?? null,
     };
   }
 

@@ -59,6 +59,7 @@ export default function CityField({
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
+          onBlur={() => field.onBlur({ target: { name } })}
           className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
             meta.touched && meta.error
               ? "border-red-400 bg-red-50"
