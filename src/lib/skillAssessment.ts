@@ -99,19 +99,18 @@ export const deleteAssessment = async (assessmentId: number) => {
 // Get assessment for user to take (without answers)
 export const getAssessmentForUser = async (assessmentId: number) => {
   try {
+    console.log('🎯 Frontend: Calling /take endpoint for assessment:', assessmentId);
     const response = await apiCall.get(`/skill-assessment/assessments/${assessmentId}/take`);
+    console.log('✅ Frontend: /take endpoint success:', response.data);
     return response.data;
   } catch (error: any) {
-    console.error("Error fetching assessment for user:", {
+    console.error("❌ Frontend: Error fetching assessment for user:", {
       assessmentId,
       status: error.response?.status,
-      message: error.response?.data?.message,
-      code: error.response?.data?.code
+      error: error.response?.data || error.message,
     });
     
-    if (error.response?.status === 404) {
-      throw new Error(`Assessment with ID ${assessmentId} not found`);
-    } else if (error.response?.status === 403) {
+    if (error.response?.status === 403) {
       const errorData = error.response.data;
       if (errorData.code === "SUBSCRIPTION_REQUIRED") {
         throw new Error("Active subscription required to access skill assessments");
@@ -136,6 +135,7 @@ export const submitAssessment = async (data: {
       startedAt: data.startedAt,
       answers: data.answers
     });
+    
     return response.data;
   } catch (error: any) {
     console.error("Submit error:", error.response?.data || error.message);

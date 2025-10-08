@@ -101,6 +101,7 @@ export function useAssessmentState(assessmentId: number) {
       
       // Use result ID from response for redirect
       const resultId = response.data?.result?.id;
+      
       if (resultId) {
         router.push(`/skill-assessments/results/${resultId}`);
       } else {
@@ -110,7 +111,12 @@ export function useAssessmentState(assessmentId: number) {
     } catch (error: any) {
       setSubmitting(false);
       setIsSubmitted(false);
-      toast.error(error.response?.data?.message || "Failed to submit assessment");
+      
+      if (error.response?.status === 403 && error.response?.data?.code === 'ASSESSMENT_LIMIT_EXCEEDED') {
+        toast.error(`Assessment limit reached! ${error.response.data.message}`);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to submit assessment");
+      }
     }
   }, [assessment, answers, startTime, isSubmitted, submitting, assessmentId, router]);
 
