@@ -26,11 +26,11 @@ export default function Navbar() {
 
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
-
+  
   useEffect(() => {
     setIsClient(true);
   }, []);
-
+  
   const hideNavbar = hiddenRoutes.some((r) => pathname.startsWith(r));
   if (hideNavbar) return null;
 
