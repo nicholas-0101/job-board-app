@@ -3,14 +3,30 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Users, Eye, CheckCircle, XCircle, Clock, FileText, Search,
-  Calendar, MapPin, GraduationCap, DollarSign, RefreshCw, Filter
+  Users,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
+  Search,
+  Calendar,
+  MapPin,
+  GraduationCap,
+  DollarSign,
+  RefreshCw,
+  Filter,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { listCompanyJobs, JobItemDTO } from "@/lib/jobs";
-import { listJobApplicants, updateApplicantStatus, ApplicantDTO } from "@/lib/applicants";
+import {
+  listJobApplicants,
+  updateApplicantStatus,
+  ApplicantDTO,
+} from "@/lib/applicants";
 import { apiCall } from "@/helper/axios";
 
 export default function ApplicantsPage() {
@@ -18,12 +34,12 @@ export default function ApplicantsPage() {
     const raw = localStorage.getItem("companyId");
     return raw ? Number(raw) : NaN;
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState<ApplicantDTO[]>([]);
   const [total, setTotal] = useState(0);
   const [jobs, setJobs] = useState<JobItemDTO[]>([]);
-  
+
   // Filters
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [searchName, setSearchName] = useState("");
@@ -32,7 +48,9 @@ export default function ApplicantsPage() {
   const [ageMax, setAgeMax] = useState("");
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
-  const [sortBy, setSortBy] = useState<"appliedAt" | "expectedSalary" | "age">("appliedAt");
+  const [sortBy, setSortBy] = useState<"appliedAt" | "expectedSalary" | "age">(
+    "appliedAt"
+  );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -55,7 +73,11 @@ export default function ApplicantsPage() {
 
   const fetchJobs = async (cid: number) => {
     try {
-      const response = await listCompanyJobs({ companyId: cid, limit: 100, offset: 0 });
+      const response = await listCompanyJobs({
+        companyId: cid,
+        limit: 100,
+        offset: 0,
+      });
       setJobs(response.items);
       if (response.items.length > 0 && !selectedJobId) {
         setSelectedJobId(response.items[0].id);
@@ -67,7 +89,7 @@ export default function ApplicantsPage() {
 
   const fetchApplicants = async () => {
     if (!selectedJobId) return;
-    
+
     setLoading(true);
     try {
       const cid = await fetchCompanyId();
@@ -119,9 +141,13 @@ export default function ApplicantsPage() {
     fetchApplicants();
   };
 
-  const handleUpdateStatus = async (applicationId: number, newStatus: string) => {
-    if (!confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
-    
+  const handleUpdateStatus = async (
+    applicationId: number,
+    newStatus: string
+  ) => {
+    if (!confirm(`Are you sure you want to change status to ${newStatus}?`))
+      return;
+
     try {
       const cid = await fetchCompanyId();
       if (!cid || Number.isNaN(cid) || !selectedJobId) return;
@@ -139,41 +165,56 @@ export default function ApplicantsPage() {
     }
   };
 
-  const stats = useMemo(() => [
-    { 
-      label: "Total Applicants", 
-      value: total, 
-      icon: Users, 
-      color: "from-blue-500 to-blue-600" 
-    },
-    { 
-      label: "Pending Review", 
-      value: applicants.filter(a => a.status === "SUBMITTED").length, 
-      icon: Clock, 
-      color: "from-yellow-500 to-yellow-600" 
-    },
-    { 
-      label: "Interview Stage", 
-      value: applicants.filter(a => a.status === "INTERVIEW").length, 
-      icon: Calendar, 
-      color: "from-purple-500 to-purple-600" 
-    },
-    { 
-      label: "Accepted", 
-      value: applicants.filter(a => a.status === "ACCEPTED").length, 
-      icon: CheckCircle, 
-      color: "from-green-500 to-green-600" 
-    }
-  ], [applicants, total]);
+  const stats = useMemo(
+    () => [
+      {
+        label: "Total Applicants",
+        value: total,
+        icon: Users,
+        color: "from-blue-500 to-blue-600",
+      },
+      {
+        label: "Priority Applications",
+        value: applicants.filter((a) => a.isPriority).length,
+        icon: Star,
+        color: "from-amber-500 to-yellow-600",
+      },
+      {
+        label: "Pending Review",
+        value: applicants.filter((a) => a.status === "SUBMITTED").length,
+        icon: Clock,
+        color: "from-yellow-500 to-yellow-600",
+      },
+      {
+        label: "Interview Stage",
+        value: applicants.filter((a) => a.status === "INTERVIEW").length,
+        icon: Calendar,
+        color: "from-purple-500 to-purple-600",
+      },
+      {
+        label: "Accepted",
+        value: applicants.filter((a) => a.status === "ACCEPTED").length,
+        icon: CheckCircle,
+        color: "from-green-500 to-green-600",
+      },
+    ],
+    [applicants, total]
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "SUBMITTED": return "bg-yellow-100 text-yellow-700";
-      case "IN_REVIEW": return "bg-blue-100 text-blue-700";
-      case "INTERVIEW": return "bg-purple-100 text-purple-700";
-      case "ACCEPTED": return "bg-green-100 text-green-700";
-      case "REJECTED": return "bg-red-100 text-red-700";
-      default: return "bg-gray-100 text-gray-700";
+      case "SUBMITTED":
+        return "bg-yellow-100 text-yellow-700";
+      case "IN_REVIEW":
+        return "bg-blue-100 text-blue-700";
+      case "INTERVIEW":
+        return "bg-purple-100 text-purple-700";
+      case "ACCEPTED":
+        return "bg-green-100 text-green-700";
+      case "REJECTED":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -187,11 +228,19 @@ export default function ApplicantsPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
               <h1 className="text-2xl font-semibold">Applicant Management</h1>
-              <p className="text-sm text-muted-foreground mt-1">Review and manage job applicants</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Review and manage job applicants
+              </p>
             </div>
             <div className="flex gap-3">
-              <Button onClick={fetchApplicants} disabled={loading} className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]">
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <Button
+                onClick={fetchApplicants}
+                disabled={loading}
+                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
                 Refresh
               </Button>
               <Link href="/admin/jobs">
@@ -222,9 +271,13 @@ export default function ApplicantsPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-2xl font-semibold">{stat.value}</p>
-                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {stat.label}
+                        </p>
                       </div>
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
+                      <div
+                        className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}
+                      >
                         <IconComponent className="w-5 h-5 text-white" />
                       </div>
                     </div>
@@ -246,7 +299,9 @@ export default function ApplicantsPage() {
           <CardContent>
             <div className="grid gap-3 md:grid-cols-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Job Position</label>
+                <label className="block text-sm font-medium mb-2">
+                  Job Position
+                </label>
                 <select
                   value={selectedJobId || ""}
                   onChange={(e) => setSelectedJobId(Number(e.target.value))}
@@ -260,7 +315,9 @@ export default function ApplicantsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Search Name</label>
+                <label className="block text-sm font-medium mb-2">
+                  Search Name
+                </label>
                 <Input
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
@@ -269,7 +326,9 @@ export default function ApplicantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Education</label>
+                <label className="block text-sm font-medium mb-2">
+                  Education
+                </label>
                 <Input
                   value={education}
                   onChange={(e) => setEducation(e.target.value)}
@@ -278,7 +337,9 @@ export default function ApplicantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Sort By</label>
+                <label className="block text-sm font-medium mb-2">
+                  Sort By
+                </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
@@ -292,7 +353,9 @@ export default function ApplicantsPage() {
             </div>
             <div className="grid gap-3 md:grid-cols-5">
               <div>
-                <label className="block text-sm font-medium mb-2">Min Age</label>
+                <label className="block text-sm font-medium mb-2">
+                  Min Age
+                </label>
                 <Input
                   type="number"
                   value={ageMin}
@@ -302,7 +365,9 @@ export default function ApplicantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Max Age</label>
+                <label className="block text-sm font-medium mb-2">
+                  Max Age
+                </label>
                 <Input
                   type="number"
                   value={ageMax}
@@ -312,7 +377,9 @@ export default function ApplicantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Min Salary</label>
+                <label className="block text-sm font-medium mb-2">
+                  Min Salary
+                </label>
                 <Input
                   type="number"
                   value={salaryMin}
@@ -322,7 +389,9 @@ export default function ApplicantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Max Salary</label>
+                <label className="block text-sm font-medium mb-2">
+                  Max Salary
+                </label>
                 <Input
                   type="number"
                   value={salaryMax}
@@ -332,7 +401,10 @@ export default function ApplicantsPage() {
                 />
               </div>
               <div className="flex items-end">
-                <Button onClick={handleApplyFilters} className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]">
+                <Button
+                  onClick={handleApplyFilters}
+                  className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]"
+                >
                   <Search className="w-4 h-4 mr-2" />
                   Apply Filters
                 </Button>
@@ -357,8 +429,12 @@ export default function ApplicantsPage() {
                   <Users className="w-10 h-10 text-[#467EC7]" />
                 </div>
                 <div>
-                  <p className="text-lg font-medium text-foreground mb-1">No applicants yet</p>
-                  <p className="text-muted-foreground">Applications will appear here when candidates apply</p>
+                  <p className="text-lg font-medium text-foreground mb-1">
+                    No applicants yet
+                  </p>
+                  <p className="text-muted-foreground">
+                    Applications will appear here when candidates apply
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -376,38 +452,65 @@ export default function ApplicantsPage() {
                   <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row md:items-center gap-4">
                       <img
-                        src={applicant.profilePicture || "/fallback_pfp_image.jpg"}
+                        src={
+                          applicant.profilePicture || "/fallback_pfp_image.jpg"
+                        }
                         alt={applicant.userName}
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-lg font-semibold text-foreground truncate">{applicant.userName}</h4>
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(applicant.status)}`}>
+                          <h4 className="text-lg font-semibold text-foreground truncate">
+                            {applicant.userName}
+                          </h4>
+                          {applicant.isPriority && (
+                            <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 rounded-full">
+                              <Star className="w-3 h-3 text-amber-600 fill-amber-400" />
+                              <span className="text-xs font-medium text-amber-700">Priority</span>
+                            </div>
+                          )}
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              applicant.status
+                            )}`}
+                          >
                             {applicant.status}
                           </span>
                           {applicant.score !== null && (
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              applicant.preselectionPassed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                            }`}>
-                              Test: {applicant.score}/25 {applicant.preselectionPassed ? '✓' : '✗'}
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                applicant.preselectionPassed
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              Test: {applicant.score}/25{" "}
+                              {applicant.preselectionPassed ? "✓" : "✗"}
                             </span>
                           )}
                         </div>
                         <div className="grid md:grid-cols-3 gap-3 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4" />
-                            <span className="truncate">{applicant.userEmail}</span>
+                            <span className="truncate">
+                              {applicant.userEmail}
+                            </span>
                           </div>
                           {applicant.expectedSalary && (
                             <div className="flex items-center gap-2">
                               <DollarSign className="w-4 h-4" />
-                              <span>Rp {applicant.expectedSalary.toLocaleString()}</span>
+                              <span>
+                                Rp {applicant.expectedSalary.toLocaleString()}
+                              </span>
                             </div>
                           )}
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />
-                            <span>{new Date(applicant.appliedAt).toLocaleDateString()}</span>
+                            <span>
+                              {new Date(
+                                applicant.appliedAt
+                              ).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -424,7 +527,12 @@ export default function ApplicantsPage() {
                         )}
                         <Button
                           size="sm"
-                          onClick={() => handleUpdateStatus(applicant.applicationId, "INTERVIEW")}
+                          onClick={() =>
+                            handleUpdateStatus(
+                              applicant.applicationId,
+                              "INTERVIEW"
+                            )
+                          }
                           className="bg-purple-100 text-purple-700 hover:bg-purple-200"
                           disabled={applicant.status === "INTERVIEW"}
                         >
@@ -432,7 +540,12 @@ export default function ApplicantsPage() {
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() => handleUpdateStatus(applicant.applicationId, "ACCEPTED")}
+                          onClick={() =>
+                            handleUpdateStatus(
+                              applicant.applicationId,
+                              "ACCEPTED"
+                            )
+                          }
                           className="bg-green-100 text-green-700 hover:bg-green-200"
                           disabled={applicant.status === "ACCEPTED"}
                         >
@@ -440,7 +553,12 @@ export default function ApplicantsPage() {
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() => handleUpdateStatus(applicant.applicationId, "REJECTED")}
+                          onClick={() =>
+                            handleUpdateStatus(
+                              applicant.applicationId,
+                              "REJECTED"
+                            )
+                          }
                           className="bg-red-100 text-red-700 hover:bg-red-200"
                           disabled={applicant.status === "REJECTED"}
                         >
@@ -458,27 +576,53 @@ export default function ApplicantsPage() {
         {/* Pagination */}
         {applicants.length > 0 && (
           <div className="flex items-center justify-center gap-2 mt-6">
-            <Button 
-              variant="outline" 
-              disabled={page <= 1} 
+            <Button
+              variant="outline"
+              disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               className="hover:bg-[#467EC7] hover:text-white transition-colors rounded-xl"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="m15 18-6-6 6-6"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-1"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
               Prev
             </Button>
             <div className="px-4 py-2 bg-secondary rounded-xl">
               <span className="font-medium">Page {page}</span>
               <span className="text-muted-foreground"> of {totalPages}</span>
             </div>
-            <Button 
-              variant="outline" 
-              disabled={page >= totalPages} 
+            <Button
+              variant="outline"
+              disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               className="hover:bg-[#467EC7] hover:text-white transition-colors rounded-xl"
             >
               Next
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><path d="m9 18 6-6-6-6"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="ml-1"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </Button>
           </div>
         )}

@@ -69,14 +69,6 @@ export function useTransaction() {
         return;
       }
       
-      // Debug: Log available plans and selected plan for troubleshooting
-      console.log("Available backend plans:", backendPlans.map(p => ({
-        id: p.id,
-        planName: p.planName,
-        name: p.name,
-        title: p.title
-      })));
-      console.log("Selected plan:", selectedPlan);
       
       // Find matching plan by name (case insensitive and flexible matching)
       let matchingPlan = backendPlans.find((plan: any) => {
@@ -126,7 +118,6 @@ export function useTransaction() {
       }
 
       // Step 2: Subscribe user to plan
-      console.log("Matching plan found:", matchingPlan);
       
       // Check authentication token
       const token = localStorage.getItem("token") || localStorage.getItem("verifiedToken");
@@ -138,7 +129,6 @@ export function useTransaction() {
       
       // Ensure planId is sent as integer
       const planId = typeof matchingPlan.id === 'string' ? parseInt(matchingPlan.id) : matchingPlan.id;
-      console.log("Sending planId:", planId, "Type:", typeof planId);
       
       const subscribeResponse = await apiCall.post("/subscription/subscribe", {
         planId: planId
@@ -163,11 +153,6 @@ export function useTransaction() {
       router.push(`/transaction/success?paymentId=${paymentId}`);
       
     } catch (error: any) {
-      console.error("Full error object:", error);
-      console.error("Error response:", error.response);
-      console.error("Error response data:", error.response?.data);
-      console.error("Error response status:", error.response?.status);
-      console.error("Error response headers:", error.response?.headers);
       
       if (error.response?.status === 401) {
         toast.error("Please sign in to subscribe");

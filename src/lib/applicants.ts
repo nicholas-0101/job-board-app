@@ -12,6 +12,7 @@ export interface ApplicantDTO {
   preselectionPassed: boolean | undefined;
   status: string;
   appliedAt: string;
+  isPriority?: boolean; // ← IMPORTANT: Add priority field
   education?: string;
   age?: number;
   city?: string;
@@ -48,7 +49,7 @@ export async function listJobApplicants(params: {
   offset?: number;
 }): Promise<ApplicantsListResponse> {
   const { companyId, jobId, ...queryParams } = params;
-  
+
   const cleanParams: Record<string, any> = {};
   Object.entries(queryParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
@@ -72,7 +73,7 @@ export async function updateApplicantStatus(params: {
   reviewNote?: string;
 }): Promise<void> {
   const { companyId, jobId, applicationId, ...body } = params;
-  
+
   await apiCall.put(
     `/job/companies/${companyId}/jobs/${jobId}/applications/${applicationId}/status`,
     body

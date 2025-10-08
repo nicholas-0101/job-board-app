@@ -30,7 +30,6 @@ export const checkSubscriptionAndLoadData = async (
       setIsLoading(false);
     }
   } catch (error: any) {
-    console.error("Subscription check error:", error);
     if (error.response?.status === 404) {
       setHasSubscription(false);
       setIsLoading(false);
@@ -48,7 +47,6 @@ export const loadTemplates = async (
     const response = await apiCall.get("/cv/templates");
     setTemplates(response.data.templates || []);
   } catch (error: any) {
-    console.error("Error loading templates:", error);
     toast.error("Failed to load CV templates");
   }
 };
@@ -62,7 +60,6 @@ export const loadUserCVs = async (
     const cvs = response.data.data || response.data.cvs || response.data || [];
     setGeneratedCVs(cvs);
   } catch (error: any) {
-    console.error("Error loading CVs:", error);
     toast.error("Failed to load your CVs");
   } finally {
     setIsLoading(false);
@@ -87,7 +84,6 @@ export const handleDownloadCV = async (cvId: string, fileName: string) => {
 
     toast.success("CV downloaded successfully!");
   } catch (error: any) {
-    console.error("Error downloading CV:", error);
     const errorMessage =
       error.response?.data?.message || "Failed to download CV";
     toast.error(errorMessage);
@@ -105,7 +101,6 @@ export const handleDeleteCV = async (
     toast.success("CV deleted successfully!");
     loadUserCVs();
   } catch (error: any) {
-    console.error("Error deleting CV:", error);
     const errorMessage =
       error.response?.data?.message || "Failed to delete CV";
     toast.error(errorMessage);

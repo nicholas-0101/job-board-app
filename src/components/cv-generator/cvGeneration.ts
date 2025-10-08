@@ -51,7 +51,6 @@ export const handleGenerateCV = async (
     loadUserCVs();
     setActiveTab("my-cvs");
   } catch (error: any) {
-    console.error("Error generating CV:", error);
     if (error.response?.status === 401) {
       toast.error("Please sign in to generate CVs");
     } else if (error.response?.status === 403) {
