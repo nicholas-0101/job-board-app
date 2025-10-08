@@ -3,9 +3,9 @@ import { usePathname } from "next/navigation";
 
 export function Footer() {
   const pathname = usePathname();
-  const hiddenRoutes = ["/auth", "/profile"];
-  const hideNavbar = hiddenRoutes.some((route) => pathname.startsWith(route));
-  if (hideNavbar) {
+  const hiddenRoutes = ["/auth", "/profile", "/go-to-signin"];
+  const hideFooter = hiddenRoutes.some((route) => pathname.startsWith(route));
+  if (hideFooter) {
     return null;
   }
   return (
