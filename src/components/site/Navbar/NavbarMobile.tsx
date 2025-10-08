@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { User2, LogOutIcon } from "lucide-react";
+import { User2, LogOutIcon, FileEditIcon, Award, Trophy, FolderOpen, Bookmark, Shield, Loader } from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { motion } from "framer-motion";
 
 interface Props {
   links: { href: string; label: string }[];
@@ -22,47 +23,98 @@ export default function NavbarMobileMenu({
   router,
 }: Props) {
   return (
-    <div className="lg:hidden border-t bg-background">
+    <div className="lg:hidden border-t bg-background/80 backdrop-blur">
       <div className="container mx-auto px-4 py-4 grid gap-3">
         {/* Hide public links for ADMIN users */}
-        {user ? (
-          (user?.role === "ADMIN" ? null : (
-            links.map((l) => (
+        {user
+          ? user?.role === "ADMIN"
+            ? null
+            : links.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={`text-sm font-medium ${
+                    pathname?.startsWith(l.href)
+                      ? "text-primary"
+                      : "text-foreground/80"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  {l.label}
+                </Link>
+              ))
+          : links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
                 className={`text-sm font-medium ${
-                  pathname?.startsWith(l.href) ? "text-primary" : "text-foreground/80"
+                  pathname?.startsWith(l.href)
+                    ? "text-primary"
+                    : "text-foreground/80"
                 }`}
                 onClick={closeMenu}
               >
                 {l.label}
               </Link>
-            ))
-          ))
-        ) : (
-          links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`text-sm font-medium ${
-                pathname?.startsWith(l.href) ? "text-primary" : "text-foreground/80"
-              }`}
-              onClick={closeMenu}
-            >
-              {l.label}
-            </Link>
-          ))
-        )}
+            ))}
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-col gap-2 pt-2 bg-[#F0F5F9] rounded-xl">
           {loading ? (
-            <div className="flex-1 h-8 bg-gray-200 rounded-full animate-pulse" />
+            <div className="flex items-center justify-center py-20">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader className="w-8 h-8 text-[#24CFA7]" />
+                </motion.div>
+              </div>
           ) : user ? (
             <>
               <Link
-                href="/profile"
-                className="flex-1 text-center items-center justify-center px-4 py-2 rounded-xl flex gap-2 border border-border text-foreground/80 hover:bg-[#F5F5F5] text-sm transition-colors"
+                href="/cv-generator"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <FileEditIcon size={18} /> CV Generator
+              </Link>
+              <Link
+                href="/skill-assessments"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <Award size={18} /> Skill Assessments
+              </Link>
+              <Link
+                href="/skill-assessments/dashboard"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <Trophy size={18} /> My Results
+              </Link>
+              <Link
+                href="/my-applications"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <FolderOpen size={18} /> My Applications
+              </Link>
+              <Link
+                href="/saved-jobs"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <Bookmark size={18} /> Saved Jobs
+              </Link>
+              <Link
+                href="/verify-certificate"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <Shield size={18} /> Verify Certificate
+              </Link>
+              <Link
+                href="/profile/edit"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
                 onClick={closeMenu}
               >
                 <User2 size={18} /> Profile
@@ -73,7 +125,7 @@ export default function NavbarMobileMenu({
                   closeMenu();
                   router.push("/");
                 }}
-                className="flex-1 text-center items-center justify-center px-4 py-2 rounded-xl flex gap-2 border border-border text-red-400 hover:bg-[#F5F5F5] text-sm transition-colors"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-b-lg flex gap-2 items-center bg-red-50 text-red-400"
               >
                 <LogOutIcon size={18} /> Logout
               </button>

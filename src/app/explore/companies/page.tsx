@@ -115,8 +115,10 @@ export default function CompaniesPage() {
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.location) params.set("city", filters.location);
     if (page > 1) params.set("page", page.toString());
-    
-    const newUrl = `/explore/companies${params.toString() ? '?' + params.toString() : ''}`;
+
+    const newUrl = `/explore/companies${
+      params.toString() ? "?" + params.toString() : ""
+    }`;
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
@@ -160,17 +162,41 @@ export default function CompaniesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <section className="py-8 lg:max-w-6xl mx-auto">
-        <SearchBar
-          keyword={searchInputs.keyword}
-          setKeyword={(v) =>
-            setSearchInputs((prev) => ({ ...prev, keyword: v }))
-          }
-          city={searchInputs.location}
-          setCity={(v) => setSearchInputs((prev) => ({ ...prev, location: v }))}
-          onSearch={handleSearch}
-        />
+    <div className="min-h-screen">
+      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25 py-20">
+        <div className="absolute inset-0" />
+        <div className="relative container mx-auto px-4 text-center max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col justify-center items-center"
+          >
+            <h1 className="text-5xl font-bold mb-6 text-[#467EC7]">
+              Choose Your{" "}
+              <span className="text-[#24CFA7]">Perfect Company</span>
+            </h1>
+            <p className="text-xl opacity-90 mb-8 text-muted-foreground max-w-3xl">
+              Find the companies that share your values, match your skills, and
+              offer the growth opportunities you're looking for
+            </p>
+
+            <div className="w-full lg:max-w-5xl z-1">
+              <SearchBar
+                keyword={searchInputs.keyword}
+                setKeyword={(v) =>
+                  setSearchInputs((prev) => ({ ...prev, keyword: v }))
+                }
+                city={searchInputs.location}
+                setCity={(v) =>
+                  setSearchInputs((prev) => ({ ...prev, location: v }))
+                }
+                onSearch={handleSearch}
+              />
+            </div>
+          </motion.div>
+        </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
 
       <section className="pb-12 lg:max-w-6xl mx-auto">

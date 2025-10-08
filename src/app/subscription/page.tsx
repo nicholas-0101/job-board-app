@@ -28,29 +28,30 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F5F9]">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#467EC7] to-[#24CFA7] text-white py-20">
-        <div className="absolute inset-0 bg-black/10" />
+      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25 py-20">
+        <div className="absolute inset-0" />
         <div className="relative container mx-auto px-4 text-center max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-5xl font-bold mb-6">
-              Choose Your <span className="text-white">Perfect Plan</span>
+            <h1 className="text-5xl font-bold mb-6 text-[#467EC7]">
+              Choose Your <span className="text-[#24CFA7]">Perfect Plan</span>
             </h1>
-            <p className="text-xl opacity-90 mb-8">
+            <p className="text-xl opacity-90 mb-8 text-muted-foreground">
               Unlock premium features and accelerate your career journey with
               our subscription plans
             </p>
           </motion.div>
         </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
 
       {/* Pricing Section */}
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 pb-20">
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {subscriptionPlans.map((plan, index) => (
             <PlanCard 

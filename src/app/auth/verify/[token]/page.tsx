@@ -6,17 +6,19 @@ import { apiCall } from "@/helper/axios";
 import { useUserStore } from "@/lib/store/userStore";
 
 export default function VerifyPage() {
-  const { token } = useParams();
+  const { token: rawToken } = useParams();
+  const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
   const router = useRouter();
   const { user, setUser } = useUserStore();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<"pending" | "success" | "error">(
-    "pending"
-  );
+  const [status, setStatus] = useState<
+    "pending" | "success" | "error" | "expired" | "sent"
+  >("pending");
   const [message, setMessage] = useState(
     "Click verify to confirm your account"
   );
+  const [resending, setResending] = useState(false);
 
   const handleVerify = async () => {
     if (!token) return;
@@ -34,18 +36,68 @@ export default function VerifyPage() {
       const verifiedToken = res.data.token;
       if (verifiedToken) {
         localStorage.setItem("verifiedToken", verifiedToken);
-      } else {
-        console.warn("No token returned from verification endpoint!");
       }
 
       setStatus("success");
       setMessage(res.data.message || "Account verified successfully!");
     } catch (err: any) {
       console.error(err);
-      setStatus("error");
-      setMessage(err.response?.data?.message || "Verification failed!");
+      const msg = err.response?.data?.message || "Verification failed!";
+      setMessage(msg);
+
+      if (msg.toLowerCase().includes("expired")) {
+        setStatus("expired");
+      } else if (msg.toLowerCase().includes("already verified")) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+
+    try {
+      let email = user?.email;
+
+      if (!email) {
+        const pendingEmail = localStorage.getItem("pendingEmail");
+        if (pendingEmail) {
+          email = pendingEmail;
+        }
+      }
+
+      if (!email && token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          email = payload?.email;
+        } catch (err) {
+          console.warn("Could not decode token to get email", err);
+        }
+      }
+
+      console.log("Resend verification email for:", email);
+
+      if (!email) {
+        setMessage("User email not found. Please sign up again.");
+        setResending(false);
+        return;
+      }
+
+      const res = await apiCall.post("/auth/resend-verification", { email });
+
+      setMessage(res.data.message || "Verification email resent successfully!");
+      setStatus("sent");
+    } catch (err: any) {
+      console.error(err);
+      setMessage(
+        err.response?.data?.message || "Failed to resend verification email."
+      );
+    } finally {
+      setResending(false);
     }
   };
 
@@ -54,7 +106,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -124,6 +176,21 @@ export default function VerifyPage() {
               whileTap={{ scale: 0.98 }}
             >
               Retry
+            </motion.button>
+          )}
+
+          {status === "expired" && (
+            <motion.button
+              type="button"
+              onClick={handleResend}
+              className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all ${
+                resending ? "cursor-not-allowed opacity-70" : "cursor-pointer"
+              }`}
+              whileHover={resending ? {} : { scale: 1.02 }}
+              whileTap={resending ? {} : { scale: 0.98 }}
+              disabled={resending}
+            >
+              {resending ? "Resending..." : "Resend Verification Email"}
             </motion.button>
           )}
         </motion.form>

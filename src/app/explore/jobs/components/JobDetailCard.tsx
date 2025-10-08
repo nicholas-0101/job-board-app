@@ -212,7 +212,7 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
             <Clock className="w-4 h-4" />
             <span>
               Deadline:{" "}
-              {job.deadline ? new Date(job.deadline).toDateString() : "N/A"}
+              {job.applyDeadline ? new Date(job.applyDeadline).toDateString() : "N/A"}
             </span>
           </div>
         </div>

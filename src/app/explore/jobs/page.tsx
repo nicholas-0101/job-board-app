@@ -2,19 +2,19 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
   Grid3x3,
   List,
   Loader,
   SearchX,
+  ArrowUpDown,
+  ArrowDownUp,
 } from "lucide-react";
 import { apiCall } from "@/helper/axios";
 import SearchBar from "@/components/site/SearchBar";
 import { JobCard } from "@/app/explore/jobs/components/JobCard";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
 type Filters = {
@@ -38,23 +38,24 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
-const [selectedLocation, setSelectedLocation] = useState("");
-const [searchInputs, setSearchInputs] = useState({
-  keyword: "",
-  location: "",
-});
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [searchInputs, setSearchInputs] = useState({
+    keyword: "",
+    location: "",
+  });
 
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const keyword = params.get("keyword") || "";
-  const city = params.get("city") || "";
-  const pageParam = parseInt(params.get("page") || "1", 10);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const keyword = params.get("keyword") || "";
+    const city = params.get("city") || "";
+    const pageParam = parseInt(params.get("page") || "1", 10);
+    const order = (params.get("order") as "asc" | "desc") || "desc";
 
-  setSearchInputs({ keyword, location: city });
-  setFilters((prev) => ({ ...prev, keyword, location: city }));
-  setPage(pageParam);
-  setSelectedLocation(city);
-}, []);
+    setSearchInputs({ keyword, location: city });
+    setFilters((prev) => ({ ...prev, keyword, location: city, order }));
+    setPage(pageParam);
+    setSelectedLocation(city);
+  }, []);
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -82,6 +83,7 @@ useEffect(() => {
         category: job.category || "",
         tags: job.tags || [],
         rating: Math.floor(Math.random() * 2) + 4,
+        createdAt: job.createdAt,
       }));
 
       setJobs(jobsData);
@@ -99,9 +101,12 @@ useEffect(() => {
     const params = new URLSearchParams();
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.location) params.set("city", filters.location);
+    if (filters.order) params.set("order", filters.order);
     if (page > 1) params.set("page", page.toString());
-    
-    const newUrl = `/explore/jobs${params.toString() ? '?' + params.toString() : ''}`;
+
+    const newUrl = `/explore/jobs${
+      params.toString() ? "?" + params.toString() : ""
+    }`;
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
@@ -124,6 +129,13 @@ useEffect(() => {
         location: searchInputs.location,
       };
     });
+  };
+
+  const toggleSortOrder = () => {
+    setFilters((prev) => ({
+      ...prev,
+      order: prev.order === "asc" ? "desc" : "asc",
+    }));
   };
 
   const getVisiblePages = (current: number, total: number, maxVisible = 5) => {
@@ -161,7 +173,6 @@ useEffect(() => {
       }
     };
 
-    // Only fetch location if not already set from URL params
     if (!selectedLocation) {
       fetchLocationAndSetFilter();
     }
@@ -170,134 +181,167 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen">
-      <section className="lg:max-w-6xl mx-auto py-8">
-        <SearchBar
-          keyword={searchInputs.keyword}
-          setKeyword={(v) =>
-            setSearchInputs((prev) => ({ ...prev, keyword: v }))
-          }
-          city={searchInputs.location}
-          setCity={(v) => setSearchInputs((prev) => ({ ...prev, location: v }))}
-          onSearch={handleSearch}
-        />
+      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 py-20">
+        <div className="absolute inset-0" />
+        <div className="relative container mx-auto px-4 text-center max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col justify-center items-center"
+          >
+            <h1 className="text-5xl font-bold mb-6 text-[#467EC7]">
+              Choose Your <span className="text-[#24CFA7]">Next Career</span>
+            </h1>
+            <p className="text-xl opacity-90 mb-8 text-muted-foreground max-w-3xl">
+              Discover opportunities that align with your passion and skills,
+              and take the next step toward the career you've always dreamed of
+            </p>
+
+            <div className="w-full lg:max-w-5xl z-1">
+              <SearchBar
+                keyword={searchInputs.keyword}
+                setKeyword={(v) =>
+                  setSearchInputs((prev) => ({ ...prev, keyword: v }))
+                }
+                city={searchInputs.location}
+                setCity={(v) =>
+                  setSearchInputs((prev) => ({ ...prev, location: v }))
+                }
+                onSearch={handleSearch}
+              />
+            </div>
+          </motion.div>
+        </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
 
       <section className="lg:max-w-6xl mx-auto pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-9">
-            {/* Controls */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                Showing{" "}
-                <span className="font-semibold text-foreground">
-                  {jobs.length}
-                </span>{" "}
-                of {total} jobs
-              </p>
-              <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "grid"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <Grid3x3 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "list"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-muted-foreground">
+            Showing{" "}
+            <span className="font-semibold text-foreground">{jobs.length}</span>{" "}
+            of {total} jobs
+          </p>
 
-            {/* Job List */}
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Loader className="w-8 h-8 text-[#24CFA7]" />
-                </motion.div>
-              </div>
-            ) : jobs.length === 0 ? (
-              <div className="text-center py-20">
-                <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-                  <SearchX size={48} color="#24CFA7" /> No jobs found matching
-                  your search.
-                </h3>
-                <p className="text-muted-foreground">
-                  Try adjusting filters or searching a different keyword.
-                </p>
-              </div>
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={page}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className={`grid gap-4 ${
-                    viewMode === "grid"
-                      ? "md:grid-cols-2 lg:grid-cols-3"
-                      : "grid-cols-1"
-                  }`}
-                >
-                  {jobs.map((job) => (
-                    <JobCard key={job.slug} {...job} />
-                  ))}
-                </motion.div>
-              </AnimatePresence>
-            )}
-
-            {/* Pagination */}
-            <div className="mt-6 flex items-center justify-center gap-2">
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
-              >
-                <ChevronLeft />
-              </button>
-
-              {getVisiblePages(page, totalPages).map((p, i) =>
-                typeof p === "string" ? (
-                  <span key={i} className="px-3 py-2">
-                    {p}
-                  </span>
-                ) : (
-                  <button
-                    key={i}
-                    onClick={() => setPage(p)}
-                    className={`w-10 h-10 rounded-xl font-medium ${
-                      page === p
-                        ? "bg-[#467EC7] text-primary-foreground"
-                        : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                )
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleSortOrder}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              title={`Sort ${
+                filters.order === "asc" ? "Descending" : "Ascending"
+              }`}
+            >
+              {filters.order === "asc" ? (
+                <ArrowUpDown className="w-5 h-5 text-[#467EC7]" />
+              ) : (
+                <ArrowDownUp className="w-5 h-5 text-[#467EC7]" />
               )}
+            </button>
 
+            <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
               <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === "grid"
+                    ? "bg-[#467EC7] text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary"
+                }`}
               >
-                <ChevronRight />
+                <Grid3x3 className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === "list"
+                    ? "bg-[#467EC7] text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary"
+                }`}
+              >
+                <List className="w-5 h-5" />
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Job List */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Loader className="w-8 h-8 text-[#24CFA7]" />
+            </motion.div>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center py-20">
+            <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+              <SearchX size={48} color="#24CFA7" /> No jobs found matching your
+              search.
+            </h3>
+            <p className="text-muted-foreground">
+              Try adjusting filters or searching a different keyword.
+            </p>
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${page}-${filters.order}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className={`grid gap-4 ${
+                viewMode === "grid"
+                  ? "md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1"
+              }`}
+            >
+              {jobs.map((job) => (
+                <JobCard key={job.slug} {...job} />
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {/* Pagination */}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+            className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+          >
+            <ChevronLeft />
+          </button>
+
+          {getVisiblePages(page, totalPages).map((p, i) =>
+            typeof p === "string" ? (
+              <span key={i} className="px-3 py-2">
+                {p}
+              </span>
+            ) : (
+              <button
+                key={i}
+                onClick={() => setPage(p)}
+                className={`w-10 h-10 rounded-xl font-medium ${
+                  page === p
+                    ? "bg-[#467EC7] text-primary-foreground"
+                    : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
+                }`}
+              >
+                {p}
+              </button>
+            )
+          )}
+
+          <button
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+            className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+          >
+            <ChevronRight />
+          </button>
         </div>
       </section>
     </div>
