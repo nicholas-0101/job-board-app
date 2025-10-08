@@ -13,7 +13,7 @@ interface AssessmentLimitGuardProps {
 }
 
 interface SubscriptionInfo {
-  plan: "STANDARD" | "PREMIUM";
+  plan: "STANDARD" | "PROFESSIONAL";
   isActive: boolean;
 }
 
@@ -112,8 +112,8 @@ export default function AssessmentLimitGuard({
     plan: string,
     userAttempts: AssessmentAttempt[]
   ): boolean => {
-    // Premium users have unlimited access
-    if (plan === "PREMIUM") {
+    // Professional users have unlimited access
+    if (plan === "PROFESSIONAL") {
       return true;
     }
 
@@ -217,12 +217,12 @@ export default function AssessmentLimitGuard({
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <Crown className="w-6 h-6 text-[#467EC7]" />
                   <span className="font-bold text-[#467EC7] text-lg">
-                    Upgrade to Premium
+                    Upgrade to Professional
                   </span>
                 </div>
                 <p className="text-[#467EC7] mb-4">
                   Get <strong className="text-[#467EC7]">unlimited assessment attempts</strong> and access
-                  to all premium features!
+                  to all professional features!
                 </p>
                 <ul className="text-sm text-[#467EC7] space-y-1 mb-4">
                   <li>✓ Unlimited assessment retakes</li>
@@ -239,7 +239,7 @@ export default function AssessmentLimitGuard({
                   size="lg"
                 >
                   <Crown className="w-5 h-5 mr-2" />
-                  Upgrade to Premium
+                  Upgrade to Professional
                 </Button>
                 <Button
                   variant="outline"

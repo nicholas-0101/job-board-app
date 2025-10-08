@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -10,165 +9,29 @@ import {
   ArrowRight,
   Home,
   CreditCard,
-  AlertCircle,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiCall } from "@/helper/axios";
 import AuthGuard from "@/components/auth/AuthGuard";
-import toast from "react-hot-toast";
+import TransactionLoading from "./components/TransactionLoading";
+import TransactionError from "./components/TransactionError";
+import { useTransactionData } from "./hooks/useTransactionData";
 
 export default function TransactionSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("paymentId");
   
-  const [transactionData, setTransactionData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  useEffect(() => {
-    if (paymentId) {
-      loadTransactionData();
-    } else {
-      setError("Payment ID not found");
-      setIsLoading(false);
-    }
-  }, [paymentId]);
-
-  // Removed auto-refresh - user can manually refresh browser to get latest status
-
-  const loadTransactionData = async (isRefresh = false) => {
-    if (isRefresh) {
-      setIsRefreshing(true);
-    }
-    try {
-      // Get user's subscriptions
-      const subscriptionsResponse = await apiCall.get("/subscription/my-subscriptions");
-      
-      // Find the latest subscription (assuming it's the one we just created)
-      const subscriptions = subscriptionsResponse.data;
-      if (!subscriptions || subscriptions.length === 0) {
-        throw new Error("No subscriptions found");
-      }
-      
-      // Get the latest subscription
-      const latestSubscription = subscriptions[subscriptions.length - 1];
-      
-      // Get current user data separately
-      const userResponse = await apiCall.get("/auth/keep");
-      const userData = userResponse.data.data; // Note: response has { success: true, data: userData }
-      
-      // Get payments for this subscription
-      let payment = null;
-      try {
-        const paymentsResponse = await apiCall.get(`/subscription/subscriptions/${latestSubscription.id}/payments`);
-        const payments = paymentsResponse.data;
-        payment = payments.find((p: any) => p.id.toString() === paymentId);
-      } catch (paymentsError) {
-        // This is okay, we'll create a basic payment object below
-      }
-      
-      if (!payment && paymentId) {
-        // Payment not found in latest subscription, try searching in all subscriptions
-        for (const subscription of subscriptions) {
-          try {
-            const allPaymentsResponse = await apiCall.get(`/subscription/subscriptions/${subscription.id}/payments`);
-            const allPayments = allPaymentsResponse.data;
-            const foundPayment = allPayments.find((p: any) => p.id.toString() === paymentId);
-            
-            if (foundPayment) {
-              payment = foundPayment;
-              break;
-            }
-          } catch (error) {
-            // Continue searching in other subscriptions
-          }
-        }
-        
-        // If still not found, create basic payment object
-        if (!payment) {
-          payment = {
-            id: paymentId,
-            status: 'pending',
-            amount: latestSubscription.plan?.price || 0
-          };
-        }
-      }
-      
-      setTransactionData({
-        subscription: latestSubscription,
-        payment: payment,
-        customer: {
-          name: userData.fullName || userData.name || "Customer",
-          email: userData.email || "customer@example.com"
-        }
-      });
-      
-    } catch (error: any) {
-      console.error("Error loading transaction data:", error);
-      setError("Failed to load transaction details");
-      if (isRefresh) {
-        toast.error("Failed to refresh transaction details");
-      } else {
-        toast.error("Failed to load transaction details");
-      }
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  const handleRefresh = () => {
-    loadTransactionData(true);
-  };
+  const { transactionData, isLoading, error, isRefreshing, handleRefresh } = useTransactionData(paymentId);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#F0F5F9] py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#467EC7] mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading transaction details...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <TransactionLoading />;
   }
 
   if (error || !transactionData) {
-    return (
-      <div className="min-h-screen bg-[#F0F5F9] py-8">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="p-8">
-              <div className="text-center">
-                <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold text-red-900 mb-4">
-                  Transaction Error
-                </h2>
-                <p className="text-red-800 mb-6">
-                  {error || "Unable to load transaction details"}
-                </p>
-                <div className="flex gap-4 justify-center">
-                  <Button onClick={() => router.push("/subscription")} variant="outline">
-                    Back to Subscription
-                  </Button>
-                  <Button onClick={() => router.push("/")} className="bg-red-600 hover:bg-red-700">
-                    <Home className="w-4 h-4 mr-2" />
-                    Go Home
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <TransactionError error={error} />;
   }
 
   const { subscription, payment, customer } = transactionData;
