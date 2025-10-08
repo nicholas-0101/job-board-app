@@ -22,6 +22,7 @@ type Filters = {
   location?: string;
   sort?: "createdAt";
   order?: "asc" | "desc";
+  postedWithin?: "1" | "3" | "7" | "30";
 };
 
 export default function JobsPage() {
@@ -50,9 +51,10 @@ export default function JobsPage() {
     const city = params.get("city") || "";
     const pageParam = parseInt(params.get("page") || "1", 10);
     const order = (params.get("order") as "asc" | "desc") || "desc";
+    const sort = (params.get("sort") as "createdAt") || "createdAt";
 
     setSearchInputs({ keyword, location: city });
-    setFilters((prev) => ({ ...prev, keyword, location: city, order }));
+    setFilters((prev) => ({ ...prev, keyword, location: city, sort, order }));
     setPage(pageParam);
     setSelectedLocation(city);
   }, []);
@@ -101,6 +103,7 @@ export default function JobsPage() {
     const params = new URLSearchParams();
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.location) params.set("city", filters.location);
+    if (filters.sort) params.set("sort", filters.sort);
     if (filters.order) params.set("order", filters.order);
     if (page > 1) params.set("page", page.toString());
 
@@ -110,7 +113,6 @@ export default function JobsPage() {
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -225,21 +227,34 @@ export default function JobsPage() {
           </p>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleSortOrder}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              title={`Sort ${
-                filters.order === "asc" ? "Descending" : "Ascending"
-              }`}
-            >
-              {filters.order === "asc" ? (
-                <ArrowUpDown className="w-5 h-5 text-[#467EC7]" />
-              ) : (
-                <ArrowDownUp className="w-5 h-5 text-[#467EC7]" />
-              )}
-            </button>
-
             <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
+              
+              <button
+                onClick={toggleSortOrder}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 transition-colors shadow-sm"
+                title={`Sort ${
+                  filters.order === "asc" ? "Descending" : "Ascending"
+                }`}
+              >
+                {filters.order === "asc" ? (
+                  <>
+                    <ArrowUpDown className="w-5 h-5" />
+                    <span className="text-sm font-medium">
+                      Oldest Jobs
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownUp className="w-5 h-5" />
+                    <span className="text-sm font-medium">
+                      Newest Jobs
+                    </span>
+                  </>
+                )}
+              </button>
+
+              <div className="w-px bg-border h-6 mx-2" />
+
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-all ${

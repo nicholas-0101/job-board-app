@@ -8,6 +8,10 @@ import {
   List,
   Loader,
   SearchX,
+  ArrowUpDown,
+  ArrowDownUp,
+  ArrowUpAZ,
+  ArrowDownAz,
 } from "lucide-react";
 import { apiCall } from "@/helper/axios";
 import SearchBar from "@/components/site/SearchBar";
@@ -41,17 +45,21 @@ export default function CompaniesPage() {
     location: "",
   });
 
+  // Parse query params on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const keyword = params.get("keyword") || "";
     const city = params.get("city") || "";
     const pageParam = parseInt(params.get("page") || "1", 10);
+    const order = (params.get("order") as "asc" | "desc") || "asc";
+    const sort = (params.get("sort") as "name" | "jobsCount") || "name";
 
     setSearchInputs({ keyword, location: city });
-    setFilters((prev) => ({ ...prev, keyword, location: city }));
+    setFilters((prev) => ({ ...prev, keyword, location: city, sort, order }));
     setPage(pageParam);
   }, []);
 
+  // Auto-detect city if not provided
   useEffect(() => {
     const fetchLocationAndSetCity = async () => {
       try {
@@ -71,7 +79,6 @@ export default function CompaniesPage() {
     if (!filters.location) {
       fetchLocationAndSetCity();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCompanies = async () => {
@@ -84,8 +91,8 @@ export default function CompaniesPage() {
           city: filters.location || undefined,
           limit,
           page,
-          sortBy: filters.sort,
-          sortOrder: filters.order,
+          sort: filters.sort,
+          order: filters.order,
         },
       });
 
@@ -114,6 +121,8 @@ export default function CompaniesPage() {
     const params = new URLSearchParams();
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.location) params.set("city", filters.location);
+    if (filters.sort) params.set("sort", filters.sort);
+    if (filters.order) params.set("order", filters.order);
     if (page > 1) params.set("page", page.toString());
 
     const newUrl = `/explore/companies${
@@ -122,7 +131,6 @@ export default function CompaniesPage() {
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -178,7 +186,7 @@ export default function CompaniesPage() {
             </h1>
             <p className="text-xl opacity-90 mb-8 text-muted-foreground max-w-3xl">
               Find the companies that share your values, match your skills, and
-              offer the growth opportunities you're looking for
+              offer growth opportunities
             </p>
 
             <div className="w-full lg:max-w-5xl z-1">
@@ -200,121 +208,177 @@ export default function CompaniesPage() {
       </section>
 
       <section className="pb-12 lg:max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-9">
-            {/* Controls */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                Showing{" "}
-                <span className="font-semibold text-foreground">
-                  {companies.length}
-                </span>{" "}
-                of {total} companies
-              </p>
-              <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "grid"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <Grid3x3 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "list"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+        {/* Controls */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-muted-foreground">
+            Showing{" "}
+            <span className="font-semibold text-foreground">
+              {companies.length}
+            </span>{" "}
+            of {total} companies
+          </p>
 
-            {/* Company List */}
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Loader className="w-8 h-8 text-[#24CFA7]" />
-                </motion.div>
-              </div>
-            ) : companies.length === 0 ? (
-              <div className="text-center py-20">
-                <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-                  <SearchX size={48} color="#24CFA7" /> No companies found
-                  matching your search.
-                </h3>
-                <p className="text-muted-foreground">
-                  Try adjusting filters or searching a different keyword.
-                </p>
-              </div>
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={page}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className={`grid gap-4 ${
-                    viewMode === "grid"
-                      ? "md:grid-cols-2 lg:grid-cols-3"
-                      : "grid-cols-1"
-                  }`}
-                >
-                  {companies.map((c) => (
-                    <CompanyCard key={c.id} {...c} />
-                  ))}
-                </motion.div>
-              </AnimatePresence>
-            )}
-
-            {/* Pagination */}
-            <div className="mt-6 flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
+              {/* Sort by Name */}
               <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+                onClick={() =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    sort: "name",
+                    order:
+                      prev.sort === "name" && prev.order === "asc"
+                        ? "desc"
+                        : "asc",
+                  }))
+                }
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${
+                  filters.sort === "name"
+                    ? "bg-[#467EC7] text-white font-semibold shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary"
+                }`}
               >
-                <ChevronLeft />
+                {filters.sort === "name" &&
+                  (filters.order === "asc" ? (
+                    <ArrowDownAz className="w-5 h-5" />
+                  ) : (
+                    <ArrowUpAZ className="w-5 h-5" />
+                  ))}
+                Name
               </button>
 
-              {getVisiblePages(page, totalPages).map((p, i) =>
-                typeof p === "string" ? (
-                  <span key={i} className="px-3 py-2">
-                    {p}
-                  </span>
-                ) : (
-                  <button
-                    key={i}
-                    onClick={() => setPage(p)}
-                    className={`w-10 h-10 rounded-xl font-medium ${
-                      page === p
-                        ? "bg-[#467EC7] text-primary-foreground"
-                        : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
-
+              {/* Sort by Jobs Count */}
               <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+                onClick={() =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    sort: "jobsCount",
+                    order:
+                      prev.sort === "jobsCount" && prev.order === "asc"
+                        ? "desc"
+                        : "asc",
+                  }))
+                }
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${
+                  filters.sort === "jobsCount"
+                    ? "bg-[#467EC7] text-white font-semibold shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary"
+                }`}
               >
-                <ChevronRight />
+                {filters.sort === "jobsCount" &&
+                  (filters.order === "asc" ? (
+                    <ArrowUpDown className="w-5 h-5" />
+                  ) : (
+                    <ArrowDownUp className="w-5 h-5" />
+                  ))}
+                Jobs Count
+              </button>
+
+              {/* Divider */}
+              <div className="w-px bg-border h-6 mx-2" />
+
+              {/* View mode buttons */}
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === "grid"
+                    ? "bg-[#467EC7] text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary"
+                }`}
+              >
+                <Grid3x3 className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === "list"
+                    ? "bg-[#467EC7] text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary"
+                }`}
+              >
+                <List className="w-5 h-5" />
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Company List */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Loader className="w-8 h-8 text-[#24CFA7]" />
+            </motion.div>
+          </div>
+        ) : companies.length === 0 ? (
+          <div className="text-center py-20">
+            <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+              <SearchX size={48} color="#24CFA7" /> No companies found
+            </h3>
+            <p className="text-muted-foreground">
+              Try adjusting filters or searching a different keyword.
+            </p>
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${page}-${filters.order}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className={`grid gap-4 ${
+                viewMode === "grid"
+                  ? "md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1"
+              }`}
+            >
+              {companies.map((c) => (
+                <CompanyCard key={c.id} {...c} />
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {/* Pagination */}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+            className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+          >
+            <ChevronLeft />
+          </button>
+
+          {getVisiblePages(page, totalPages).map((p, i) =>
+            typeof p === "string" ? (
+              <span key={i} className="px-3 py-2">
+                {p}
+              </span>
+            ) : (
+              <button
+                key={i}
+                onClick={() => setPage(p)}
+                className={`w-10 h-10 rounded-xl font-medium ${
+                  page === p
+                    ? "bg-[#467EC7] text-primary-foreground"
+                    : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
+                }`}
+              >
+                {p}
+              </button>
+            )
+          )}
+
+          <button
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+            className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+          >
+            <ChevronRight />
+          </button>
         </div>
       </section>
     </div>
