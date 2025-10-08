@@ -2,6 +2,9 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Star, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { apiCall } from "@/helper/axios";
+import StarRating from "@/components/StarRating";
 
 interface CompanyCardProps {
   id: number;
@@ -20,8 +23,21 @@ export function CompanyCard({
   locationCity = "Unknown",
   logo,
   jobs = 0,
-  rating = 0,
 }: CompanyCardProps) {
+  const [rating, setRating] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchRating = async () => {
+      try {
+        const res = await apiCall.get(`/reviews/companies/${id}/reviews/stats`);
+        setRating(parseFloat(res.data.data?.avgOverallRating) || 0);
+      } catch {
+        setRating(0);
+      }
+    };
+    fetchRating();
+  }, [id]);
+
   return (
     <Link href={`/explore/companies/${slug}`}>
       <motion.div
@@ -63,17 +79,15 @@ export function CompanyCard({
           </span>
         </div>
 
-         {/* Rating */}
-        <div className="mt-2 flex items-center gap-1 text-sm font-medium text-muted-foreground">
-          {Array.from({ length: 5 }, (_, i) => (
-            <Star
-              key={i}
-              className="w-4 h-4"
-              fill={i < Math.round(rating) ? "#FACC15" : "none"}
-              stroke="#FACC15"
-            />
-          ))}
-          <span className="ml-1">{rating.toFixed(1)}</span>
+        {/* Rating */}
+        <div className="mt-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          {rating !== null ? (
+            <>
+              <StarRating rating={rating} />
+            </>
+          ) : (
+            <span className="text-muted-foreground/50">Loading...</span>
+          )}
         </div>
       </motion.div>
     </Link>

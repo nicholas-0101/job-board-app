@@ -23,12 +23,12 @@ export function Footer() {
           <div className="font-semibold text-foreground">Product</div>
           <ul className="mt-3 space-y-2">
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/features">
                 Features
               </a>
             </li>
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/subscription">
                 Pricing
               </a>
             </li>
@@ -38,17 +38,17 @@ export function Footer() {
           <div className="font-semibold text-foreground">Resources</div>
           <ul className="mt-3 space-y-2">
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/explore/jobs">
                 Jobs
               </a>
             </li>
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/explore/companies">
                 Companies
               </a>
             </li>
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/guides">
                 Guides
               </a>
             </li>
@@ -58,17 +58,17 @@ export function Footer() {
           <div className="font-semibold text-foreground">Company</div>
           <ul className="mt-3 space-y-2">
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/about">
                 About
               </a>
             </li>
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/careers">
                 Careers
               </a>
             </li>
             <li>
-              <a className="hover:text-primary" href="#">
+              <a className="hover:text-primary" href="/contact">
                 Contact
               </a>
             </li>

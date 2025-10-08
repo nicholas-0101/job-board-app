@@ -2,8 +2,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useUserStore } from "@/lib/store/userStore";
-import { useCompanyStore } from "@/lib/store/companyStore";
-import { useRouter } from "next/navigation";
 import UserOnlyGuard from "@/components/auth/UserOnlyGuard";
 
 import ProfileTab from "./tabs/editProfileTab";
@@ -25,7 +23,7 @@ function EditProfilePageContent() {
   );
 
   return (
-    <div className="min-h-screen pb-30 bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen pb-30 flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

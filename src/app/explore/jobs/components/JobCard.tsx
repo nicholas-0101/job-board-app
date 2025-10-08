@@ -1,15 +1,6 @@
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  MapPin,
-  DollarSign,
-  Clock,
-  Bookmark,
-  Users,
-  TrendingUp,
-  Star,
-  Briefcase,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { MapPin, Briefcase } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -36,9 +27,7 @@ export function JobCard({
   salary,
   category,
   tags,
-  rating,
 }: JobCardProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const formatSalary = (value: string) => {
@@ -102,15 +91,6 @@ export function JobCard({
                     <span className="text-sm font-medium text-foreground/80">
                       {company}
                     </span>
-                    <div className="flex items-center gap-1">
-                      <Star
-                        className="w-3 h-3 text-yellow-400 fill-current"
-                        aria-hidden="true"
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {rating}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>

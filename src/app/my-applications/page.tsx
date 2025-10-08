@@ -151,7 +151,7 @@ export default function MyApplicationsPage() {
   };
 
   return (
-    <div className="bg-background">
+    <div className="bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
       <Container className="py-10 max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-[#467EC7]">My Applications</h1>

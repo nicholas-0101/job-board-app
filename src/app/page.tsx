@@ -57,10 +57,10 @@ export default function HomePage() {
   const [pathname, setPathname] = useState("");
 
   const stats = [
-    { label: "Active Jobs", value: 2340, icon: Briefcase },
-    { label: "Companies", value: 480, icon: Building2 },
-    { label: "Job Seekers", value: 12500, icon: Users },
-    { label: "Success Rate", value: 92, icon: Award, suffix: "%" },
+    { label: "Active Jobs", value: 12340, icon: Briefcase },
+    { label: "Companies", value: 7480, icon: Building2 },
+    { label: "Job Seekers", value: 62500, icon: Users },
+    { label: "Success Rate", value: 95, icon: Award, suffix: "%" },
   ];
 
   // Handle mounting
@@ -71,7 +71,7 @@ export default function HomePage() {
   // Client-side only: read URL params safely
   useEffect(() => {
     if (!mounted) return;
-    
+
     const searchParams = new URLSearchParams(window.location.search);
     setKeyword(searchParams.get("keyword") || "");
     setSelectedLocation(searchParams.get("city") || "");
@@ -80,7 +80,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     // Only redirect admin, let regular users access homepage
     try {
       const role = localStorage.getItem("role");
@@ -131,7 +131,9 @@ export default function HomePage() {
         if (keyword) params.set("keyword", keyword);
         if (selectedLocation) params.set("city", selectedLocation);
 
-        const newUrl = `${pathname}${params.toString() ? '?' + params.toString() : ''}`;
+        const newUrl = `${pathname}${
+          params.toString() ? "?" + params.toString() : ""
+        }`;
         if (window.location.pathname + window.location.search !== newUrl) {
           router.replace(newUrl, { scroll: false });
         }
@@ -173,7 +175,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     const fetchLocationAndJobs = async () => {
       try {
         const pos = await getUserLocation();
@@ -190,7 +192,7 @@ export default function HomePage() {
     };
 
     fetchLocationAndJobs();
-  }, [mounted, selectedLocation]);
+  }, [mounted]);
 
   // Show loading while checking auth status
   if (!mounted) {
@@ -206,7 +208,7 @@ export default function HomePage() {
       {/* Hero */}
       <motion.section
         ref={heroRef}
-        className="relative min-h-[100vh] bg-grit overflow-hidden"
+        className="relative min-h-[95vh] bg-grit overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25"
       >
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50" />
@@ -266,6 +268,7 @@ export default function HomePage() {
             />
           </motion.div>
         </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </motion.section>
 
       {/* Jobs */}
@@ -353,7 +356,9 @@ export default function HomePage() {
       </section> */}
 
       {/* Trusted Companies */}
-      <section className="container mx-auto px-4 py-16 text-center">
+      <section className="relative container mx-auto px-4 py-16 text-center bg-gradient-to-br from-[#467EC7]/20 via-white/90 to-[#24CFA7]/10">
+        <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-b from-white via-transparent to-transparent pointer-events-none" />
+
         <h3 className="text-lg font-semibold text-muted-foreground mb-8">
           Trusted by professionals from
         </h3>

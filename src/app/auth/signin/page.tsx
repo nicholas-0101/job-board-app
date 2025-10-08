@@ -64,9 +64,9 @@ export default function SignInPage() {
       
       // Redirect based on role
       if (user.role === "ADMIN") {
-        router.push("/admin");
+        router.replace("/admin");
       } else {
-        router.push("/explore/jobs");
+        router.replace("/");
       }
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || err?.response?.data?.message || err.message || "Sign in failed";
@@ -122,7 +122,7 @@ export default function SignInPage() {
           if (userData.role === "ADMIN") {
             router.replace("/admin");
           } else {
-            router.replace("/explore/jobs");
+            router.replace("/");
           }
         } catch (err: any) {
           console.error(err);
@@ -137,7 +137,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -60,56 +60,56 @@ export default function NavbarProfile({ user, logout, router }: Props) {
         <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg z-50 flex flex-col">
           <Link
             href="/cv-generator"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm rounded-t-lg flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <FileEditIcon size={18} /> CV Generator
           </Link>
           <Link
             href="/skill-assessments"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <Award size={18} /> Skill Assessments
           </Link>
           <Link
             href="/skill-assessments/dashboard"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <Trophy size={18} /> My Results
           </Link>
           <Link
+            href="/verify-certificate"
+            className="px-4 py-2 hover:bg-secondary text-sm flex gap-2 items-center"
+            onClick={() => setOpen(false)}
+          >
+            <Shield size={18} /> Verify Certificate
+          </Link>
+          <Link
             href="/my-applications"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <FolderOpen size={18} /> My Applications
           </Link>
           <Link
             href="/saved-jobs"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <Bookmark size={18} /> Saved Jobs
           </Link>
           <Link
-            href="/verify-certificate"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
-            onClick={() => setOpen(false)}
-          >
-            <Shield size={18} /> Verify Certificate
-          </Link>
-          <Link
             href="/profile/edit"
-            className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm flex gap-2 items-center"
             onClick={() => setOpen(false)}
           >
             <User2 size={18} /> Profile
           </Link>
           <div className="border-t border-border"></div>
           <button
-            className="px-4 py-2 hover:bg-secondary text-sm text-left text-red-400 rounded-lg flex gap-2 items-center"
+            className="px-4 py-2 hover:bg-secondary text-sm text-left text-red-400 rounded-b-lg flex gap-2 items-center"
             onClick={() => {
               logout();
               setOpen(false);
