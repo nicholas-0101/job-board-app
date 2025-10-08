@@ -35,6 +35,8 @@ export default function AssessmentLimitGuard({
   );
   const [attempts, setAttempts] = useState<AssessmentAttempt[]>([]);
   const [canAccess, setCanAccess] = useState(false);
+  const [monthlyLimitReached, setMonthlyLimitReached] = useState(false);
+  const [monthlyCount, setMonthlyCount] = useState(0);
 
   useEffect(() => {
     checkAccessPermission();
@@ -56,38 +58,47 @@ export default function AssessmentLimitGuard({
       );
       const attemptsData = attemptsResponse.data?.data || [];
 
+      // Check monthly limit by counting unique assessments this month
+      const monthlyResponse = await apiCall.get('/skill-assessment/user/results');
+      const allResults = monthlyResponse.data?.data?.results || [];
+      
+      // Get current month start
+      const currentMonth = new Date();
+      currentMonth.setDate(1);
+      currentMonth.setHours(0, 0, 0, 0);
+      
+      // Count unique assessments this month
+      const thisMonthResults = allResults.filter((result: any) => 
+        new Date(result.createdAt) >= currentMonth
+      );
+      
+      const uniqueAssessments = new Set(thisMonthResults.map((result: any) => result.assessmentId));
+      const monthlyCount = uniqueAssessments.size;
+      
+      // Check if current assessment is already taken
+      const hasCurrentAssessment = uniqueAssessments.has(assessmentId);
+
       setSubscription({
         plan: subscriptionData?.plan?.code || "STANDARD",
         isActive: subscriptionData?.status === "ACTIVE",
       });
       setAttempts(attemptsData);
 
-      // Debug logging
-      console.log("🔍 Assessment Access Debug:", {
-        assessmentId,
-        planObject: subscriptionData?.plan,
-        planCode: subscriptionData?.plan?.code || "STANDARD",
-        attemptsCount: attemptsData.length,
-        attempts: attemptsData,
-        subscription: subscriptionData,
-      });
-
       // Check access permission
       const planCode = subscriptionData?.plan?.code || "STANDARD";
-      const hasAccess = checkCanAccess(planCode, attemptsData);
-      console.log("✅ Access Decision:", {
-        hasAccess,
-        reason: hasAccess ? "Allowed" : "Blocked",
-        planCode,
-      });
+      const perAssessmentAccess = checkCanAccess(planCode, attemptsData);
+      
+      // Check monthly limit for Standard plan
+      const monthlyLimitExceeded = planCode === "STANDARD" && 
+        monthlyCount >= 2 && 
+        !hasCurrentAssessment;
+      
+      const hasAccess = perAssessmentAccess && !monthlyLimitExceeded;
+      
       setCanAccess(hasAccess);
+      setMonthlyLimitReached(monthlyLimitExceeded);
+      setMonthlyCount(monthlyCount);
     } catch (error: any) {
-      console.error("Error checking assessment access:", error);
-      console.error(
-        "API Error Details:",
-        error.response?.data || error.message
-      );
-
       // Fallback: Allow access if API fails (better UX)
       setCanAccess(true);
       setSubscription({ plan: "STANDARD", isActive: true });
@@ -134,69 +145,86 @@ export default function AssessmentLimitGuard({
     return <>{children}</>;
   }
 
-  // Show limit reached message for Standard users
+  // Show limit reached message
   return (
     <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
-          <div className="flex items-center gap-3 justify-center mb-4">
-            <div className="p-2 bg-[#467EC7]/10 rounded-lg">
-              <Award className="w-6 h-6 text-[#467EC7]" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-[#E1F1F3] rounded-full">
+              <Award className="w-8 h-8 text-[#467EC7]" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-800">
               Skill Assessment
             </h1>
           </div>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Assessment attempt limit reached
+            {monthlyLimitReached ? "Monthly assessment limit reached" : "Assessment attempt limit reached"}
           </p>
         </div>
 
-        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
-          <CardContent className="p-12">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-orange-100 rounded-full mb-6">
-                <AlertCircle className="w-10 h-10 text-orange-600" />
+        <Card className="max-w-2xl mx-auto bg-[#FFFFFF] shadow-sm border-0">
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-[#24CFA7]/10 rounded-full mb-6">
+                <AlertCircle className="w-10 h-10 text-[#24CFA7]" />
               </div>
 
-              <h2 className="text-3xl font-bold text-orange-800 mb-4">
-                Assessment Limit Reached
+              <h2 className="text-2xl font-bold text-[#467EC7] mb-4">
+                {monthlyLimitReached ? "Monthly Limit Reached" : "Assessment Limit Reached"}
               </h2>
 
-              <div className="bg-white/70 rounded-lg p-6 mb-8">
+              <div className="bg-[#F0F5F9] rounded-lg p-6 mb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <Zap className="w-5 h-5 text-orange-600" />
-                  <span className="font-semibold text-orange-800">
+                  <Zap className="w-5 h-5 text-[#24CFA7]" />
+                  <span className="font-semibold text-[#467EC7]">
                     Standard Plan Limits
                   </span>
                 </div>
-                <p className="text-gray-700 mb-4">
-                  You have used <strong>{attempts.length} out of 2</strong>{" "}
-                  attempts for this assessment. Standard plan users are limited
-                  to <strong>2 attempts per assessment</strong>.
-                </p>
-                <div className="text-sm text-gray-600">
-                  Last attempt:{" "}
-                  {attempts.length > 0
-                    ? new Date(
-                        attempts[attempts.length - 1].createdAt
-                      ).toLocaleDateString()
-                    : "N/A"}
-                </div>
+                
+                {monthlyLimitReached ? (
+                  <div>
+                    <p className="text-gray-600 mb-4">
+                      You have taken <strong className="text-gray-800">{monthlyCount} out of 2</strong>{" "}
+                      assessments this month. Standard plan users are limited
+                      to <strong className="text-gray-800">2 assessments per month</strong>.
+                    </p>
+                    <div className="text-sm text-gray-500">
+                      Your monthly quota will reset on{" "}
+                      <strong className="text-gray-700">{new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString()}</strong>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-gray-600 mb-4">
+                      You have completed <strong className="text-gray-800">{attempts.length} out of 2</strong>{" "}
+                      attempts for this assessment. Standard plan users are limited
+                      to <strong className="text-gray-800">2 attempts per assessment</strong>.
+                    </p>
+                    <div className="text-sm text-gray-500">
+                      Last attempt:{" "}
+                      {attempts.length > 0
+                        ? new Date(
+                            attempts[attempts.length - 1].createdAt
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg p-6 mb-8">
+              <div className="bg-gradient-to-r from-[#A3B6CE]/20 to-[#E1F1F3]/30 rounded-lg p-6 mb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <Crown className="w-6 h-6 text-purple-600" />
-                  <span className="font-bold text-purple-800 text-lg">
+                  <Crown className="w-6 h-6 text-[#467EC7]" />
+                  <span className="font-bold text-[#467EC7] text-lg">
                     Upgrade to Premium
                   </span>
                 </div>
-                <p className="text-purple-700 mb-4">
-                  Get <strong>unlimited assessment attempts</strong> and access
+                <p className="text-[#467EC7] mb-4">
+                  Get <strong className="text-[#467EC7]">unlimited assessment attempts</strong> and access
                   to all premium features!
                 </p>
-                <ul className="text-sm text-purple-600 space-y-1 mb-4">
+                <ul className="text-sm text-[#467EC7] space-y-1 mb-4">
                   <li>✓ Unlimited assessment retakes</li>
                   <li>✓ Advanced skill analytics</li>
                   <li>✓ Priority certificate generation</li>
@@ -207,7 +235,7 @@ export default function AssessmentLimitGuard({
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={() => router.push("/subscription")}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 text-lg"
+                  className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-sm"
                   size="lg"
                 >
                   <Crown className="w-5 h-5 mr-2" />
@@ -216,7 +244,7 @@ export default function AssessmentLimitGuard({
                 <Button
                   variant="outline"
                   onClick={() => router.push("/skill-assessments")}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3"
+                  className="border-[#467EC7]/30 text-[#467EC7] hover:bg-[#F0F5F9] hover:text-[#467EC7] px-8 py-3 rounded-lg"
                   size="lg"
                 >
                   Browse Other Assessments
