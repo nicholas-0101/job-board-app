@@ -10,7 +10,7 @@ import SubscriptionGuard from "@/components/skill-assessments/SubscriptionGuard"
 
 export default function SkillAssessmentDashboard() {
   const router = useRouter();
-  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated, recheckSubscription } = useSubscription();
+  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated } = useSubscription();
   
   const {
     results,
@@ -62,8 +62,10 @@ export default function SkillAssessmentDashboard() {
   if (isAuthenticated === false || hasSubscription === false) {
     return (
       <SubscriptionGuard 
-        onCheckAgain={recheckSubscription}
+        hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
+        onUpgrade={() => router.push('/subscription')}
+        onSignIn={() => router.push('/signin')}
       />
     );
   }

@@ -3,11 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface SubscriptionWarningProps {
-  onCheckAgain: () => void;
-}
-
-export default function SubscriptionWarning({ onCheckAgain }: SubscriptionWarningProps) {
+export default function SubscriptionWarning() {
   const router = useRouter();
 
   return (
@@ -37,7 +33,7 @@ export default function SubscriptionWarning({ onCheckAgain }: SubscriptionWarnin
               </Button>
               <Button
                 variant="outline"
-                onClick={onCheckAgain}
+                onClick={() => window.location.reload()}
                 className="border-[#467EC7]/30 text-[#467EC7] hover:bg-[#467EC7]/5 px-8 py-3"
                 size="lg"
               >

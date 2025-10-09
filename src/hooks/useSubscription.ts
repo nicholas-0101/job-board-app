@@ -67,16 +67,9 @@ export function useSubscription() {
     }
   };
 
-  const recheckSubscription = () => {
-    if (isAuthenticated) {
-      checkSubscription();
-    }
-  };
-
   return {
     hasSubscription,
     isLoading,
-    isAuthenticated,
-    recheckSubscription
+    isAuthenticated
   };
 }
