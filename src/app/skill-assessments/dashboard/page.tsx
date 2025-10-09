@@ -65,7 +65,7 @@ export default function SkillAssessmentDashboard() {
         hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
         onUpgrade={() => router.push('/subscription')}
-        onSignIn={() => router.push('/signin')}
+        onSignIn={() => router.push('/go-to-signin')}
       />
     );
   }

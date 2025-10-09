@@ -30,10 +30,10 @@ export const RenewalCard = ({
 
       <div className="space-y-2">
         <p className="text-sm text-gray-600">
-          Extend your subscription for another 3 minutes (testing mode)
+          Extend your subscription for another 1 hour
         </p>
         <p className="text-xs text-gray-500">
-          Production: 30 days extension
+          You will receive a reminder 20 minutes before expiry
         </p>
       </div>
 
