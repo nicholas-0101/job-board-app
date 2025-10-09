@@ -18,6 +18,7 @@ interface AssessmentResult {
     id: number;
     title: string;
     description?: string;
+    passScore?: number;
     badgeTemplate?: {
       id: number;
       name: string;
@@ -66,17 +67,17 @@ export function useResultsState(resultId: number) {
     }
   }, [resultId, router]);
 
-  const getScoreColor = useCallback((score: number) => {
+  const getScoreColor = useCallback((score: number, passScore: number = 75) => {
     if (score >= 90) return "text-[#24CFA7]";
-    if (score >= 75) return "text-[#467EC7]";
-    if (score >= 60) return "text-orange-500";
+    if (score >= passScore) return "text-[#467EC7]";
+    if (score >= Math.max(60, passScore * 0.8)) return "text-orange-500";
     return "text-red-500";
   }, []);
 
-  const getPerformanceLevel = useCallback((score: number) => {
+  const getPerformanceLevel = useCallback((score: number, passScore: number = 75) => {
     if (score >= 90) return "Excellent";
-    if (score >= 75) return "Good";
-    if (score >= 60) return "Fair";
+    if (score >= passScore) return "Good";
+    if (score >= Math.max(60, passScore * 0.8)) return "Fair";
     return "Needs Improvement";
   }, []);
 

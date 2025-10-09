@@ -51,10 +51,10 @@ export default function DeveloperPage() {
   return (
     <DeveloperAuthGuard>
       <DeveloperLayout>
-        <div className="min-h-screen bg-gray-50 py-6">
+        <div className="min-h-screen py-6" style={{ backgroundColor: '#F0F5F9' }}>
           <div className="mx-auto max-w-7xl space-y-10 px-4 sm:px-6 lg:px-8">
             {/* Header */}
-            <div className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200/50 rounded-lg">
+            <div className="bg-white shadow-lg rounded-lg" style={{ borderColor: '#E1F1F3' }}>
               <div className="px-6 py-8">
                 <div className="flex items-start sm:items-center justify-between gap-3 flex-col sm:flex-row">
                   <div className="w-full sm:w-auto text-center sm:text-left">
@@ -66,7 +66,7 @@ export default function DeveloperPage() {
                     </p>
                   </div>
                   <div className="flex gap-3 flex-wrap w-full sm:w-auto justify-center sm:justify-end">
-                    <Button className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white w-full sm:w-auto">
+                    <Button className="text-white w-full sm:w-auto" style={{ backgroundColor: '#467EC7' }}>
                       <Plus className="w-4 h-4 mr-2" />
                       Create Assessment
                     </Button>
@@ -78,12 +78,12 @@ export default function DeveloperPage() {
             <section className="space-y-10">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                <Card className="h-full bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Card className="h-full bg-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ borderColor: '#E1F1F3' }}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Active Assessments
                     </CardTitle>
-                    <div className="p-2 bg-[#24CFA7] rounded-lg">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#24CFA7' }}>
                       <FileText className="h-4 w-4 text-white" />
                     </div>
                   </CardHeader>
@@ -101,12 +101,12 @@ export default function DeveloperPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="h-full bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Card className="h-full bg-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ borderColor: '#E1F1F3' }}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Pending Approvals
                     </CardTitle>
-                    <div className="p-2 bg-orange-500 rounded-lg">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#A3B6CE' }}>
                       <AlertCircle className="h-4 w-4 text-white" />
                     </div>
                   </CardHeader>
@@ -124,12 +124,12 @@ export default function DeveloperPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="h-full bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Card className="h-full bg-white shadow-lg hover:shadow-xl transition-all duration-300" style={{ borderColor: '#E1F1F3' }}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Certificates Issued
                     </CardTitle>
-                    <div className="p-2 bg-green-500 rounded-lg">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#24CFA7' }}>
                       <Award className="h-4 w-4 text-white" />
                     </div>
                   </CardHeader>
@@ -158,11 +158,11 @@ export default function DeveloperPage() {
 
                 <div className="space-y-4">
                   {/* Skill Assessment Management */}
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                  <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ borderColor: '#E1F1F3' }}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-[#24CFA7] rounded-lg">
+                          <div className="p-3 rounded-lg" style={{ backgroundColor: '#24CFA7' }}>
                             <FileText className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -170,13 +170,14 @@ export default function DeveloperPage() {
                               Skill Assessment
                             </h3>
                             <p className="text-gray-600 text-sm">
-                              Manage 25 MCQ tests, 75% pass rate, badges, certificates
+                              Manage skill tests, pass rate, badges, certificates
                             </p>
                           </div>
                         </div>
                         <Button
                           size="sm"
-                          className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white"
+                          className="text-white"
+                          style={{ backgroundColor: '#467EC7' }}
                         >
                           Manage
                         </Button>
@@ -185,11 +186,11 @@ export default function DeveloperPage() {
                   </Card>
 
                   {/* Subscription Approval */}
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                  <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ borderColor: '#E1F1F3' }}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-orange-500 rounded-lg">
+                          <div className="p-3 rounded-lg" style={{ backgroundColor: '#A3B6CE' }}>
                             <Users className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -203,7 +204,8 @@ export default function DeveloperPage() {
                         </div>
                         <Button
                           size="sm"
-                          className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white"
+                          className="text-white"
+                          style={{ backgroundColor: '#467EC7' }}
                           onClick={() => router.push('/developer/subscription-approval/history')}
                         >
                           Review
@@ -213,11 +215,11 @@ export default function DeveloperPage() {
                   </Card>
 
                   {/* Badge & Certificate */}
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                  <Card className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 group" style={{ borderColor: '#E1F1F3' }}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-green-500 rounded-lg">
+                          <div className="p-3 rounded-lg" style={{ backgroundColor: '#24CFA7' }}>
                             <Award className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -231,7 +233,8 @@ export default function DeveloperPage() {
                         </div>
                         <Button
                           size="sm"
-                          className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white"
+                          className="text-white"
+                          style={{ backgroundColor: '#467EC7' }}
                         >
                           Manage
                         </Button>

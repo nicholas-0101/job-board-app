@@ -12,6 +12,7 @@ export function useCreateAssessment() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [badgeTemplateId, setBadgeTemplateId] = useState<number | undefined>();
+  const [passScore, setPassScore] = useState(75);
   const [questions, setQuestions] = useState<Question[]>([
     { question: "", options: ["", "", "", ""], answer: "" },
   ]);
@@ -25,6 +26,7 @@ export function useCreateAssessment() {
       setDescription(storedData.description || "");
       setCategory(storedData.category || "");
       setBadgeTemplateId(storedData.badgeTemplateId);
+      setPassScore(storedData.passScore || 75);
       setQuestions(storedData.questions || [{ question: "", options: ["", "", "", ""], answer: "" }]);
       
       if (storedData.savedQuestions && Array.isArray(storedData.savedQuestions)) {
@@ -46,10 +48,6 @@ export function useCreateAssessment() {
       return false;
     }
 
-    if (questions.length < 1) {
-      toast.error("At least 1 question is required");
-      return false;
-    }
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
@@ -92,6 +90,7 @@ export function useCreateAssessment() {
         description: description || undefined,
         category,
         badgeTemplateId: badgeTemplateId || undefined,
+        passScore,
         questions: questions.map((q) => ({
           question: q.question,
           options: q.options,
@@ -103,9 +102,11 @@ export function useCreateAssessment() {
       clearStorage();
       toast.success("Assessment created successfully!");
       router.push("/developer/skill-assessment");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating assessment:", error);
-      toast.error("Failed to create assessment");
+      console.error("Error response:", error.response?.data);
+      const errorMessage = error.response?.data?.message || error.response?.data?.details || "Failed to create assessment";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -121,6 +122,8 @@ export function useCreateAssessment() {
     setCategory,
     badgeTemplateId,
     setBadgeTemplateId,
+    passScore,
+    setPassScore,
     questions,
     setQuestions,
     savedQuestions,

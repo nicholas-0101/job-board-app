@@ -9,7 +9,9 @@ export interface Question {
 export interface CreateAssessmentData {
   title: string;
   description?: string;
+  category: string;
   badgeTemplateId?: number;
+  passScore?: number;
   questions: Question[];
 }
 

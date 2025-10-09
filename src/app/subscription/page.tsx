@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { subscriptionPlans } from "@/components/subscription/subscriptionPlans";
 import PlanCard from "@/components/subscription/PlanCard";
+import SubscriptionFeatures from "@/components/subscription/SubscriptionFeatures";
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -28,8 +29,7 @@ export default function SubscriptionPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25 py-20">
-        <div className="absolute inset-0" />
+      <section className="relative py-20" style={{ backgroundColor: '#F0F5F9' }}>
         <div className="relative container mx-auto px-4 text-center max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -39,17 +39,27 @@ export default function SubscriptionPage() {
             <h1 className="text-5xl font-bold mb-6 text-[#467EC7]">
               Choose Your <span className="text-[#24CFA7]">Perfect Plan</span>
             </h1>
-            <p className="text-xl opacity-90 mb-8 text-muted-foreground">
+            <p className="text-xl mb-8 text-gray-600">
               Unlock premium features and accelerate your career journey with
-              our subscription plans
+              our subscription plans. 30-day duration with H-1 email reminders.
             </p>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
 
+      {/* Features Section */}
+      <SubscriptionFeatures />
+
       {/* Pricing Section */}
-      <div className="container mx-auto px-4 pb-20">
+      <div className="container mx-auto px-4 pb-20" style={{ backgroundColor: '#F0F5F9' }}>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Choose Your Plan
+          </h2>
+          <p className="text-xl text-gray-600">
+            Select the plan that best fits your career goals
+          </p>
+        </div>
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {subscriptionPlans.map((plan, index) => (
             <PlanCard 

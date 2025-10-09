@@ -48,18 +48,41 @@ export default function SidebarNavigation({
                 isCollapsed && "lg:justify-center"
               )}
             >
-              <Icon className={cn("h-5 w-5", "mr-3 lg:mr-0", !isCollapsed && "lg:mr-3")} />
-              <span className={cn("flex-1 text-left", "lg:hidden", !isCollapsed && "lg:block")}>
+              <Icon
+                className={cn(
+                  "h-5 w-5",
+                  "mr-3 lg:mr-0",
+                  !isCollapsed && "lg:mr-3"
+                )}
+              />
+              <span
+                className={cn(
+                  "flex-1 text-left",
+                  "lg:hidden",
+                  !isCollapsed && "lg:block"
+                )}
+              >
                 {item.title}
               </span>
               {hasSubItems && (
-                <ChevronRight className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-90")} />
+                <ChevronRight
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    isExpanded && "rotate-90"
+                  )}
+                />
               )}
             </button>
 
             {/* Sub Menu Items */}
             {hasSubItems && isExpanded && (
-              <div className={cn("ml-4 mt-1 space-y-1", "lg:hidden", !isCollapsed && "lg:block")}>
+              <div
+                className={cn(
+                  "ml-4 mt-1 space-y-1",
+                  "lg:hidden",
+                  !isCollapsed && "lg:block"
+                )}
+              >
                 {item.subItems?.map((subItem) => (
                   <button
                     key={`${subItem.href}-${subItem.title}`}

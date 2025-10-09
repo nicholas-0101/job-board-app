@@ -23,6 +23,8 @@ export default function CreateAssessmentPage() {
     setCategory,
     badgeTemplateId,
     setBadgeTemplateId,
+    passScore,
+    setPassScore,
     questions,
     setQuestions,
     savedQuestions,
@@ -45,6 +47,7 @@ export default function CreateAssessmentPage() {
       description,
       category,
       badgeTemplateId,
+      passScore,
       questions,
       savedQuestions: Array.from(savedQuestions),
       lastSaved: new Date().toISOString(),
@@ -53,7 +56,7 @@ export default function CreateAssessmentPage() {
     if (title.trim() || description.trim() || category.trim() || questions.some(q => q.question.trim())) {
       saveToStorage(dataToSave);
     }
-  }, [title, description, category, badgeTemplateId, questions, savedQuestions]);
+  }, [title, description, category, badgeTemplateId, passScore, questions, savedQuestions]);
 
   const unsavedQuestionsCount = questions.length - savedQuestions.size;
 
@@ -96,6 +99,8 @@ export default function CreateAssessmentPage() {
             setCategory={setCategory}
             badgeTemplateId={badgeTemplateId}
             setBadgeTemplateId={setBadgeTemplateId}
+            passScore={passScore}
+            setPassScore={setPassScore}
             questions={questions}
             savedQuestions={savedQuestions}
             savingQuestion={savingQuestion}

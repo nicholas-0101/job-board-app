@@ -19,6 +19,8 @@ interface CreateAssessmentFormProps {
   setCategory: (category: string) => void;
   badgeTemplateId: number | undefined;
   setBadgeTemplateId: (id: number | undefined) => void;
+  passScore: number;
+  setPassScore: (score: number) => void;
   questions: Question[];
   savedQuestions: Set<number>;
   savingQuestion: number | null;
@@ -40,6 +42,8 @@ export default function CreateAssessmentForm({
   setCategory,
   badgeTemplateId,
   setBadgeTemplateId,
+  passScore,
+  setPassScore,
   questions,
   savedQuestions,
   savingQuestion,
@@ -53,8 +57,8 @@ export default function CreateAssessmentForm({
 }: CreateAssessmentFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
+      <Card className="bg-white shadow-lg" style={{ borderColor: '#E1F1F3' }}>
+        <CardHeader className="text-white" style={{ backgroundColor: '#467EC7' }}>
           <CardTitle>Assessment Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -91,6 +95,24 @@ export default function CreateAssessmentForm({
             />
           </div>
           
+          <div>
+            <Label htmlFor="passScore">Minimum Pass Score (%)</Label>
+            <Input
+              id="passScore"
+              type="number"
+              min="1"
+              max="100"
+              value={passScore}
+              onChange={(e) => setPassScore(Number(e.target.value))}
+              placeholder="75"
+              required
+              className="w-32"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Students need to score at least {passScore}% to pass this assessment
+            </p>
+          </div>
+          
           <BadgeSelector
             selectedBadgeId={badgeTemplateId}
             onSelect={setBadgeTemplateId}
@@ -98,19 +120,20 @@ export default function CreateAssessmentForm({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="bg-white shadow-lg" style={{ borderColor: '#E1F1F3' }}>
+        <CardHeader className="flex flex-row items-center justify-between text-white" style={{ backgroundColor: '#467EC7' }}>
           <div>
-            <CardTitle>Questions ({questions.length}/25)</CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
+            <CardTitle>Questions ({questions.length})</CardTitle>
+            <p className="text-sm mt-1" style={{ color: '#E1F1F3' }}>
               Questions saved to draft: {savedQuestions.size} of {questions.length}
             </p>
           </div>
           <Button
             type="button"
             onClick={onAddQuestion}
-            disabled={questions.length >= 25 || unsavedQuestionsCount > 0}
-            className="flex items-center gap-2"
+            disabled={unsavedQuestionsCount > 0}
+            className="flex items-center gap-2 text-white"
+            style={{ backgroundColor: '#24CFA7' }}
           >
             <Plus className="w-4 h-4" />
             Add Question
@@ -118,43 +141,59 @@ export default function CreateAssessmentForm({
         </CardHeader>
         <CardContent className="space-y-4">
           {unsavedQuestionsCount > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-sm text-yellow-800">
+            <div className="rounded-lg p-3" style={{ backgroundColor: '#E1F1F3', borderColor: '#A3B6CE' }}>
+              <p className="text-sm" style={{ color: '#467EC7' }}>
                 Please save all questions before adding new ones or creating the assessment.
               </p>
             </div>
           )}
           
-          {questions.map((question, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-4">
+          {questions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">No questions added yet</p>
+              <Button
+                type="button"
+                onClick={onAddQuestion}
+                className="flex items-center gap-2 mx-auto text-white"
+                style={{ backgroundColor: '#24CFA7' }}
+              >
+                <Plus className="w-4 h-4" />
+                Add First Question
+              </Button>
+            </div>
+          ) : (
+            questions.map((question, index) => (
+            <div key={index} className="border rounded-lg p-4 space-y-4 bg-white" style={{ borderColor: '#E1F1F3' }}>
               <div className="flex items-center justify-between">
                 <h4 className="font-medium">Question {index + 1}</h4>
                 <div className="flex items-center gap-2">
                   {savedQuestions.has(index) ? (
-                    <Badge variant="default" className="bg-green-100 text-green-800">
+                    <Badge variant="default" className="text-white" style={{ backgroundColor: '#24CFA7' }}>
                       <Check className="w-3 h-3 mr-1" />
                       Saved
                     </Badge>
                   ) : (
-                    <Badge variant="secondary">Unsaved</Badge>
+                    <Badge variant="secondary" style={{ backgroundColor: '#A3B6CE', color: 'white' }}>Unsaved</Badge>
                   )}
                   <Button
                     type="button"
                     onClick={() => onSaveQuestion(index)}
                     disabled={savingQuestion === index || savedQuestions.has(index)}
                     size="sm"
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 text-white"
+                    style={{ backgroundColor: '#467EC7' }}
                   >
                     <Save className="w-3 h-3" />
                     {savingQuestion === index ? "Saving..." : "Save Question"}
                   </Button>
-                  {questions.length < 25 && index === questions.length - 1 && (
+                  {index === questions.length - 1 && (
                     <Button
                       type="button"
                       onClick={onAddQuestion}
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 text-white"
+                      style={{ backgroundColor: '#24CFA7', borderColor: '#24CFA7' }}
                     >
                       <Plus className="w-3 h-3" />
                       Add Question
@@ -175,10 +214,11 @@ export default function CreateAssessmentForm({
                 question={question}
                 onChange={onQuestionChange}
                 onRemove={onRemoveQuestion}
-                canRemove={questions.length > 1}
+                canRemove={true}
               />
             </div>
-          ))}
+          ))
+          )}
         </CardContent>
       </Card>
 
@@ -186,7 +226,8 @@ export default function CreateAssessmentForm({
         <Button
           type="submit"
           disabled={loading || unsavedQuestionsCount > 0}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-white"
+          style={{ backgroundColor: '#467EC7' }}
         >
           {loading ? "Creating..." : "Create Assessment"}
         </Button>
