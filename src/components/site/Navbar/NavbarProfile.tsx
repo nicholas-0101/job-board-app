@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User2, LogOutIcon, FileEditIcon, Award, Trophy, FolderOpen, Bookmark, Shield } from "lucide-react";
+import { User2, LogOutIcon, FileEditIcon, Award, Trophy, FolderOpen, Bookmark, Shield, Medal } from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface Props {
@@ -78,6 +78,13 @@ export default function NavbarProfile({ user, logout, router }: Props) {
             onClick={() => setOpen(false)}
           >
             <Trophy size={18} /> My Results
+          </Link>
+          <Link
+            href="/badges"
+            className="px-4 py-2 hover:bg-[#467EC7]/10 text-sm flex gap-2 items-center"
+            onClick={() => setOpen(false)}
+          >
+            <Medal size={18} /> My Badges
           </Link>
           <Link
             href="/verify-certificate"
