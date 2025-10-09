@@ -8,19 +8,39 @@ import { useUserStore } from "@/lib/store/userStore";
 import { apiCall } from "@/helper/axios";
 import { signInSchema } from "./signinSchema";
 import SignInForm from "./components/signinForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function SignInPage() {
   const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Notice");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
+
+  const openDialog = (title: string, message: string, action?: () => void) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogAction(() => action || null);
+    setDialogOpen(true);
+  };
 
   const handleSignIn = async (values: { email: string; password: string }) => {
     setIsLoading(true);
     try {
       // Validate input
       if (!values.email || !values.password) {
-        alert("Email and password are required.");
+        openDialog("Validation Error", "Email and password are required.");
         setIsLoading(false);
         return;
       }
@@ -61,7 +81,7 @@ export default function SignInPage() {
       }
 
       setUser(user);
-      
+
       // Redirect based on role
       if (user.role === "ADMIN") {
         router.replace("/admin");
@@ -69,8 +89,12 @@ export default function SignInPage() {
         router.replace("/");
       }
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || err?.response?.data?.message || err.message || "Sign in failed";
-      alert(errorMessage);
+      const errorMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err.message ||
+        "Sign in failed";
+      openDialog("Error", errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -85,14 +109,22 @@ export default function SignInPage() {
     const height = 600;
     const left = window.innerWidth / 2 - width / 2;
     const top = window.innerHeight / 2 - height / 2;
-    window.open(url, "GoogleLogin", `width=${width},height=${height},top=${top},left=${left}`);
+    window.open(
+      url,
+      "GoogleLogin",
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
 
     const listener = async (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       const { token } = event.data as { token?: string };
       if (token) {
         try {
-          const res = await apiCall.post("/auth/social", { provider: "GOOGLE", token, role });
+          const res = await apiCall.post("/auth/social", {
+            provider: "GOOGLE",
+            token,
+            role,
+          });
           const userData = res.data.data;
 
           // If admin, fetch companyId like in password sign-in
@@ -117,7 +149,7 @@ export default function SignInPage() {
           localStorage.setItem("role", userData.role);
           localStorage.setItem("userId", userData.id.toString());
           setUser(userData);
-          
+
           // Redirect based on role
           if (userData.role === "ADMIN") {
             router.replace("/admin");
@@ -126,7 +158,10 @@ export default function SignInPage() {
           }
         } catch (err: any) {
           console.error(err);
-          alert(err.response?.data?.message || "Google login failed");
+          openDialog(
+            "Error",
+            err.response?.data?.message || "Google login failed"
+          );
         } finally {
           window.removeEventListener("message", listener);
         }
@@ -193,6 +228,30 @@ export default function SignInPage() {
           </Link>
         </motion.p>
       </motion.div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md !rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#467EC7]">
+              {dialogTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-muted-foreground">
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setDialogOpen(false);
+                dialogAction?.();
+              }}
+              className="bg-[#24CFA7] hover:bg-[#1CA88B] text-white rounded-lg"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
