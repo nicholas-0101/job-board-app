@@ -74,7 +74,7 @@ const SelectButton = ({ planName, onSelect }: { planName: string; onSelect: () =
     whileHover={{ scale: 1.02 }}
     whileTap={{ scale: 0.98 }}
     onClick={onSelect}
-    className="w-full py-3.5 px-6 rounded-xl font-semibold transition-all bg-[#467EC7] hover:bg-[#467EC7]/90 text-white border-0"
+    className="w-full py-3.5 px-6 rounded-xl font-semibold transition-all bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white border-0"
   >
     Choose {planName}
   </motion.button>

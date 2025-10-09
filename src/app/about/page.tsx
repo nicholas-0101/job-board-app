@@ -62,7 +62,7 @@ export default function AboutPage() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex justify-center"
           >
-            <div className="bg-[#467EC7]/10 p-10 rounded-2xl shadow-md border border-border">
+            <div className="bg-[#467EC7]/5 p-10 rounded-2xl shadow-md border border-border">
               <Rocket className="w-16 h-16 text-[#24CFA7] mx-auto mb-4" />
               <h3 className="text-xl font-medium text-center text-foreground">
                 Empowering Careers

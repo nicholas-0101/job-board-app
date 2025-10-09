@@ -63,12 +63,10 @@ export default function HomePage() {
     { label: "Success Rate", value: 95, icon: Award, suffix: "%" },
   ];
 
-  // Handle mounting
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Client-side only: read URL params safely
   useEffect(() => {
     if (!mounted) return;
 
@@ -194,7 +192,6 @@ export default function HomePage() {
     fetchLocationAndJobs();
   }, [mounted]);
 
-  // Show loading while checking auth status
   if (!mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -208,7 +205,7 @@ export default function HomePage() {
       {/* Hero */}
       <motion.section
         ref={heroRef}
-        className="relative min-h-[95vh] bg-grit overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25"
+        className="relative min-h-[95vh] bg-grit overflow-hidden bg-gradient-to-br from-[#467EC7]/15 via-white to-[#24CFA7]/25"
       >
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50" />
@@ -325,38 +322,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
-      {/* <section className="bg-gradient-to-br from-secondary-50 to-background py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#467EC7] mb-2">
-              Explore by Category
-            </h2>
-            <p className="text-muted-foreground">
-              Find opportunities in your field of expertise
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((category, index) => (
-              <div
-                key={category.name}
-                className="bg-[#F0F5F9] rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer"
-              >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="font-semibold text-[#467EC7] mb-1">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-muted-foreground/80 font-medium">
-                  {category.count} jobs
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
       {/* Trusted Companies */}
-      <section className="relative container mx-auto px-4 py-16 text-center bg-gradient-to-br from-[#467EC7]/20 via-white/90 to-[#24CFA7]/10">
+      <section className="relative container mx-auto px-4 py-16 text-center bg-gradient-to-br from-[#467EC7]/25 via-white/90 to-[#24CFA7]/10">
         <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-b from-white via-transparent to-transparent pointer-events-none" />
 
         <h3 className="text-lg font-semibold text-muted-foreground mb-8">

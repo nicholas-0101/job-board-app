@@ -8,6 +8,7 @@ import { apiCall } from "@/helper/axios";
 import Container from "@/components/common/Container";
 import { JobCard } from "../components/JobCard";
 import JobDetailCard from "../components/JobDetailCard";
+import CompanyInfoCard from "../components/CompanyInfoCard";
 
 export default function JobDetailPage() {
   const params = useParams();
@@ -98,12 +99,13 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#24CFA7]/10 via-white to-[#467EC7]/10">
       <Container className="py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Job Detail */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-8 flex flex-col gap-4">
             <JobDetailCard job={job} />
+            <CompanyInfoCard company={job.company} />
           </div>
 
           {/* Related Jobs */}

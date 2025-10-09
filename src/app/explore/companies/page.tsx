@@ -232,7 +232,7 @@ export default function CompaniesPage() {
                         : "asc",
                   }))
                 }
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${
+                className={`flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all ${
                   filters.sort === "name"
                     ? "bg-[#467EC7] text-white font-semibold shadow-sm"
                     : "text-muted-foreground hover:bg-secondary"
@@ -259,7 +259,7 @@ export default function CompaniesPage() {
                         : "asc",
                   }))
                 }
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${
+                className={`flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all ${
                   filters.sort === "jobsCount"
                     ? "bg-[#467EC7] text-white font-semibold shadow-sm"
                     : "text-muted-foreground hover:bg-secondary"
