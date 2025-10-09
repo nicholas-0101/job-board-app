@@ -2,9 +2,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { RefreshCw } from "lucide-react";
 import { subscriptionPlans } from "@/components/subscription/subscriptionPlans";
 import PlanCard from "@/components/subscription/PlanCard";
 import SubscriptionFeatures from "@/components/subscription/SubscriptionFeatures";
+import { Button } from "@/components/ui/button";
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -43,6 +45,24 @@ export default function SubscriptionPage() {
               Unlock premium features and accelerate your career journey with
               our subscription plans. 30-day duration with H-1 email reminders.
             </p>
+            
+            {isAuthenticated && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="mb-6"
+              >
+                <Button
+                  onClick={() => router.push("/subscription/renew")}
+                  variant="outline"
+                  className="border-[#24CFA7] text-[#24CFA7] hover:bg-[#24CFA7] hover:text-white"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Renew Existing Subscription
+                </Button>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
