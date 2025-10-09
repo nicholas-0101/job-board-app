@@ -9,6 +9,7 @@ interface AssessmentResult {
   assessment: {
     title: string;
     description?: string;
+    passScore?: number;
     badgeTemplate?: {
       name: string;
       category?: string;
@@ -21,8 +22,8 @@ interface AssessmentResult {
 
 interface ResultsHeaderProps {
   result: AssessmentResult;
-  getScoreColor: (score: number) => string;
-  getPerformanceLevel: (score: number) => string;
+  getScoreColor: (score: number, passScore?: number) => string;
+  getPerformanceLevel: (score: number, passScore?: number) => string;
   onBack: () => void;
 }
 
@@ -81,14 +82,14 @@ export default function ResultsHeader({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Final Score</p>
-              <p className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
+              <p className={`text-3xl font-bold ${getScoreColor(result.score, result.assessment.passScore)}`}>
                 {result.score}%
               </p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600">Performance Level</p>
-              <p className={`text-lg font-semibold ${getScoreColor(result.score)}`}>
-                {getPerformanceLevel(result.score)}
+              <p className={`text-lg font-semibold ${getScoreColor(result.score, result.assessment.passScore)}`}>
+                {getPerformanceLevel(result.score, result.assessment.passScore)}
               </p>
             </div>
           </div>

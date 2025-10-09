@@ -117,10 +117,6 @@ export function useEditAssessment(assessmentId: string) {
       return false;
     }
 
-    if (questions.length === 0) {
-      toast.error("At least one question is required");
-      return false;
-    }
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];

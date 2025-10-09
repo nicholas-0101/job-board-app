@@ -11,19 +11,11 @@ export function useQuestionHandlers(
   const [savingQuestion, setSavingQuestion] = useState<number | null>(null);
 
   const handleAddQuestion = () => {
-    if (questions.length >= 25) {
-      toast.error("Maximum 25 questions allowed");
-      return;
-    }
     
     setQuestions([...questions, { question: "", options: ["", "", "", ""], answer: "" }]);
   };
 
   const handleRemoveQuestion = (index: number) => {
-    if (questions.length <= 1) {
-      toast.error("At least one question is required");
-      return;
-    }
     
     setQuestions(questions.filter((_, i) => i !== index));
     

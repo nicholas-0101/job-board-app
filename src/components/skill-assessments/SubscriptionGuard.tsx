@@ -4,13 +4,17 @@ import { AlertCircle, Award, LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface SubscriptionGuardProps {
-  onCheckAgain: () => void;
+  hasSubscription: boolean | null;
   isAuthenticated: boolean | null;
+  onUpgrade: () => void;
+  onSignIn: () => void;
 }
 
 export default function SubscriptionGuard({ 
-  onCheckAgain, 
-  isAuthenticated 
+  hasSubscription,
+  isAuthenticated,
+  onUpgrade,
+  onSignIn
 }: SubscriptionGuardProps) {
   const router = useRouter();
 
@@ -44,8 +48,8 @@ export default function SubscriptionGuard({
                 </p>
                 <div className="flex justify-center space-x-4">
                   <Button 
-                    onClick={() => router.push('/signin')}
-                    className="bg-red-600 hover:bg-red-700 px-8 py-3 text-lg"
+                    onClick={onSignIn}
+                    className="bg-[#467EC7] hover:bg-[#467EC7]/90 px-8 py-3 text-lg"
                   >
                     <LogIn className="w-5 h-5 mr-2" />
                     Sign In
@@ -99,19 +103,11 @@ export default function SubscriptionGuard({
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  onClick={() => router.push("/subscription")}
+                  onClick={onUpgrade}
                   className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white px-8 py-3 text-lg"
                   size="lg"
                 >
                   View Subscription Plans
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={onCheckAgain}
-                  className="border-[#467EC7]/30 text-[#467EC7] hover:bg-[#467EC7]/5 px-8 py-3"
-                  size="lg"
-                >
-                  Check Again
                 </Button>
               </div>
             </div>

@@ -1,21 +1,50 @@
 import { useState, useEffect } from "react";
 import { apiCall } from "@/helper/axios";
 
+interface SubscriptionData {
+  isActive?: boolean;
+  status?: string;
+  expiresAt?: string;
+}
+
+// Helper functions (max 15 lines each)
+const checkAuthToken = (): boolean => {
+  const token = localStorage.getItem("token");
+  return !!token;
+};
+
+const isSubscriptionActive = (data: SubscriptionData): boolean => {
+  // New format check
+  if (data.isActive !== undefined) {
+    return data.isActive;
+  }
+  
+  // Legacy format check
+  if (data.status === 'ACTIVE' && data.expiresAt) {
+    return new Date(data.expiresAt) > new Date();
+  }
+  
+  return false;
+};
+
+const handleSubscriptionError = (error: any): boolean => {
+  if (error.response?.status === 404) {
+    return false; // No subscription found
+  }
+  return false; // Default to no subscription on error
+};
+
 export function useSubscription() {
   const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  // Check authentication first
+  // Check authentication
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("token");
-      setIsAuthenticated(!!token);
-    };
-    checkAuth();
+    setIsAuthenticated(checkAuthToken());
   }, []);
 
-  // Check subscription status if authenticated
+  // Check subscription when authenticated
   useEffect(() => {
     if (isAuthenticated) {
       checkSubscription();
@@ -27,30 +56,12 @@ export function useSubscription() {
   const checkSubscription = async () => {
     try {
       setIsLoading(true);
-      const subscriptionResponse = await apiCall.get(
-        "/subscription/my-active-subscription"
-      );
-
-      // Check if response has isActive property (new format) or subscription data directly (current format)
-      const hasActiveSubscription = 
-        (subscriptionResponse.data && subscriptionResponse.data.isActive) || // New format
-        (subscriptionResponse.data && 
-         subscriptionResponse.data.status === 'ACTIVE' && 
-         subscriptionResponse.data.expiresAt && 
-         new Date(subscriptionResponse.data.expiresAt) > new Date()); // Current format with expiry check
-
-      if (hasActiveSubscription) {
-        setHasSubscription(true);
-      } else {
-        setHasSubscription(false);
-      }
+      const response = await apiCall.get("/subscription/my-active-subscription");
+      const isActive = isSubscriptionActive(response.data);
+      setHasSubscription(isActive);
     } catch (error: any) {
-      console.error("Subscription check error:", error);
-      if (error.response?.status === 404) {
-        setHasSubscription(false);
-      } else {
-        setHasSubscription(false);
-      }
+      const hasActive = handleSubscriptionError(error);
+      setHasSubscription(hasActive);
     } finally {
       setIsLoading(false);
     }

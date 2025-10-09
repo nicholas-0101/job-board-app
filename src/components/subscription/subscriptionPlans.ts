@@ -1,4 +1,4 @@
-import { Check, Crown, Briefcase } from "lucide-react";
+import { Crown, Briefcase } from "lucide-react";
 
 export interface SubscriptionPlan {
   id: string;
@@ -7,11 +7,24 @@ export interface SubscriptionPlan {
   originalPrice: number;
   period: string;
   popular: boolean;
-  color: string;
+  backgroundColor: string;
   icon: any;
   features: string[];
   limitations: string[];
+  duration: number; // days
+  assessmentLimit?: number; // undefined = unlimited
 }
+
+export const SUBSCRIPTION_CONFIG = {
+  DURATION_DAYS: 30,
+  REMINDER_DAYS_BEFORE: 1,
+  COLORS: {
+    STANDARD: '#467EC7',
+    PROFESSIONAL: '#24CFA7',
+    ACCENT: '#A3B6CE',
+    BACKGROUND: '#F0F5F9'
+  }
+} as const;
 
 export const subscriptionPlans: SubscriptionPlan[] = [
   {
@@ -21,25 +34,35 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     originalPrice: 25000,
     period: "month",
     popular: false,
-    color: "from-blue-500 to-blue-600",
+    backgroundColor: SUBSCRIPTION_CONFIG.COLORS.STANDARD,
     icon: Briefcase,
-    features: ["CV Generator", "Skill Assessment 2x", "Basic email reminders"],
-    limitations: [],
+    duration: SUBSCRIPTION_CONFIG.DURATION_DAYS,
+    assessmentLimit: 2,
+    features: [
+      "CV Generator access",
+      "Skill Assessment (2x per month)",
+      "Email reminders H-1 expiry",
+      "ATS-friendly CV templates"
+    ],
+    limitations: ["Limited skill assessments", "Standard support"],
   },
   {
     id: "professional",
-    name: "Professional",
+    name: "Professional", 
     price: 100000,
     originalPrice: 100000,
     period: "month",
-    popular: false,
-    color: "from-purple-500 to-purple-600",
+    popular: true,
+    backgroundColor: SUBSCRIPTION_CONFIG.COLORS.PROFESSIONAL,
     icon: Crown,
+    duration: SUBSCRIPTION_CONFIG.DURATION_DAYS,
+    assessmentLimit: undefined, // unlimited
     features: [
-      "CV Generator",
-      "Skill Assessment unlimited",
-      "Priority review when apply job",
-      "Exclusive templates",
+      "CV Generator access",
+      "Unlimited Skill Assessment",
+      "Priority job application review",
+      "Exclusive premium templates",
+      "Priority customer support"
     ],
     limitations: [],
   },

@@ -1,46 +1,97 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Award, Clock, Users, ChevronRight, Trophy, BookOpen } from "lucide-react";
 import { getAssessments } from "@/lib/skillAssessment";
 import { useSubscription } from "@/hooks/useSubscription";
 import SubscriptionGuard from "@/components/skill-assessments/SubscriptionGuard";
+import AssessmentCard from "@/components/skill-assessments/AssessmentCard";
+import AssessmentStats from "@/components/skill-assessments/AssessmentStats";
+import AssessmentFilters from "@/components/skill-assessments/AssessmentFilters";
+import { Assessment, AssessmentStats as StatsType, AssessmentFilters as FiltersType } from "@/types/skillAssessment";
 import toast from "react-hot-toast";
 
-interface Assessment {
-  id: number;
-  title: string;
-  description?: string;
-  createdAt: string;
-  badgeTemplate?: {
-    id: number;
-    name: string;
-    icon?: string;
-    category?: string;
+// Helper functions (max 15 lines each)
+const filterAssessments = (assessments: Assessment[], filters: FiltersType, searchQuery: string) => {
+  let filtered = assessments;
+  
+  if (filters.category !== "all") {
+    filtered = filtered.filter(a => a.badgeTemplate?.name === filters.category);
+  }
+  
+  if (searchQuery) {
+    filtered = filtered.filter(a => 
+      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+  
+  return filtered;
+};
+
+const sortAssessments = (assessments: Assessment[], sortBy: string) => {
+  switch (sortBy) {
+    case "title":
+      return [...assessments].sort((a, b) => a.title.localeCompare(b.title));
+    default:
+      return assessments;
+  }
+};
+
+const calculateStats = (assessments: Assessment[]): StatsType => {
+  const totalParticipants = assessments.reduce((sum, a) => sum + a._count.results, 0);
+  
+  return {
+    totalAssessments: assessments.length,
+    totalParticipants
   };
-  creator: {
-    id: number;
-    name: string;
-  };
-  _count: {
-    results: number;
-    questions: number;
-  };
-}
+};
+
+const extractUniqueCategories = (assessments: Assessment[]) => {
+  const uniqueBadges = new Set<string>();
+  
+  assessments.forEach(assessment => {
+    if (assessment.badgeTemplate?.name) {
+      uniqueBadges.add(assessment.badgeTemplate.name);
+    }
+  });
+  
+  return [
+    { value: "all", label: "All Categories" },
+    ...Array.from(uniqueBadges).sort().map(badge => ({
+      value: badge,
+      label: badge
+    }))
+  ];
+};
+
+const LoadingState = () => (
+  <div className="min-h-screen bg-[#F0F5F9] py-8">
+    <div className="max-w-6xl mx-auto px-4">
+      <div className="animate-pulse space-y-6">
+        <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function SkillAssessmentsPage() {
   const router = useRouter();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated, recheckSubscription } = useSubscription();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FiltersType>({
+    category: "all",
+    sortBy: "title"
+  });
+  
+  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated } = useSubscription();
 
   useEffect(() => {
-    // Only fetch assessments if user has subscription
     if (hasSubscription === true) {
       fetchAssessments();
     }
@@ -49,11 +100,10 @@ export default function SkillAssessmentsPage() {
   const fetchAssessments = async () => {
     try {
       setLoading(true);
-      const response = await getAssessments(page, 10);
+      const response = await getAssessments(1, 50); // Get more assessments for filtering
       
       if (response.data.assessments) {
         setAssessments(response.data.assessments);
-        setHasMore(response.data.pagination.hasNext);
       }
     } catch (error: any) {
       toast.error("Failed to load skill assessments");
@@ -66,180 +116,80 @@ export default function SkillAssessmentsPage() {
     router.push(`/skill-assessments/${assessmentId}`);
   };
 
-  // Show loading state while checking subscription
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleFiltersChange = (newFilters: FiltersType) => {
+    setFilters(newFilters);
+  };
+
+  // Show loading state
   if (subscriptionLoading || (hasSubscription === true && loading)) {
-    return (
-      <div className="min-h-screen bg-[#F0F5F9] py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
-  // Show subscription guard if not authenticated or no subscription
+  // Show subscription guard if needed
   if (isAuthenticated === false || hasSubscription === false) {
     return (
       <SubscriptionGuard 
-        onCheckAgain={recheckSubscription}
+        hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
+        onUpgrade={() => router.push("/subscription")}
+        onSignIn={() => router.push("/signin")}
       />
     );
   }
+
+  // Filter and sort assessments
+  const filteredAssessments = filterAssessments(assessments, filters, searchQuery);
+  const sortedAssessments = sortAssessments(filteredAssessments, filters.sortBy);
+  const stats = calculateStats(assessments);
+  const categories = extractUniqueCategories(assessments);
 
   return (
     <div className="min-h-screen bg-[#F0F5F9] py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-[#467EC7]/10 rounded-lg">
-              <Award className="w-6 h-6 text-[#467EC7]" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Skill Assessments</h1>
-              <p className="text-gray-600 mt-1">
-                Test your skills and earn certificates to showcase your expertise
-              </p>
-            </div>
-          </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <BookOpen className="w-5 h-5 text-[#467EC7]" />
-                  <div>
-                    <p className="text-sm text-gray-600">Available Tests</p>
-                    <p className="text-2xl font-bold text-gray-900">{assessments.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-[#24CFA7]" />
-                  <div>
-                    <p className="text-sm text-gray-600">Total Participants</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {assessments.reduce((sum, a) => sum + a._count.results, 0)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <Trophy className="w-5 h-5 text-[#A3B6CE]" />
-                  <div>
-                    <p className="text-sm text-gray-600">Certificates Available</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {assessments.filter(a => a.badgeTemplate).length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Skill Assessments
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Test your skills with our comprehensive assessments. 
+            Pass with 75% to earn certificates and badges for your profile.
+          </p>
         </div>
 
+        {/* Stats */}
+        <AssessmentStats stats={stats} />
+
+        {/* Filters */}
+        <AssessmentFilters
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          onSearch={handleSearch}
+          categories={categories}
+        />
+
         {/* Assessments Grid */}
-        {assessments.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Award className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No Assessments Available
-              </h3>
-              <p className="text-gray-600">
-                Check back later for new skill assessments to test your abilities.
-              </p>
-            </CardContent>
-          </Card>
+        {sortedAssessments.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">
+              {searchQuery || filters.category !== "all" 
+                ? "No assessments found matching your criteria." 
+                : "No assessments available at the moment."
+              }
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {assessments.map((assessment) => (
-              <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">{assessment.title}</CardTitle>
-                      {assessment.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {assessment.description}
-                        </p>
-                      )}
-                    </div>
-                    {assessment.badgeTemplate && (
-                      <div className="ml-3">
-                        <Badge variant="secondary" className="bg-[#24CFA7]/10 text-[#24CFA7] border-[#24CFA7]/20">
-                          <Trophy className="w-3 h-3 mr-1" />
-                          Certificate
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Badge Info */}
-                    {assessment.badgeTemplate && (
-                      <div className="p-3 bg-[#467EC7]/5 rounded-lg border border-[#467EC7]/10">
-                        <div className="flex items-center gap-2">
-                          <Award className="w-4 h-4 text-[#467EC7]" />
-                          <span className="text-sm font-medium text-[#467EC7]">
-                            Earn: {assessment.badgeTemplate.name}
-                          </span>
-                        </div>
-                        {assessment.badgeTemplate.category && (
-                          <Badge variant="outline" className="mt-2 text-xs">
-                            {assessment.badgeTemplate.category}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Stats */}
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{assessment._count.results} taken</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{assessment._count.questions} questions</span>
-                      </div>
-                    </div>
-                    
-                    {/* Creator */}
-                    <div className="text-xs text-gray-500">
-                      Created by {assessment.creator.name}
-                    </div>
-                    
-                    {/* Action Button */}
-                    <Button 
-                      onClick={() => handleTakeAssessment(assessment.id)}
-                      className="w-full bg-[#467EC7] hover:bg-[#467EC7]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      Take Assessment
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            {sortedAssessments.map((assessment) => (
+              <AssessmentCard
+                key={assessment.id}
+                assessment={assessment}
+                onTakeAssessment={handleTakeAssessment}
+              />
             ))}
           </div>
         )}

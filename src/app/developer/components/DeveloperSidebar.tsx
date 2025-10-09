@@ -35,12 +35,12 @@ export default function DeveloperSidebar({ className }: SidebarProps) {
 
   useEffect(() => {
     if (isMobileOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMobileOpen]);
 
@@ -64,7 +64,8 @@ export default function DeveloperSidebar({ className }: SidebarProps) {
     return pathname.startsWith(href);
   };
 
-  const isSubItemActive = (subItem: { href: string }) => pathname === subItem.href;
+  const isSubItemActive = (subItem: { href: string }) =>
+    pathname === subItem.href;
 
   return (
     <>
