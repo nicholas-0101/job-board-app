@@ -15,7 +15,7 @@ export default function TakeAssessmentPage() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = parseInt(params.id as string);
-  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated, recheckSubscription } = useSubscription();
+  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated } = useSubscription();
   
   const {
     assessment,
@@ -101,8 +101,10 @@ export default function TakeAssessmentPage() {
   if (isAuthenticated === false || hasSubscription === false) {
     return (
       <SubscriptionGuard 
-        onCheckAgain={recheckSubscription}
+        hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
+        onUpgrade={() => router.push('/subscription')}
+        onSignIn={() => router.push('/signin')}
       />
     );
   }
