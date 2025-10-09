@@ -97,11 +97,11 @@ export default function CareersPage() {
               title: "Collaboration",
             },
             {
-              icon: <Laptop className="w-10 h-10 text-[#24CFA7]" />,
+              icon: <Laptop className="w-10 h-10 text-[#467EC7]" />,
               title: "Flexibility",
             },
             {
-              icon: <Coffee className="w-10 h-10 text-[#467EC7]" />,
+              icon: <Coffee className="w-10 h-10 text-[#24CFA7]" />,
               title: "Balance",
             },
           ].map((item, i) => (

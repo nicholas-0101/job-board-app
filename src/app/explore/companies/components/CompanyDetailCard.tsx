@@ -14,7 +14,10 @@ interface CompanyDetailCardProps {
   onReviewSubmitted?: () => void;
 }
 
-export default function CompanyDetailCard({ company, onReviewSubmitted }: CompanyDetailCardProps) {
+export default function CompanyDetailCard({
+  company,
+  onReviewSubmitted,
+}: CompanyDetailCardProps) {
   const [openShare, setOpenShare] = useState(false);
   const [openReview, setOpenReview] = useState(false);
   const [isEligibleToReview, setIsEligibleToReview] = useState(false);
@@ -60,65 +63,75 @@ export default function CompanyDetailCard({ company, onReviewSubmitted }: Compan
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={handleReviewClick}
               disabled={!isEligibleToReview}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isEligibleToReview
                   ? "bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 cursor-pointer"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#24CFA7]/60 text-white cursor-not-allowed"
               }`}
             >
               Review
             </button>
-            <button className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer" onClick={() => setOpenShare(true)}>
+            <button
+              className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
+              onClick={() => setOpenShare(true)}
+            >
               <Share2 className="w-5 h-5 text-foreground" />
             </button>
           </div>
         </div>
 
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="w-4 h-4 text-foreground" />
-            <span>{company.email || "N/A"}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="w-4 h-4 text-foreground" />
-            <span>{company.phone || "N/A"}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-4 h-4 text-foreground" />
-            <span>{company.address || "N/A"}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Building2 className="w-4 h-4 text-foreground" />
-            <span>{company.locationCity || "N/A"}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Globe className="w-4 h-4 text-foreground" />
-            {company.website ? (
-              <a
-                href={company.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#467EC7] hover:underline"
-              >
-                {company.website}
-              </a>
-            ) : (
-              <span>N/A</span>
-            )}
-          </div>
-        </div>
+        <div className="space-y-6 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-foreground" />
+                {company.website ? (
+                  <a
+                    href={company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#467EC7] hover:underline"
+                  >
+                    {company.website}
+                  </a>
+                ) : (
+                  <span>N/A</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-foreground" />
+                <span>{company.email || "N/A"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-foreground" />
+                <span>{company.phone || "N/A"}</span>
+              </div>
+            </div>
 
-        {company.description && (
-          <div
-            className="prose text-muted-foreground max-w-none"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(company.description),
-            }}
-          />
-        )}
+            <div className="space-y-3 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-foreground" />
+                <span>{company.address || "N/A"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-foreground" />
+                <span>{company.locationCity || "N/A"}</span>
+              </div>
+            </div>
+          </div>
+
+          {company.description && (
+            <div
+              className="prose text-muted-foreground max-w-none mt-4"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(company.description),
+              }}
+            />
+          )}
+        </div>
       </motion.div>
 
       {/* Employment Eligibility Check */}
