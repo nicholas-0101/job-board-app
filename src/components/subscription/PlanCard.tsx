@@ -55,8 +55,8 @@ export default function PlanCard({ plan, onSelectPlan }: PlanCardProps) {
       <div className="space-y-4 mb-8 flex-grow">
         {plan.features.map((feature, index) => (
           <div key={index} className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-5 h-5 bg-[#24CFA7]/10 rounded-full flex items-center justify-center">
-              <Check className="w-3 h-3 text-[#24CFA7]" />
+            <div className="flex-shrink-0 w-5 h-5 bg-[#467EC7]/10 rounded-full flex items-center justify-center">
+              <Check className="w-3 h-3 text-[#467EC7]" />
             </div>
             <span className="text-gray-700">{feature}</span>
           </div>
@@ -68,7 +68,7 @@ export default function PlanCard({ plan, onSelectPlan }: PlanCardProps) {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => onSelectPlan(plan.id)}
-        className="w-full py-3.5 px-6 rounded-xl font-semibold transition-all bg-[#467EC7] hover:bg-[#467EC7]/90 text-white border-0"
+        className="w-full py-3.5 px-6 rounded-xl font-semibold transition-all bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white border-0"
       >
         Choose {plan.name}
       </motion.button>

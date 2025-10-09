@@ -32,6 +32,11 @@ export function Footer() {
                 Pricing
               </a>
             </li>
+            <li>
+              <a className="hover:text-primary" href="/integrations">
+                Integrations
+              </a>
+            </li>
           </ul>
         </div>
         <div>

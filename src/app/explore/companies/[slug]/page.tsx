@@ -68,7 +68,7 @@ export default function CompanyDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#24CFA7]/10 via-white to-[#467EC7]/10">
       <Container className="py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Company Detail */}

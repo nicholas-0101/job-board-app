@@ -3,13 +3,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { subscriptionPlans } from "@/components/subscription/subscriptionPlans";
-import SignInModal from "@/components/subscription/SignInModal";
 import PlanCard from "@/components/subscription/PlanCard";
 
 export default function SubscriptionPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -20,7 +18,7 @@ export default function SubscriptionPage() {
   const handlePlanSelection = (planId: string) => {
     if (!isAuthenticated) {
       // Show sign in modal instead of redirecting
-      setShowSignInModal(true);
+      router.push("/go-to-signin");
     } else {
       // User is authenticated, proceed to transaction
       router.push(`/transaction?plan=${planId}`);
@@ -62,12 +60,6 @@ export default function SubscriptionPage() {
           ))}
         </div>
       </div>
-
-      {/* Sign In Required Modal */}
-      <SignInModal 
-        isOpen={showSignInModal}
-        onClose={() => setShowSignInModal(false)}
-      />
     </div>
   );
 }

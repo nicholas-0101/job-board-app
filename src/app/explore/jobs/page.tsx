@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -40,10 +40,26 @@ export default function JobsPage() {
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [showPostedDropdown, setShowPostedDropdown] = useState(false);
   const [searchInputs, setSearchInputs] = useState({
     keyword: "",
     location: "",
   });
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setShowPostedDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -71,6 +87,7 @@ export default function JobsPage() {
           page,
           sortBy: filters.sort,
           sortOrder: filters.order,
+          postedWithin: filters.postedWithin,
         },
       });
 
@@ -228,7 +245,58 @@ export default function JobsPage() {
 
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
-              
+              <div className="relative" ref={wrapperRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowPostedDropdown((prev) => !prev)}
+                  className="w-44 px-4 py-2 rounded-lg bg-[#467EC7] text-white font-semibold text-sm text-left flex justify-between items-center"
+                >
+                  {filters.postedWithin === "1"
+                    ? "Posted Today"
+                    : filters.postedWithin === "3"
+                    ? "Posted Last 3 days"
+                    : filters.postedWithin === "7"
+                    ? "Posted Last 7 days"
+                    : filters.postedWithin === "30"
+                    ? "Posted Last 30 days"
+                    : "All Post"}
+                  <span className="ml-2">▾</span>
+                </button>
+
+                {showPostedDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-sm z-10">
+                    {["", "1", "3", "7", "30"].map((value) => {
+                      const label =
+                        value === ""
+                          ? "All Post"
+                          : value === "1"
+                          ? "Posted Today"
+                          : value === "3"
+                          ? "Posted Last 3 days"
+                          : value === "7"
+                          ? "Posted Last 7 days"
+                          : "Posted Last 30 days";
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            setFilters((prev) => ({
+                              ...prev,
+                              postedWithin: value as Filters["postedWithin"],
+                            }));
+                            setShowPostedDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-[#467EC7]/10 transition-colors rounded-lg"
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={toggleSortOrder}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 transition-colors shadow-sm"
@@ -239,16 +307,12 @@ export default function JobsPage() {
                 {filters.order === "asc" ? (
                   <>
                     <ArrowUpDown className="w-5 h-5" />
-                    <span className="text-sm font-medium">
-                      Oldest Jobs
-                    </span>
+                    <span className="text-sm font-medium">Oldest Jobs</span>
                   </>
                 ) : (
                   <>
                     <ArrowDownUp className="w-5 h-5" />
-                    <span className="text-sm font-medium">
-                      Newest Jobs
-                    </span>
+                    <span className="text-sm font-medium">Newest Jobs</span>
                   </>
                 )}
               </button>
