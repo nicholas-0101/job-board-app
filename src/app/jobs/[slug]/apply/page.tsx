@@ -8,6 +8,15 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { apiCall } from "@/helper/axios";
 import Container from "@/components/common/Container";
 import { jobApplicationSchema } from "./applySchema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function JobApplicationPage() {
   const params = useParams();
@@ -17,6 +26,17 @@ export default function JobApplicationPage() {
   const [success, setSuccess] = useState(false);
   const [jobName, setJobName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Notice");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
+
+  const openDialog = (title: string, message: string, action?: () => void) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogAction(() => action || null);
+    setDialogOpen(true);
+  };
 
   const initialValues = {
     expectedSalary: "",
@@ -25,12 +45,8 @@ export default function JobApplicationPage() {
 
   useEffect(() => {
     async function fetchJob() {
-      try {
-        const response = await apiCall.get(`/job/${slug}`);
-        setJobName(response.data.data.title);
-      } catch (err) {
-        console.error("Failed to fetch job name", err);
-      }
+      const response = await apiCall.get(`/job/${slug}`);
+      setJobName(response.data.data.title);
     }
 
     if (slug) fetchJob();
@@ -51,17 +67,21 @@ export default function JobApplicationPage() {
       });
 
       setSuccess(true);
-      alert("Application submitted successfully!");
-      router.replace(`/explore/jobs/${slug}`);
+      openDialog("Submitted!", "Application submitted successfully!", () =>
+        router.replace(`/explore/jobs/${slug}`)
+      );
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to submit application");
+      openDialog(
+        "Error",
+        err.response?.data?.message || "Failed to submit application"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background py-20">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 py-20">
       <Container className="py-10 max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -216,6 +236,30 @@ export default function JobApplicationPage() {
           </Formik>
         </motion.div>
       </Container>
-    </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md !rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#467EC7]">
+              {dialogTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-muted-foreground">
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setDialogOpen(false);
+                dialogAction?.();
+              }}
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }

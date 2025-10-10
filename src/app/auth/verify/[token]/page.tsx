@@ -27,7 +27,6 @@ export default function VerifyPage() {
     try {
       const res = await apiCall.get(`/auth/verify/${token}`);
 
-      console.log("Verification response:", res.data);
 
       const verifiedUser = res.data.user;
       setUser(verifiedUser);
@@ -41,7 +40,6 @@ export default function VerifyPage() {
       setStatus("success");
       setMessage(res.data.message || "Account verified successfully!");
     } catch (err: any) {
-      console.error(err);
       const msg = err.response?.data?.message || "Verification failed!";
       setMessage(msg);
 
@@ -71,15 +69,9 @@ export default function VerifyPage() {
       }
 
       if (!email && token) {
-        try {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          email = payload?.email;
-        } catch (err) {
-          console.warn("Could not decode token to get email", err);
-        }
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        email = payload?.email;
       }
-
-      console.log("Resend verification email for:", email);
 
       if (!email) {
         setMessage("User email not found. Please sign up again.");
@@ -92,7 +84,6 @@ export default function VerifyPage() {
       setMessage(res.data.message || "Verification email resent successfully!");
       setStatus("sent");
     } catch (err: any) {
-      console.error(err);
       setMessage(
         err.response?.data?.message || "Failed to resend verification email."
       );
@@ -106,7 +97,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -195,6 +186,6 @@ export default function VerifyPage() {
           )}
         </motion.form>
       </motion.div>
-    </div>
+    </section>
   );
 }

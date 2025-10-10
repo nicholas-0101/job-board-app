@@ -31,7 +31,7 @@ export default function SubscriptionPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20" style={{ backgroundColor: '#F0F5F9' }}>
+      <section className="relative py-20 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20">
         <div className="relative container mx-auto px-4 text-center max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -45,7 +45,7 @@ export default function SubscriptionPage() {
               Unlock premium features and accelerate your career journey with
               our subscription plans. 30-day duration with H-1 email reminders.
             </p>
-            
+
             {isAuthenticated && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -65,13 +65,14 @@ export default function SubscriptionPage() {
             )}
           </motion.div>
         </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
 
       {/* Features Section */}
       <SubscriptionFeatures />
 
       {/* Pricing Section */}
-      <div className="container mx-auto px-4 pb-20" style={{ backgroundColor: '#F0F5F9' }}>
+      <div className="container mx-auto px-4 pb-20 pt-10 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Choose Your Plan
@@ -82,7 +83,7 @@ export default function SubscriptionPage() {
         </div>
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {subscriptionPlans.map((plan, index) => (
-            <PlanCard 
+            <PlanCard
               key={plan.id}
               plan={plan}
               onSelectPlan={handlePlanSelection}

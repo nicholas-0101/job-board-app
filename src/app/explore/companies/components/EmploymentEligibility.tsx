@@ -117,7 +117,7 @@ export default function EmploymentEligibility({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`border rounded-lg p-4 mb-4 ${
+      className={`border rounded-lg p-4 mb-4 mt-6 ${
         eligibilityData.isEligible
           ? "bg-green-50 border-green-200"
           : eligibilityData.hasExistingReview

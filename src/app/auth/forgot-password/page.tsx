@@ -4,10 +4,30 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Mail } from "lucide-react";
 import { useState } from "react";
 import { apiCall } from "@/helper/axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Notice");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
+
+  const openDialog = (title: string, message: string, action?: () => void) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogAction(() => action || null);
+    setDialogOpen(true);
+  };
 
   const handleForgotPassword = async (values: { email: string }) => {
     setIsLoading(true);
@@ -15,14 +35,17 @@ export default function ForgotPasswordPage() {
       await apiCall.post("/auth/forgot-password", { email: values.email });
       setSubmitted(true);
     } catch (err: any) {
-      alert(err.response?.data?.message || "Something went wrong");
+      openDialog(
+        "Error",
+        err.response?.data?.message || "Something went wrong"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 p-6">
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -90,6 +113,30 @@ export default function ForgotPasswordPage() {
           </Formik>
         )}
       </motion.div>
-    </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md !rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#467EC7]">
+              {dialogTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-muted-foreground">
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setDialogOpen(false);
+                dialogAction?.();
+              }}
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }

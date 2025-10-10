@@ -25,14 +25,33 @@ import { mapPayloadToInitialValues } from "@/lib/utils/profileUtils";
 import { useState } from "react";
 import { useUserStore } from "@/lib/store/userStore";
 import { useCompanyStore } from "@/lib/store/companyStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ProfileTab() {
   const { user, initialValues, loadingProfile, setInitialValues } =
     useProfile();
   const { setUser } = useUserStore();
   const { setCompany } = useCompanyStore();
-
   const [isSaving, setIsSaving] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Notice");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
+
+  const openDialog = (title: string, message: string, action?: () => void) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogAction(() => action || null);
+    setDialogOpen(true);
+  };
 
   if (loadingProfile) {
     return (
@@ -69,118 +88,149 @@ export default function ProfileTab() {
       }
 
       if (payload) setInitialValues(mapPayloadToInitialValues(payload));
-      alert(res.data?.message ?? "Profile updated");
+      openDialog(
+        "Profile Updated!",
+        res.data?.message ?? "Profile updated successfully!"
+      );
     } catch (err: any) {
-      console.error("Failed to update profile:", err);
-      alert(err.response?.data?.message || "Failed to update profile!");
+      openDialog(
+        "Error",
+        err.response?.data?.message || "Failed to update profile!"
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      enableReinitialize={false}
-      validationSchema={
-        user?.role === "ADMIN" ? adminProfileSchema : userProfileSchema
-      }
-      onSubmit={handleEditProfile}
-    >
-      {({ setFieldValue }) => (
-        <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
-          {user?.role === "ADMIN" ? (
-            <>
-              <InputField
-                name="phone"
-                label="Company Phone"
-                placeholder="Enter company phone"
-                icon={Phone}
-              />
-              <InputField
-                name="location"
-                label="Full Address"
-                placeholder="Company full address"
-                icon={Building}
-              />
-              <CityField
-                name="city"
-                label="City"
-                placeholder="Search your city..."
-              />
-              <InputField
-                name="website"
-                label="Website"
-                placeholder="https://example.com"
-                icon={Globe}
-              />
-              <QuillField
-                name="description"
-                label="Description"
-                placeholder="Write something about your company..."
-              />
-              <FileUploader name="logo" label="Logo" />
-            </>
-          ) : (
-            <>
-              <InputField
-                name="phone"
-                label="Phone"
-                placeholder="Enter your phone"
-                icon={Phone}
-              />
-              <SelectField
-                name="gender"
-                label="Gender"
-                options={[
-                  { value: "Male", label: "Male" },
-                  { value: "Female", label: "Female" },
-                ]}
-              />
-              <InputField
-                name="dob"
-                label="Date of Birth"
-                type="date"
-                icon={CalendarDaysIcon}
-              />
-              <InputField
-                name="education"
-                label="Education"
-                placeholder="Your education"
-                icon={GraduationCap}
-              />
-              <InputField
-                name="address"
-                label="Full Address"
-                placeholder="Your full address"
-                icon={Home}
-              />
-              <CityField
-                name="city"
-                label="City"
-                placeholder="Search your city..."
-              />
-              <FileUploader
-                name="profilePicture"
-                label="Profile Picture"
-                isRounded
-              />
-            </>
-          )}
+    <section>
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize={false}
+        validationSchema={
+          user?.role === "ADMIN" ? adminProfileSchema : userProfileSchema
+        }
+        onSubmit={handleEditProfile}
+      >
+        {({ setFieldValue }) => (
+          <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
+            {user?.role === "ADMIN" ? (
+              <>
+                <InputField
+                  name="phone"
+                  label="Company Phone"
+                  placeholder="Enter company phone"
+                  icon={Phone}
+                />
+                <InputField
+                  name="location"
+                  label="Full Address"
+                  placeholder="Company full address"
+                  icon={Building}
+                />
+                <CityField
+                  name="city"
+                  label="City"
+                  placeholder="Search your city..."
+                />
+                <InputField
+                  name="website"
+                  label="Website"
+                  placeholder="https://example.com"
+                  icon={Globe}
+                />
+                <QuillField
+                  name="description"
+                  label="Description"
+                  placeholder="Write something about your company..."
+                />
+                <FileUploader name="logo" label="Logo" />
+              </>
+            ) : (
+              <>
+                <InputField
+                  name="phone"
+                  label="Phone"
+                  placeholder="Enter your phone"
+                  icon={Phone}
+                />
+                <SelectField
+                  name="gender"
+                  label="Gender"
+                  options={[
+                    { value: "Male", label: "Male" },
+                    { value: "Female", label: "Female" },
+                  ]}
+                />
+                <InputField
+                  name="dob"
+                  label="Date of Birth"
+                  type="date"
+                  icon={CalendarDaysIcon}
+                />
+                <InputField
+                  name="education"
+                  label="Education"
+                  placeholder="Your education"
+                  icon={GraduationCap}
+                />
+                <InputField
+                  name="address"
+                  label="Full Address"
+                  placeholder="Your full address"
+                  icon={Home}
+                />
+                <CityField
+                  name="city"
+                  label="City"
+                  placeholder="Search your city..."
+                />
+                <FileUploader
+                  name="profilePicture"
+                  label="Profile Picture"
+                  isRounded
+                />
+              </>
+            )}
 
-          <motion.button
-            type="submit"
-            className={`w-full mt-6 px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
-              isSaving
-                ? "cursor-not-allowed opacity-70"
-                : "hover:shadow-xl cursor-pointer"
-            }`}
-            disabled={isSaving}
-          >
-            {isSaving ? "Updating..." : "Save Changes"}
-          </motion.button>
-        </Form>
-      )}
-    </Formik>
+            <motion.button
+              type="submit"
+              className={`w-full mt-6 px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+                isSaving
+                  ? "cursor-not-allowed opacity-70"
+                  : "hover:shadow-xl cursor-pointer"
+              }`}
+              disabled={isSaving}
+            >
+              {isSaving ? "Updating..." : "Save Changes"}
+            </motion.button>
+          </Form>
+        )}
+      </Formik>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md !rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#467EC7]">
+              {dialogTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-muted-foreground">
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setDialogOpen(false);
+                dialogAction?.();
+              }}
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }

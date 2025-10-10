@@ -59,7 +59,6 @@ export default function CompaniesPage() {
     setPage(pageParam);
   }, []);
 
-  // Auto-detect city if not provided
   useEffect(() => {
     const fetchLocationAndSetCity = async () => {
       try {
@@ -170,7 +169,7 @@ export default function CompaniesPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <section className="min-h-screen">
       <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25 py-20">
         <div className="absolute inset-0" />
         <div className="relative container mx-auto px-4 text-center max-w-5xl">
@@ -381,6 +380,6 @@ export default function CompaniesPage() {
           </button>
         </div>
       </section>
-    </div>
+    </section>
   );
 }

@@ -25,7 +25,6 @@ export default function VerifyPage() {
       setStatus("success");
       setMessage(res.data.message || "Account verified successfully!");
     } catch (err: any) {
-      console.error(err);
       setStatus("error");
       setMessage(err.response?.data?.message || "Verification failed!");
     } finally {
@@ -38,7 +37,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -112,6 +111,6 @@ export default function VerifyPage() {
           )}
         </motion.form>
       </motion.div>
-    </div>
+    </section>
   );
 }

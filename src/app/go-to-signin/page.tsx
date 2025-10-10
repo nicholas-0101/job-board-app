@@ -4,7 +4,7 @@ import { LogIn } from "lucide-react";
 
 export default function GoToSignin() {
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -53,6 +53,6 @@ export default function GoToSignin() {
           Sign In Now
         </motion.a>
       </motion.div>
-    </motion.div>
+    </motion.section>
   );
 }

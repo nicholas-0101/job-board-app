@@ -112,7 +112,7 @@ export default function SavedJobsPage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 min-h-screen">
+    <section className="bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 min-h-screen">
       <Container className="py-10 max-w-6xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-[#467EC7]">Saved Jobs</h1>
@@ -214,6 +214,6 @@ export default function SavedJobsPage() {
           </>
         )}
       </Container>
-    </div>
+    </section>
   );
 }

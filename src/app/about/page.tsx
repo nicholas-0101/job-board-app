@@ -13,9 +13,9 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold text-foreground mb-4"
+            className="text-4xl md:text-5xl font-bold text-[#467EC7] mb-4"
           >
-            About <span className="text-[#467EC7]">Workoo</span>
+            About <span className="text-[#24CFA7]">Workoo</span>
           </motion.h1>
 
           <motion.p
@@ -40,7 +40,7 @@ export default function AboutPage() {
           className="grid md:grid-cols-2 gap-12 items-center"
         >
           <div>
-            <h2 className="text-3xl font-semibold mb-4 text-foreground">
+            <h2 className="text-3xl font-bold mb-4 text-[#467EC7]">
               Our Mission
             </h2>
             <p className="text-muted-foreground leading-relaxed">
@@ -79,7 +79,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl font-semibold mb-10 text-foreground"
+            className="text-3xl font-bold mb-10 text-[#467EC7]"
           >
             Our Impact So Far
           </motion.h2>
@@ -98,7 +98,7 @@ export default function AboutPage() {
               },
               {
                 icon: <Target className="w-10 h-10 text-[#467EC7]" />,
-                title: "95%",
+                title: "96%",
                 subtitle: "Match Accuracy",
               },
             ].map((stat, idx) => (
@@ -131,7 +131,7 @@ export default function AboutPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-semibold text-foreground">
+          <h2 className="text-3xl font-bold text-[#467EC7]">
             Meet the Team
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mt-2">
@@ -141,7 +141,7 @@ export default function AboutPage() {
         </motion.div>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {["Nicholas", "Said", "Dhiki", "John", "Bob", "Alice"].map(
+          {["Nicholas", "Said", "Dhiki"].map(
             (member, i) => (
               <motion.div
                 key={member}
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 </div>
                 <h4 className="font-medium text-foreground">{member}</h4>
                 <p className="text-muted-foreground text-sm">
-                  {i % 2 === 0 ? "Frontend Developer" : "Backend Developer"}
+                  Fullstack Developer
                 </p>
               </motion.div>
             )
