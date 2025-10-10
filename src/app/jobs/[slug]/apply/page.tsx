@@ -38,6 +38,7 @@ export default function JobApplicationPage() {
     setDialogAction(() => action || null);
     setDialogOpen(true);
   };
+  
   const [preselectionStatus, setPreselectionStatus] = useState<{
     required: boolean;
     submitted?: boolean;
@@ -73,22 +74,26 @@ export default function JobApplicationPage() {
   useEffect(() => {
     const checkPreselectionStatus = async () => {
       if (!jobId) return;
-      
+
       try {
-        const response = await apiCall.get(`/preselection/jobs/${jobId}/my-status`);
+        const response = await apiCall.get(
+          `/preselection/jobs/${jobId}/my-status`
+        );
         const status = response.data.data;
         setPreselectionStatus(status);
-        
+
         // Redirect if test is required but not completed or failed
         if (status.required && !status.submitted) {
-          alert("Please complete the pre-selection test before applying for this job.");
-          router.push(`/jobs/${slug}/pretest`);
+          openDialog("You can't apply this job", "Please complete the pre-selection test before applying for this job.", () =>
+            router.push(`/jobs/${slug}/pretest`)
+          );
           return;
         }
-        
+
         if (status.required && status.submitted && !status.isPassed) {
-          alert("Your pre-selection test score does not meet the passing criteria for this job.");
-          router.push(`/explore/jobs/${slug}`);
+          openDialog("You can't apply this job", "Your pre-selection test score does not meet the passing criteria for this job.", () =>
+            router.replace(`/explore/jobs/${slug}`)
+          );
           return;
         }
       } catch (error) {
@@ -159,12 +164,13 @@ export default function JobApplicationPage() {
           <h1 className="text-2xl text-center font-bold text-[#467EC7] mb-6">
             Apply for {jobName}
           </h1>
-          
+
           {/* Show preselection test passed status */}
           {preselectionStatus?.required && preselectionStatus.isPassed && (
             <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg">
               <p className="text-green-800 text-sm text-center">
-                ✓ Pre-selection Test Passed (Score: {preselectionStatus.score}/{preselectionStatus.passingScore || 25})
+                ✓ Pre-selection Test Passed (Score: {preselectionStatus.score}/
+                {preselectionStatus.passingScore || 25})
               </p>
             </div>
           )}
