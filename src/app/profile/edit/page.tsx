@@ -23,7 +23,7 @@ function EditProfilePageContent() {
   );
 
   return (
-    <div className="min-h-screen pb-30 flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+    <section className="min-h-screen py-30 flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -56,6 +56,6 @@ function EditProfilePageContent() {
         {activeTab === "email" && <EmailTab />}
         {activeTab === "password" && <PasswordTab />}
       </motion.div>
-    </div>
+    </section>
   );
 }

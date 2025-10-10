@@ -16,7 +16,7 @@ export default function EditProfilePage() {
   );
 
   return (
-    <div className="min-h-screen pb-30 bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
+    <section className="min-h-screen pb-30 bg-gradient-to-br from-secondary-50 to-background flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -49,6 +49,6 @@ export default function EditProfilePage() {
         {activeTab === "email" && <EmailTab />}
         {activeTab === "password" && <PasswordTab />}
       </motion.div>
-    </div>
+    </section>
   );
 }

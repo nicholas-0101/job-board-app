@@ -157,7 +157,6 @@ export default function SignInPage() {
             router.replace("/");
           }
         } catch (err: any) {
-          console.error(err);
           openDialog(
             "Error",
             err.response?.data?.message || "Google login failed"
@@ -172,7 +171,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -245,13 +244,13 @@ export default function SignInPage() {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-[#1CA88B] text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg"
             >
               OK
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </section>
   );
 }

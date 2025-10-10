@@ -40,9 +40,9 @@ export default function CareersPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold text-foreground mb-4"
+            className="text-4xl md:text-5xl font-bold text-[#467EC7] mb-4"
           >
-            Build the Future of <span className="text-[#467EC7]">Work</span>
+            Build the Future of <span className="text-[#24CFA7]">Work</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -139,7 +139,7 @@ export default function CareersPage() {
                 transition={{ delay: i * 0.1 }}
                 className="bg-background border border-border rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-all"
               >
-                <h3 className="text-xl font-semibold text-foreground mb-2">
+                <h3 className="text-xl font-semibold text-[#467EC7] mb-2">
                   {role.title}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-3">

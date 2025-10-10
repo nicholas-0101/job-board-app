@@ -17,15 +17,6 @@ import { AnimatedCounter } from "../components/ui/AnimatedCounter";
 import { apiCall } from "@/helper/axios";
 import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
-const categories = [
-  { name: "Engineering", icon: "⚙️", count: 234 },
-  { name: "Design", icon: "🎨", count: 89 },
-  { name: "Marketing", icon: "📈", count: 156 },
-  { name: "Sales", icon: "💼", count: 78 },
-  { name: "Product", icon: "🚀", count: 45 },
-  { name: "Data", icon: "📊", count: 67 },
-];
-
 const trustedCompanies = [
   { name: "Google", logo: "🔍", url: "https://www.google.com" },
   { name: "Microsoft", logo: "🪟", url: "https://www.microsoft.com" },
@@ -44,14 +35,6 @@ export default function HomePage() {
   const heroRef = useRef(null);
   const exploreRef = useRef<HTMLDivElement>(null);
 
-  // Disable scroll animations to prevent hydration issues
-  // const { scrollYProgress } = useScroll({
-  //   target: heroRef,
-  //   offset: ["start start", "end start"],
-  // });
-  // const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  // const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
-
   const [keyword, setKeyword] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [pathname, setPathname] = useState("");
@@ -60,7 +43,7 @@ export default function HomePage() {
     { label: "Active Jobs", value: 12340, icon: Briefcase },
     { label: "Companies", value: 7480, icon: Building2 },
     { label: "Job Seekers", value: 62500, icon: Users },
-    { label: "Success Rate", value: 95, icon: Award, suffix: "%" },
+    { label: "Success Rate", value: 96, icon: Award, suffix: "%" },
   ];
 
   useEffect(() => {
@@ -201,7 +184,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-background">
+    <section className="min-h-screen bg-gradient-to-b from-secondary-50 to-background">
       {/* Hero */}
       <motion.section
         ref={heroRef}
@@ -344,6 +327,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-    </div>
+    </section>
   );
 }

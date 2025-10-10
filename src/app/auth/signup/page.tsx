@@ -6,6 +6,15 @@ import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/helper/axios";
 import { useUserStore } from "@/lib/store/userStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 import SignUpForm from "./components/signupForm";
 import Header from "./components/signupHeader";
@@ -19,8 +28,19 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(true);
-  const setUser = useUserStore((state) => state.setUser);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Notice");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
 
+  const openDialog = (title: string, message: string, action?: () => void) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogAction(() => action || null);
+    setDialogOpen(true);
+  };
+
+  const setUser = useUserStore((state) => state.setUser);
   const router = useRouter();
 
   const handleSignUp = async (values: any) => {
@@ -41,11 +61,12 @@ export default function SignUpPage() {
       const url = tab === "seeker" ? "/auth/signup/user" : "/auth/signup/admin";
       await apiCall.post(url, payload);
       localStorage.setItem("pendingEmail", email);
-      alert(tab === "seeker" ? "User registered!" : "Admin registered!");
       router.replace("/auth/preverify");
     } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Something went wrong");
+      openDialog(
+        "Error",
+        err.response?.data?.message || "Something went wrong"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +96,7 @@ export default function SignUpPage() {
             role,
           });
           const userData = res.data.data;
-          
+
           // If admin, fetch companyId
           if (userData.role === "ADMIN") {
             try {
@@ -88,26 +109,31 @@ export default function SignUpPage() {
                 companyResponse.data?.id ?? companyResponse.data?.data?.id
               );
               localStorage.setItem("companyId", companyId.toString());
-            } catch (err) {
-              console.error("Failed to fetch company ID:", err);
+            } catch (err: any) {
+              openDialog(
+                "Error",
+                err.response?.data?.message || "Something went wrong"
+              );
             }
           }
-          
+
           localStorage.setItem("token", userData.token);
           localStorage.setItem("user", JSON.stringify(userData));
           localStorage.setItem("role", userData.role);
           localStorage.setItem("userId", userData.id.toString());
           setUser(userData);
-          
+
           // Redirect based on role
           if (userData.role === "ADMIN") {
             router.replace("/admin");
           } else {
-            router.replace("/explore/jobs");
+            router.replace("/");
           }
         } catch (err: any) {
-          console.error(err);
-          alert(err.response?.data?.message || "Google login failed");
+          openDialog(
+            "Error",
+            err.response?.data?.message || "Google login failed"
+          );
         } finally {
           window.removeEventListener("message", listener);
         }
@@ -117,7 +143,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 pb-20 pt-10 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 pb-20 pt-10 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -211,6 +237,30 @@ export default function SignUpPage() {
           </Link>
         </motion.p>
       </motion.div>
-    </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md !rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#467EC7]">
+              {dialogTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-muted-foreground">
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setDialogOpen(false);
+                dialogAction?.();
+              }}
+              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }

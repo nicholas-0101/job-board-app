@@ -195,11 +195,10 @@ export default function JobsPage() {
     if (!selectedLocation) {
       fetchLocationAndSetFilter();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <section className="min-h-screen">
       <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 py-20">
         <div className="absolute inset-0" />
         <div className="relative container mx-auto px-4 text-center max-w-5xl">
@@ -249,7 +248,7 @@ export default function JobsPage() {
                 <button
                   type="button"
                   onClick={() => setShowPostedDropdown((prev) => !prev)}
-                  className="w-44 px-4 py-2 rounded-lg bg-[#467EC7] text-white font-semibold text-sm text-left flex justify-between items-center"
+                  className="w-46 px-4 py-2 rounded-lg bg-[#467EC7] text-white font-semibold text-sm text-left flex justify-between items-center"
                 >
                   {filters.postedWithin === "1"
                     ? "Posted Today"
@@ -423,6 +422,6 @@ export default function JobsPage() {
           </button>
         </div>
       </section>
-    </div>
+    </section>
   );
 }

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import DOMPurify from "dompurify";
-import { Share2 } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Share2, Twitter } from "lucide-react";
 import { Mail, Phone, MapPin, Globe, Building2 } from "lucide-react";
 import ShareCompanyDialog from "./CompanyShareDialog";
 import CreateReviewDialog from "./CreateReviewDialog";
@@ -35,7 +35,7 @@ export default function CompanyDetailCard({
   };
 
   return (
-    <>
+    <section>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -131,6 +131,52 @@ export default function CompanyDetailCard({
               }}
             />
           )}
+          
+          {company.socials && (
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <h3 className="text-muted-foreground">Find Us at:</h3>
+              {company.socials.facebook && (
+                <a
+                  href={company.socials.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-[#467EC7] hover:opacity-80 transition-colors"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {company.socials.linkedin && (
+                <a
+                  href={company.socials.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-[#467EC7] hover:opacity-80 transition-colors"
+                >
+                  <Linkedin className="w-5 h-5" />
+                </a>
+              )}
+              {company.socials.instagram && (
+                <a
+                  href={company.socials.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-[#467EC7] hover:opacity-80 transition-colors"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {company.socials.twitter && (
+                <a
+                  href={company.socials.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-[#467EC7] hover:opacity-80 transition-colors"
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </motion.div>
 
@@ -151,6 +197,6 @@ export default function CompanyDetailCard({
         onReviewSubmitted={onReviewSubmitted}
         userEmployment={userEmployment}
       />
-    </>
+    </section>
   );
 }
