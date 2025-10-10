@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { 
   TrendingUp, Users, DollarSign, Briefcase, MapPin, 
   Calendar, BarChart3, PieChart, Activity, Target,
-  ArrowUp, ArrowDown, Filter, Download, RefreshCw
+  ArrowUp, ArrowDown, Filter, Download, RefreshCw,
+  Clock, Zap, Smartphone, Monitor, Eye, MousePointer
 } from "lucide-react";
 import { AnimatedCounter } from "../../../components/ui/AnimatedCounter";
 import { GlowCard } from "../../../components/ui/GlowCard";
@@ -73,7 +74,7 @@ const analyticsDataFallback = {
   ]
 };
 
-import { getOverview, getDemographics, getSalaryTrends, getInterests } from "@/lib/analytics";
+import { getOverview, getDemographics, getSalaryTrends, getInterests, getEngagement, getConversionFunnel, getRetention, getPerformance } from "@/lib/analytics";
 import { apiCall } from "@/helper/axios";
 
 export default function AnalyticsPage() {
@@ -89,6 +90,10 @@ export default function AnalyticsPage() {
   const [demographics, setDemographics] = useState<any>(null);
   const [salaryTrends, setSalaryTrends] = useState<any>(null);
   const [interests, setInterests] = useState<any>(null);
+  const [engagement, setEngagement] = useState<any>(null);
+  const [conversionFunnel, setConversionFunnel] = useState<any>(null);
+  const [retention, setRetention] = useState<any>(null);
+  const [performance, setPerformance] = useState<any>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -113,17 +118,25 @@ export default function AnalyticsPage() {
 
         if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
 
-        const [ov, dm, st, it] = await Promise.all([
+        const [ov, dm, st, it, eng, cf, ret, perf] = await Promise.all([
           getOverview(cid),
           getDemographics(cid),
           getSalaryTrends(cid),
           getInterests(cid),
+          getEngagement(cid),
+          getConversionFunnel(cid),
+          getRetention(cid),
+          getPerformance(cid),
         ]);
         if (mounted) {
           setOverview(ov);
           setDemographics(dm);
           setSalaryTrends(st);
           setInterests(it);
+          setEngagement(eng);
+          setConversionFunnel(cf);
+          setRetention(ret);
+          setPerformance(perf);
         }
       } catch (e: any) {
         setError(e?.response?.data?.message || "Failed to load analytics");
@@ -133,6 +146,31 @@ export default function AnalyticsPage() {
     })();
     return () => { mounted = false; };
   }, [companyId]);
+
+  const exportAnalytics = () => {
+    const data = {
+      overview,
+      demographics,
+      salaryTrends,
+      interests,
+      engagement,
+      conversionFunnel,
+      retention,
+      performance,
+      exportedAt: new Date().toISOString(),
+      timeRange,
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const StatCard = ({ title, value, change, icon: Icon, color }: any) => (
     <Card className="shadow-md">
@@ -181,11 +219,18 @@ export default function AnalyticsPage() {
                 <option value="90d">Last 90 days</option>
                 <option value="1y">Last year</option>
               </select>
-              <Button className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]">
+              <Button 
+                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
+                onClick={() => window.location.reload()}
+              >
                 <RefreshCw className="w-4 h-4" />
                 Refresh
               </Button>
-              <Button variant="outline" className="gap-2">
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => exportAnalytics()}
+              >
                 <Download className="w-4 h-4" />
                 Export
               </Button>
@@ -475,6 +520,238 @@ export default function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Engagement Metrics */}
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
+              {/* User Engagement */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    User Engagement
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {engagement ? (
+                    <>
+                      <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                        <div>
+                          <div className="text-2xl font-bold text-blue-900">
+                            <AnimatedCounter end={engagement.dau?.count || 0} />
+                          </div>
+                          <div className="text-sm text-blue-600">Daily Active Users</div>
+                        </div>
+                        <Users className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                        <div>
+                          <div className="text-2xl font-bold text-green-900">
+                            <AnimatedCounter end={engagement.mau?.count || 0} />
+                          </div>
+                          <div className="text-sm text-green-600">Monthly Active Users</div>
+                        </div>
+                        <Calendar className="w-8 h-8 text-green-500" />
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-purple-50 rounded-xl">
+                        <div>
+                          <div className="text-2xl font-bold text-purple-900">
+                            {engagement.sessionMetrics?.sessionsPerUser?.toFixed(1) || '0.0'}
+                          </div>
+                          <div className="text-sm text-purple-600">Sessions per User</div>
+                        </div>
+                        <MousePointer className="w-8 h-8 text-purple-500" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">No engagement data available</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Performance Metrics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <Zap className="w-5 h-5 text-yellow-600" />
+                    Performance Metrics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {performance ? (
+                    <>
+                      <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl">
+                        <div>
+                          <div className="text-2xl font-bold text-yellow-900">
+                            {performance.averageLoadTime?.toFixed(1) || '0.0'}s
+                          </div>
+                          <div className="text-sm text-yellow-600">Average Load Time</div>
+                        </div>
+                        <Clock className="w-8 h-8 text-yellow-500" />
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
+                        <div>
+                          <div className="text-2xl font-bold text-red-900">
+                            {(performance.errorRate * 100)?.toFixed(1) || '0.0'}%
+                          </div>
+                          <div className="text-sm text-red-600">Error Rate</div>
+                        </div>
+                        <Activity className="w-8 h-8 text-red-500" />
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                        <div>
+                          <div className="text-2xl font-bold text-green-900">
+                            {performance.uptime?.toFixed(1) || '0.0'}%
+                          </div>
+                          <div className="text-sm text-green-600">Uptime</div>
+                        </div>
+                        <Target className="w-8 h-8 text-green-500" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">No performance data available</div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Conversion Funnel */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                  <BarChart3 className="w-5 h-5 text-indigo-600" />
+                  Conversion Funnel
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {conversionFunnel?.steps && Array.isArray(conversionFunnel.steps) && conversionFunnel.steps.length > 0 ? (
+                  <div className="space-y-4">
+                    {conversionFunnel.steps.map((step: any, index: number) => (
+                      <motion.div
+                        key={step.name}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-semibold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{step.name}</div>
+                            <div className="text-sm text-gray-500">{step.count} users</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="w-32 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-1000"
+                              style={{ width: `${step.percentage}%` }}
+                            />
+                          </div>
+                          <div className="text-sm font-medium text-gray-900 w-12 text-right">
+                            {step.percentage}%
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">No conversion funnel data available</div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Platform Usage */}
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
+              {/* Device Usage */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <Monitor className="w-5 h-5 text-blue-600" />
+                    Device Usage
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {performance?.mobileVsDesktop ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Smartphone className="w-5 h-5 text-blue-500" />
+                          <span className="text-gray-700">Mobile</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                              style={{ width: `${performance.mobileVsDesktop.mobile * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 w-8">
+                            {Math.round(performance.mobileVsDesktop.mobile * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Monitor className="w-5 h-5 text-green-500" />
+                          <span className="text-gray-700">Desktop</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                              style={{ width: `${performance.mobileVsDesktop.desktop * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 w-8">
+                            {Math.round(performance.mobileVsDesktop.desktop * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">No device usage data available</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Retention Rates */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <Target className="w-5 h-5 text-purple-600" />
+                    User Retention
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {retention ? (
+                    <>
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <span className="text-gray-700">Day 1</span>
+                        <span className="font-semibold text-green-600">
+                          {Math.round(retention.day1 * 100)}%
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <span className="text-gray-700">Day 7</span>
+                        <span className="font-semibold text-blue-600">
+                          {Math.round(retention.day7 * 100)}%
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <span className="text-gray-700">Day 30</span>
+                        <span className="font-semibold text-purple-600">
+                          {Math.round(retention.day30 * 100)}%
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-4">No retention data available</div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </>
         )}
       </div>

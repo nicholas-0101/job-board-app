@@ -1,8 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Share2, MapPin, Clock, Building2 } from "lucide-react";
-import { Bookmark, Bookmark as BookmarkFilled } from "lucide-react";
+import { Share2, MapPin, Clock, Building2, CheckCircle, XCircle, AlertCircle, Bookmark } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ShareJobDialog from "./JobShareDialog";
@@ -67,6 +66,13 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [openShare, setOpenShare] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [preselectionStatus, setPreselectionStatus] = useState<{
+    required: boolean;
+    submitted?: boolean;
+    score?: number | null;
+    passingScore?: number | null;
+    isPassed?: boolean;
+  } | null>(null);
   const router = useRouter();
   
   // Format description based on whether it's HTML or plain text
@@ -78,6 +84,30 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
     const token = localStorage.getItem("token");
     setIsAuthenticated(!!token);
   }, []);
+
+  // Fetch preselection test status if authenticated
+  useEffect(() => {
+    const checkPreselectionStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !job.id) return;
+      
+      try {
+        const response = await apiCall.get(`/preselection/jobs/${job.id}/my-status`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setPreselectionStatus(response.data.data);
+      } catch (error: any) {
+        // Silently ignore 404 (no test for this job)
+        if (error.response?.status !== 404) {
+          console.error("Failed to check preselection status:", error);
+        }
+      }
+    };
+
+    if (isAuthenticated) {
+      checkPreselectionStatus();
+    }
+  }, [isAuthenticated, job.id]);
 
   const handlePretestClick = () => {
     if (!isAuthenticated) {
@@ -92,6 +122,20 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
       router.push("/go-to-signin");
       return;
     }
+    
+    // Check if preselection test is required but not completed
+    if (preselectionStatus?.required && !preselectionStatus?.submitted) {
+      alert("Please complete the pre-selection test before applying for this job.");
+      router.push(`/jobs/${job.slug}/pretest`);
+      return;
+    }
+    
+    // Check if preselection test was failed
+    if (preselectionStatus?.required && preselectionStatus?.submitted && !preselectionStatus?.isPassed) {
+      alert("Your pre-selection test score does not meet the passing criteria for this job.");
+      return;
+    }
+    
     router.push(`/jobs/${job.slug}/apply`);
   };
 
@@ -156,12 +200,14 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
           <h1 className="text-3xl font-bold text-[#467EC7]">{job.title}</h1>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handlePretestClick}
-              className="px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-sm font-medium transition-colors cursor-pointer"
-            >
-              Pretest
-            </button>
+            {preselectionStatus?.required && (
+              <button
+                onClick={handlePretestClick}
+                className="px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-sm font-medium transition-colors cursor-pointer"
+              >
+                {preselectionStatus.submitted ? "View Test Result" : "Take Pretest"}
+              </button>
+            )}
             <button
               onClick={handleApplyClick}
               className="px-4 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-sm font-medium transition-colors cursor-pointer"
@@ -186,6 +232,44 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
             </button>
           </div>
         </div>
+
+        {/* Preselection Test Status Banner */}
+        {preselectionStatus?.required && isAuthenticated && (
+          <div className={`mb-4 p-4 rounded-lg border ${
+            preselectionStatus.submitted 
+              ? preselectionStatus.isPassed 
+                ? "bg-green-50 border-green-300" 
+                : "bg-red-50 border-red-300"
+              : "bg-yellow-50 border-yellow-300"
+          }`}>
+            <div className="flex items-center gap-2">
+              {preselectionStatus.submitted ? (
+                preselectionStatus.isPassed ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span className="text-green-800 font-medium">
+                      ✓ Pre-selection Test Passed (Score: {preselectionStatus.score}/{preselectionStatus.passingScore || 25})
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-5 h-5 text-red-600" />
+                    <span className="text-red-800 font-medium">
+                      ✗ Pre-selection Test Failed (Score: {preselectionStatus.score}/{preselectionStatus.passingScore || 25})
+                    </span>
+                  </>
+                )
+              ) : (
+                <>
+                  <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  <span className="text-yellow-800 font-medium">
+                    ⚠ Pre-selection Test Required - Complete the test before applying
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Company + City + Deadline */}
         <div className="flex items-center gap-6 text-muted-foreground mb-4">

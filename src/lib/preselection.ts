@@ -16,22 +16,19 @@ export interface PreselectionTestDTO {
   questions: PreselectionQuestionDTO[];
 }
 
-export async function fetchPreselectionTest(jobId: number) {
-  console.log("🔍 fetchPreselectionTest called with jobId:", jobId);
-  console.log("🔍 API base URL:", apiCall.defaults.baseURL);
-  console.log("🔍 Full URL will be:", `${apiCall.defaults.baseURL}/preselection/jobs/${jobId}/tests`);
-  
+export async function fetchPreselectionTest(jobId: number): Promise<PreselectionTestDTO | null> {
   try {
     const res = await apiCall.get<{ success: boolean; data: PreselectionTestDTO }>(
       `/preselection/jobs/${jobId}/tests`
     );
-    console.log("🔍 API Response:", res);
     return res.data.data;
   } catch (error: any) {
-    console.error("🔍 API Error:", error);
-    console.error("🔍 Error response:", error.response);
-    console.error("🔍 Error status:", error.response?.status);
-    console.error("🔍 Error data:", error.response?.data);
+    // 404 is expected when job doesn't have a preselection test
+    if (error.response?.status === 404) {
+      return null;
+    }
+    // Log other errors
+    console.error("Error fetching preselection test:", error.response?.data?.message || error.message);
     throw error;
   }
 }
