@@ -1,12 +1,30 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Share2, MapPin, Clock, Building2, CheckCircle, XCircle, AlertCircle, Bookmark } from "lucide-react";
+import {
+  Share2,
+  MapPin,
+  Clock,
+  Building2,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Bookmark,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ShareJobDialog from "./JobShareDialog";
 import { apiCall } from "@/helper/axios";
 import { jwtDecode } from "jwt-decode";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface JobDetailCardProps {
   job: any;
@@ -25,47 +43,77 @@ const isHtmlContent = (text: string): boolean => {
 
 // Convert plain text to HTML with proper formatting
 const convertPlainTextToHtml = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   // Split by double newlines for paragraphs
-  const paragraphs = text.split('\n\n').filter(p => p.trim());
-  
-  return paragraphs.map(para => {
-    const trimmed = para.trim();
-    
-    // Check if it looks like a heading (short line, usually title-like)
-    if (trimmed.length < 50 && !trimmed.includes('\n') && 
-        (trimmed.match(/^[A-Z]/) || trimmed.includes('Role') || 
-         trimmed.includes('Responsibilities') || trimmed.includes('Requirements') ||
-         trimmed.includes('About') || trimmed.includes('Qualifications') ||
-         trimmed.includes('Skills') || trimmed.includes('Benefits'))) {
-      return `<h3>${trimmed}</h3>`;
-    }
-    
-    // Check if it contains bullet points
-    if (trimmed.includes('\n') && !trimmed.startsWith('-')) {
-      const lines = trimmed.split('\n').filter(l => l.trim());
-      // If all lines are short, it's likely a list
-      if (lines.every(l => l.length < 100)) {
-        return '<ul>' + lines.map(line => `<li>${line.trim()}</li>`).join('') + '</ul>';
+  const paragraphs = text.split("\n\n").filter((p) => p.trim());
+
+  return paragraphs
+    .map((para) => {
+      const trimmed = para.trim();
+
+      // Check if it looks like a heading (short line, usually title-like)
+      if (
+        trimmed.length < 50 &&
+        !trimmed.includes("\n") &&
+        (trimmed.match(/^[A-Z]/) ||
+          trimmed.includes("Role") ||
+          trimmed.includes("Responsibilities") ||
+          trimmed.includes("Requirements") ||
+          trimmed.includes("About") ||
+          trimmed.includes("Qualifications") ||
+          trimmed.includes("Skills") ||
+          trimmed.includes("Benefits"))
+      ) {
+        return `<h3>${trimmed}</h3>`;
       }
-    }
-    
-    // Check if it starts with dash (bullet points)
-    if (trimmed.startsWith('-')) {
-      const items = trimmed.split('\n').map(line => line.replace(/^-\s*/, '').trim()).filter(Boolean);
-      return '<ul>' + items.map(item => `<li>${item}</li>`).join('') + '</ul>';
-    }
-    
-    // Otherwise, treat as paragraph
-    return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
-  }).join('\n');
+
+      // Check if it contains bullet points
+      if (trimmed.includes("\n") && !trimmed.startsWith("-")) {
+        const lines = trimmed.split("\n").filter((l) => l.trim());
+        // If all lines are short, it's likely a list
+        if (lines.every((l) => l.length < 100)) {
+          return (
+            "<ul>" +
+            lines.map((line) => `<li>${line.trim()}</li>`).join("") +
+            "</ul>"
+          );
+        }
+      }
+
+      // Check if it starts with dash (bullet points)
+      if (trimmed.startsWith("-")) {
+        const items = trimmed
+          .split("\n")
+          .map((line) => line.replace(/^-\s*/, "").trim())
+          .filter(Boolean);
+        return (
+          "<ul>" + items.map((item) => `<li>${item}</li>`).join("") + "</ul>"
+        );
+      }
+
+      // Otherwise, treat as paragraph
+      return `<p>${trimmed.replace(/\n/g, "<br>")}</p>`;
+    })
+    .join("\n");
 };
 
 export default function JobDetailCard({ job }: JobDetailCardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [openShare, setOpenShare] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Notice");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
+
+  const openDialog = (title: string, message: string, action?: () => void) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogAction(() => action || null);
+    setDialogOpen(true);
+  };
+
   const [preselectionStatus, setPreselectionStatus] = useState<{
     required: boolean;
     submitted?: boolean;
@@ -74,10 +122,10 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
     isPassed?: boolean;
   } | null>(null);
   const router = useRouter();
-  
+
   // Format description based on whether it's HTML or plain text
-  const formattedDescription = isHtmlContent(job.description) 
-    ? job.description 
+  const formattedDescription = isHtmlContent(job.description)
+    ? job.description
     : convertPlainTextToHtml(job.description);
 
   useEffect(() => {
@@ -90,11 +138,14 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
     const checkPreselectionStatus = async () => {
       const token = localStorage.getItem("token");
       if (!token || !job.id) return;
-      
+
       try {
-        const response = await apiCall.get(`/preselection/jobs/${job.id}/my-status`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await apiCall.get(
+          `/preselection/jobs/${job.id}/my-status`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setPreselectionStatus(response.data.data);
       } catch (error: any) {
         // Silently ignore 404 (no test for this job)
@@ -122,21 +173,29 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
       router.push("/go-to-signin");
       return;
     }
-    
-    // Check if preselection test is required but not completed
+
+    // Redirect if test is required but not completed or failed
     if (preselectionStatus?.required && !preselectionStatus?.submitted) {
-      alert("Please complete the pre-selection test before applying for this job.");
-      router.push(`/jobs/${job.slug}/pretest`);
+      openDialog(
+        "You can't apply this job",
+        "Please complete the pre-selection test before applying for this job.",
+        () => router.push(`/jobs/${job.slug}/pretest`)
+      );
       return;
     }
-    
-    // Check if preselection test was failed
-    if (preselectionStatus?.required && preselectionStatus?.submitted && !preselectionStatus?.isPassed) {
-      alert("Your pre-selection test score does not meet the passing criteria for this job.");
+
+    if (
+      preselectionStatus?.required &&
+      preselectionStatus?.submitted &&
+      !preselectionStatus?.isPassed
+    ) {
+      openDialog(
+        "You can't apply this job",
+        "Your pre-selection test score does not meet the passing criteria for this job.",
+        () => router.replace(`/explore/jobs/${job.slug}`)
+      );
       return;
     }
-    
-    router.push(`/jobs/${job.slug}/apply`);
   };
 
   const toggleSaveJob = async () => {
@@ -205,7 +264,9 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
                 onClick={handlePretestClick}
                 className="px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-sm font-medium transition-colors cursor-pointer"
               >
-                {preselectionStatus.submitted ? "View Test Result" : "Take Pretest"}
+                {preselectionStatus.submitted
+                  ? "View Test Result"
+                  : "Take Pretest"}
               </button>
             )}
             <button
@@ -235,27 +296,33 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
 
         {/* Preselection Test Status Banner */}
         {preselectionStatus?.required && isAuthenticated && (
-          <div className={`mb-4 p-4 rounded-lg border ${
-            preselectionStatus.submitted 
-              ? preselectionStatus.isPassed 
-                ? "bg-green-50 border-green-300" 
-                : "bg-red-50 border-red-300"
-              : "bg-yellow-50 border-yellow-300"
-          }`}>
+          <div
+            className={`mb-4 p-4 rounded-lg border ${
+              preselectionStatus.submitted
+                ? preselectionStatus.isPassed
+                  ? "bg-green-50 border-green-300"
+                  : "bg-red-50 border-red-300"
+                : "bg-yellow-50 border-yellow-300"
+            }`}
+          >
             <div className="flex items-center gap-2">
               {preselectionStatus.submitted ? (
                 preselectionStatus.isPassed ? (
                   <>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <span className="text-green-800 font-medium">
-                      ✓ Pre-selection Test Passed (Score: {preselectionStatus.score}/{preselectionStatus.passingScore || 25})
+                      ✓ Pre-selection Test Passed (Score:{" "}
+                      {preselectionStatus.score}/
+                      {preselectionStatus.passingScore || 25})
                     </span>
                   </>
                 ) : (
                   <>
                     <XCircle className="w-5 h-5 text-red-600" />
                     <span className="text-red-800 font-medium">
-                      ✗ Pre-selection Test Failed (Score: {preselectionStatus.score}/{preselectionStatus.passingScore || 25})
+                      ✗ Pre-selection Test Failed (Score:{" "}
+                      {preselectionStatus.score}/
+                      {preselectionStatus.passingScore || 25})
                     </span>
                   </>
                 )
@@ -263,7 +330,8 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
                 <>
                   <AlertCircle className="w-5 h-5 text-yellow-600" />
                   <span className="text-yellow-800 font-medium">
-                    ⚠ Pre-selection Test Required - Complete the test before applying
+                    ⚠ Pre-selection Test Required - Complete the test before
+                    applying
                   </span>
                 </>
               )}
@@ -296,7 +364,9 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
             <Clock className="w-4 h-4" />
             <span>
               Deadline:{" "}
-              {job.applyDeadline ? new Date(job.applyDeadline).toDateString() : "N/A"}
+              {job.applyDeadline
+                ? new Date(job.applyDeadline).toDateString()
+                : "N/A"}
             </span>
           </div>
         </div>
@@ -331,7 +401,7 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         )}
 
         {/* Description */}
-        <div 
+        <div
           className="text-muted-foreground prose prose-sm max-w-none 
                      prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-3
                      prose-h1:text-2xl prose-h1:text-foreground prose-h1:font-bold prose-h1:mb-4
@@ -354,6 +424,30 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         onClose={() => setOpenShare(false)}
         job={{ title: job.title, slug: job.slug, id: job.id }}
       />
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md !rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-[#467EC7]">
+              {dialogTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-muted-foreground">
+              {dialogMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setDialogOpen(false);
+                dialogAction?.();
+              }}
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
