@@ -32,64 +32,35 @@ export default function JobPretestPage() {
         if (mounted) setJobId(fetchedJobId);
 
         // Then fetch the test using the job ID
-        console.log("🔍 Fetching test for job ID:", fetchedJobId);
-        console.log("🔍 API base URL:", process.env.NEXT_PUBLIC_BE_URL || "http://localhost:4400");
+        const t = await fetchPreselectionTest(fetchedJobId);
         
-        let t;
-        // Try direct fetch as fallback
-        try {
-          t = await fetchPreselectionTest(fetchedJobId);
-          console.log("🔍 Success with apiCall");
-        } catch (apiError) {
-          console.log("🔍 apiCall failed, trying direct fetch...");
-          try {
-            const directResponse = await fetch(`http://localhost:4400/preselection/jobs/${fetchedJobId}/tests`);
-            console.log("🔍 Direct fetch response:", directResponse);
-            if (directResponse.ok) {
-              const directData = await directResponse.json();
-              console.log("🔍 Direct fetch data:", directData);
-              t = directData.data;
-            } else {
-              throw apiError;
-            }
-          } catch (directError) {
-            console.error("🔍 Direct fetch also failed:", directError);
-            throw apiError;
-          }
+        // If no test exists for this job (returns null)
+        if (!t) {
+          setError("This job does not have a pre-selection test");
+          setLoading(false);
+          return;
         }
         
-        console.log("🔍 Raw test data:", t);
-        console.log("🔍 Questions:", t?.questions);
-        
         // Ensure options is always an array
-        if (t && t.questions) {
+        if (t.questions) {
           t.questions = t.questions.map((q: any) => {
-            console.log("🔍 Question:", q);
-            console.log("🔍 Options before:", q.options, typeof q.options);
-            
             let processedOptions: string[] = [];
             
             if (Array.isArray(q.options)) {
               processedOptions = q.options;
-              console.log("✅ Options is already array");
             } else if (typeof q.options === 'string') {
               try {
                 processedOptions = JSON.parse(q.options);
-                console.log("✅ Parsed options from string");
               } catch (e) {
-                console.error("❌ Failed to parse options as JSON:", e);
+                console.error("Failed to parse options as JSON:", e);
                 processedOptions = [];
               }
             } else if (q.options && typeof q.options === 'object') {
               // Handle Prisma Json type
               processedOptions = Object.values(q.options) as string[];
-              console.log("✅ Converted object to array");
             } else {
-              console.log("❌ Unknown options type, using empty array");
               processedOptions = [];
             }
-            
-            console.log("🔍 Options after:", processedOptions);
             
             return {
               ...q,
@@ -98,9 +69,6 @@ export default function JobPretestPage() {
           });
         }
         
-        console.log("🔍 Final test data:", t);
-        console.log("🔍 Test ID:", t?.id);
-        console.log("🔍 Job ID:", t?.jobId);
         if (mounted) setTest(t);
       } catch (e: any) {
         console.error("Failed to load test:", e);

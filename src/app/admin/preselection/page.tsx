@@ -50,14 +50,16 @@ export default function PreselectionPage() {
         for (const j of jobs.items) {
           try {
             const t = await fetchPreselectionTest(j.id);
+            // t will be null if no test exists (404)
             summaries.push({
               jobId: j.id,
               jobTitle: j.title,
-              isActive: !!t?.isActive,
+              isActive: t ? !!t.isActive : false,
               totalQuestions: t?.questions?.length ?? 0,
               passingScore: t?.passingScore ?? null,
             });
           } catch {
+            // Handle other errors
             summaries.push({ jobId: j.id, jobTitle: j.title, isActive: false, totalQuestions: 0, passingScore: null });
           }
         }
