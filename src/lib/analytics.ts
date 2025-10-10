@@ -78,4 +78,36 @@ export async function getOverview(companyId: number, params?: { from?: string; t
   } as any;
 }
 
+export async function getEngagement(companyId: number, params?: { from?: string; to?: string }) {
+  const res = await apiCall.get<{ success: boolean; data: any }>(
+    `/analytics/companies/${companyId}/analytics/engagement`,
+    { params }
+  );
+  return res.data.data;
+}
+
+export async function getConversionFunnel(companyId: number, params?: { from?: string; to?: string }) {
+  const res = await apiCall.get<{ success: boolean; data: any }>(
+    `/analytics/companies/${companyId}/analytics/conversion-funnel`,
+    { params }
+  );
+  return res.data.data;
+}
+
+export async function getRetention(companyId: number, params?: { from?: string; to?: string }) {
+  const res = await apiCall.get<{ success: boolean; data: any }>(
+    `/analytics/companies/${companyId}/analytics/retention`,
+    { params }
+  );
+  return res.data.data;
+}
+
+export async function getPerformance(companyId: number, params?: { from?: string; to?: string }) {
+  const res = await apiCall.get<{ success: boolean; data: any }>(
+    `/analytics/companies/${companyId}/analytics/performance`,
+    { params }
+  );
+  return res.data.data;
+}
+
 

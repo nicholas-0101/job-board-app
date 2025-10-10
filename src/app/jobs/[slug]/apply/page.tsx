@@ -25,6 +25,7 @@ export default function JobApplicationPage() {
 
   const [success, setSuccess] = useState(false);
   const [jobName, setJobName] = useState("");
+  const [jobId, setJobId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("Notice");
@@ -37,6 +38,14 @@ export default function JobApplicationPage() {
     setDialogAction(() => action || null);
     setDialogOpen(true);
   };
+  const [preselectionStatus, setPreselectionStatus] = useState<{
+    required: boolean;
+    submitted?: boolean;
+    score?: number | null;
+    passingScore?: number | null;
+    isPassed?: boolean;
+  } | null>(null);
+  const [checkingPreselection, setCheckingPreselection] = useState(true);
 
   const initialValues = {
     expectedSalary: "",
@@ -47,10 +56,52 @@ export default function JobApplicationPage() {
     async function fetchJob() {
       const response = await apiCall.get(`/job/${slug}`);
       setJobName(response.data.data.title);
+      try {
+        const response = await apiCall.get(`/job/${slug}`);
+        const job = response.data.data;
+        setJobName(job.title);
+        setJobId(job.id);
+      } catch (err) {
+        console.error("Failed to fetch job name", err);
+      }
     }
 
     if (slug) fetchJob();
   }, [slug]);
+
+  // Check preselection test status
+  useEffect(() => {
+    const checkPreselectionStatus = async () => {
+      if (!jobId) return;
+      
+      try {
+        const response = await apiCall.get(`/preselection/jobs/${jobId}/my-status`);
+        const status = response.data.data;
+        setPreselectionStatus(status);
+        
+        // Redirect if test is required but not completed or failed
+        if (status.required && !status.submitted) {
+          alert("Please complete the pre-selection test before applying for this job.");
+          router.push(`/jobs/${slug}/pretest`);
+          return;
+        }
+        
+        if (status.required && status.submitted && !status.isPassed) {
+          alert("Your pre-selection test score does not meet the passing criteria for this job.");
+          router.push(`/explore/jobs/${slug}`);
+          return;
+        }
+      } catch (error) {
+        console.error("Failed to check preselection status:", error);
+      } finally {
+        setCheckingPreselection(false);
+      }
+    };
+
+    if (jobId) {
+      checkPreselectionStatus();
+    }
+  }, [jobId, slug, router]);
 
   const handleSubmit = async (values: typeof initialValues) => {
     try {
@@ -80,6 +131,22 @@ export default function JobApplicationPage() {
     }
   };
 
+  // Show loading state while checking preselection
+  if (checkingPreselection) {
+    return (
+      <div className="min-h-screen bg-background py-20">
+        <Container className="py-10 max-w-2xl">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-[#24CFA7] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Checking requirements...</p>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 py-20">
       <Container className="py-10 max-w-2xl">
@@ -92,6 +159,15 @@ export default function JobApplicationPage() {
           <h1 className="text-2xl text-center font-bold text-[#467EC7] mb-6">
             Apply for {jobName}
           </h1>
+          
+          {/* Show preselection test passed status */}
+          {preselectionStatus?.required && preselectionStatus.isPassed && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg">
+              <p className="text-green-800 text-sm text-center">
+                ✓ Pre-selection Test Passed (Score: {preselectionStatus.score}/{preselectionStatus.passingScore || 25})
+              </p>
+            </div>
+          )}
 
           <Formik
             initialValues={initialValues}

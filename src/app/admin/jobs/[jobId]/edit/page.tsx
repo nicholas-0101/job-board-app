@@ -70,6 +70,7 @@ export default function EditJobPage() {
         // Load existing preselection test for this job (if any)
         try {
           const test = await fetchPreselectionTest(jobId);
+          // test will be null if no test exists (404)
           if (test) {
             setIsTestActive(!!test.isActive);
             setPassingScore(test.passingScore ?? 0);
@@ -80,7 +81,9 @@ export default function EditJobPage() {
             }));
             setTestQuestions(mapped);
           }
-        } catch {}
+        } catch (error) {
+          // Silently ignore - no test exists
+        }
         setTestLoaded(true);
       } catch (e) {
         // noop
