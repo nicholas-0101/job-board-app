@@ -1,20 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Shield, Award, CheckCircle } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, Shield, Award, CheckCircle } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export default function VerifyCertificatePage() {
   const router = useRouter();
-  const [certificateCode, setCertificateCode] = useState('');
+  const [certificateCode, setCertificateCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated, isLoading: authLoading } = useSubscription();
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated === false) {
+      router.push("/go-to-signin");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const handleVerify = async () => {
     if (!certificateCode.trim()) {
-      alert('Please enter a certificate code');
+      alert("Please enter a certificate code");
       return;
     }
 
@@ -24,7 +32,7 @@ export default function VerifyCertificatePage() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleVerify();
     }
   };
@@ -38,11 +46,14 @@ export default function VerifyCertificatePage() {
             <div className="p-3 bg-[#467EC7]/10 rounded-lg">
               <Shield className="w-8 h-8 text-[#467EC7]" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Certificate Verification</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Certificate Verification
+            </h1>
           </div>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Verify the authenticity of skill assessment certificates issued by Workoo Job Board. 
-            Enter the certificate code to check if a certificate is valid and view its details.
+            Verify the authenticity of skill assessment certificates issued by
+            Workoo Job Board. Enter the certificate code to check if a
+            certificate is valid and view its details.
           </p>
         </div>
 
@@ -56,7 +67,10 @@ export default function VerifyCertificatePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label htmlFor="certificateCode" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="certificateCode"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Certificate Code
               </label>
               <Input
@@ -69,11 +83,12 @@ export default function VerifyCertificatePage() {
                 className="font-mono"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Certificate codes are typically found on the certificate PDF or in verification emails
+                Certificate codes are typically found on the certificate PDF or
+                in verification emails
               </p>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={handleVerify}
               disabled={isLoading || !certificateCode.trim()}
               className="w-full bg-[#467EC7] hover:bg-[#467EC7]/90 text-white"
@@ -100,7 +115,9 @@ export default function VerifyCertificatePage() {
               <div className="w-12 h-12 bg-[#467EC7]/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Search className="w-6 h-6 text-[#467EC7]" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">1. Enter Code</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                1. Enter Code
+              </h3>
               <p className="text-sm text-gray-600">
                 Enter the certificate code found on your certificate PDF
               </p>
@@ -124,7 +141,9 @@ export default function VerifyCertificatePage() {
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">3. View Details</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                3. View Details
+              </h3>
               <p className="text-sm text-gray-600">
                 See certificate details, recipient info, and assessment results
               </p>
@@ -145,32 +164,44 @@ export default function VerifyCertificatePage() {
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-gray-900">Secure Verification</h4>
-                  <p className="text-sm text-gray-600">Each certificate has a unique code for verification</p>
+                  <h4 className="font-medium text-gray-900">
+                    Secure Verification
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Each certificate has a unique code for verification
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-gray-900">Detailed Information</h4>
-                  <p className="text-sm text-gray-600">View assessment details, scores, and recipient info</p>
+                  <h4 className="font-medium text-gray-900">
+                    Detailed Information
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    View assessment details, scores, and recipient info
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
                   <h4 className="font-medium text-gray-900">PDF Download</h4>
-                  <p className="text-sm text-gray-600">Access the original certificate PDF document</p>
+                  <p className="text-sm text-gray-600">
+                    Access the original certificate PDF document
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
                   <h4 className="font-medium text-gray-900">Instant Results</h4>
-                  <p className="text-sm text-gray-600">Get verification results immediately</p>
+                  <p className="text-sm text-gray-600">
+                    Get verification results immediately
+                  </p>
                 </div>
               </div>
             </div>
@@ -180,10 +211,13 @@ export default function VerifyCertificatePage() {
         {/* Footer */}
         <div className="text-center mt-8 p-6 bg-white rounded-lg shadow-sm">
           <p className="text-sm text-gray-600">
-            Certificate verification is provided by <strong>Workoo Job Board</strong> - Professional Skill Assessment Platform
+            Certificate verification is provided by{" "}
+            <strong>Workoo Job Board</strong> - Professional Skill Assessment
+            Platform
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            For questions about certificate verification, please contact our support team.
+            For questions about certificate verification, please contact our
+            support team.
           </p>
         </div>
       </div>

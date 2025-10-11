@@ -23,20 +23,20 @@ export default function SignUpForm({
   touched,
 }: SignUpFormProps) {
   const getInputClass = (field: string) =>
-    `w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
+    `w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background text-sm sm:text-base ${
       errors[field] && touched[field]
         ? "border-red-400 bg-red-50"
         : "border-input focus:border-primary bg-secondary"
     }`;
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3 sm:gap-4">
       {/* Name / Company */}
       {tab === "seeker" ? (
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
+          <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Full Name</label>
           <div className="relative">
-            <User2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <User2 className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <Field
               type="text"
               name="fullName"
@@ -52,9 +52,9 @@ export default function SignUpForm({
         </div>
       ) : (
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Company Name</label>
+          <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Company Name</label>
           <div className="relative">
-            <BuildingIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <BuildingIcon className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <Field
               type="text"
               name="companyName"
@@ -72,9 +72,9 @@ export default function SignUpForm({
 
       {/* Email */}
       <div>
-        <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Email</label>
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
           <Field
             type="email"
             name="email"
@@ -91,9 +91,9 @@ export default function SignUpForm({
 
       {/* Password */}
       <div>
-        <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Password</label>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
           <Field
             type={showPassword ? "text" : "password"}
             name="password"
@@ -103,9 +103,9 @@ export default function SignUpForm({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
         </div>
         <ErrorMessage
@@ -117,9 +117,9 @@ export default function SignUpForm({
 
       {/* Confirm Password */}
       <div>
-        <label className="block text-sm font-medium text-foreground mb-2">Confirm Password</label>
+        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">Confirm Password</label>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
           <Field
             type={showConfirmPassword ? "text" : "password"}
             name="confirmPassword"
@@ -129,9 +129,9 @@ export default function SignUpForm({
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
         </div>
         <ErrorMessage

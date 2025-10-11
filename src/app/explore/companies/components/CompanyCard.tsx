@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiCall } from "@/helper/axios";
-import StarRating from "@/components/StarRating";
+import StarRating from "@/components/review/StarRating";
 
 interface CompanyCardProps {
   id: number;

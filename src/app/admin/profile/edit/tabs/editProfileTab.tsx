@@ -6,18 +6,13 @@ import InputField from "../../components/inputField";
 import QuillField from "../../components/quillField";
 import CityField from "../../components/cityField";
 import { FileUploader } from "../../components/fileUploader";
+import { Phone, Building, Globe, Mail, MapPin, Loader } from "lucide-react";
 import {
-  Phone,
-  Building,
-  Globe,
-  Mail,
-  MapPin,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
-  Loader,
-} from "lucide-react";
+  FaLinkedinIn,
+  FaFacebook,
+  FaTwitter,
+  FaInstagram,
+} from "react-icons/fa";
 import { adminProfileSchema } from "../../changeProfileSchema";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { apiCall } from "@/helper/axios";
@@ -202,28 +197,28 @@ export default function AdminProfileTab() {
                 name="socials.facebook"
                 label="Facebook"
                 placeholder="https://facebook.com/company-name"
-                icon={Facebook}
+                icon={FaFacebook}
               />
 
               <InputField
                 name="socials.twitter"
                 label="Twitter/X"
                 placeholder="https://twitter.com/company-name"
-                icon={Twitter}
+                icon={FaTwitter}
               />
 
               <InputField
                 name="socials.linkedin"
                 label="LinkedIn"
                 placeholder="https://linkedin.com/company/company-name"
-                icon={Linkedin}
+                icon={FaLinkedinIn}
               />
 
               <InputField
                 name="socials.instagram"
                 label="Instagram"
                 placeholder="https://instagram.com/company-name"
-                icon={Instagram}
+                icon={FaInstagram}
               />
             </div>
 

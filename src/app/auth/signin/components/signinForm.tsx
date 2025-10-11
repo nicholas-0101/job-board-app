@@ -23,19 +23,19 @@ export default function SignInForm({
 }: SignInFormProps) {
   const router = useRouter();
   return (
-    <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
+    <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-4 sm:p-8">
       {/* Email */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-2">
+      <div className="mb-4 sm:mb-6">
+        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
           Email Address
         </label>
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
           <Field
             name="email"
             type="email"
             placeholder="you@example.com"
-            className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
+            className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background text-sm sm:text-base ${
               errors.email && touched.email
                 ? "border-red-400 bg-red-50"
                 : "border-input focus:border-primary bg-secondary"
@@ -45,22 +45,22 @@ export default function SignInForm({
         <ErrorMessage
           name="email"
           component="div"
-          className="text-red-400 text-sm mt-1"
+          className="text-red-400 text-xs mt-1"
         />
       </div>
 
       {/* Password */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-2">
+      <div className="mb-4 sm:mb-6">
+        <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
           Password
         </label>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
           <Field
             name="password"
             type={showPassword ? "text" : "password"}
             placeholder="your password"
-            className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
+            className={`w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background text-sm sm:text-base ${
               errors.password && touched.password
                 ? "border-red-400 bg-red-50"
                 : "border-input focus:border-primary bg-secondary"
@@ -69,28 +69,28 @@ export default function SignInForm({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             {showPassword ? (
-              <EyeOff className="w-5 h-5" />
+              <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <Eye className="w-5 h-5" />
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
           </button>
         </div>
         <ErrorMessage
           name="password"
           component="div"
-          className="text-red-400 text-sm mt-1"
+          className="text-red-400 text-xs mt-1"
         />
       </div>
 
       {/* Forgot Password */}
-      <div className="mb-6 text-right">
+      <div className="mb-4 sm:mb-6 text-right">
         <button
           type="button"
           onClick={() => router.push("/auth/forgot-password")}
-          className="text-sm font-medium text-[#467EC7] hover:underline"
+          className="text-xs sm:text-sm font-medium text-[#467EC7] hover:underline"
         >
           Forgot password?
         </button>
@@ -99,7 +99,7 @@ export default function SignInForm({
       {/* Submit */}
       <motion.button
         type="submit"
-        className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+        className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all text-sm sm:text-base ${
           isLoading
             ? "cursor-not-allowed opacity-70"
             : "hover:shadow-xl cursor-pointer"
@@ -110,7 +110,7 @@ export default function SignInForm({
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
-            <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <motion.div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             Signing in...
           </span>
         ) : (
@@ -119,27 +119,27 @@ export default function SignInForm({
       </motion.button>
 
       {/* Divider */}
-      <div className="relative my-8">
+      <div className="relative my-6 sm:my-8">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-border"></div>
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-background text-muted-foreground">
+        <div className="relative flex justify-center text-xs sm:text-sm">
+          <span className="px-3 sm:px-4 bg-background text-muted-foreground">
             Or continue with
           </span>
         </div>
       </div>
 
       {/* Google */}
-      <div className="w-full mt-6">
+      <div className="w-full mt-4 sm:mt-6">
         <motion.button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-4 px-4 py-3 rounded-xl shadow-lg bg-[#F0F5F9] font-medium text-[#467EC7] cursor-pointer"
+          className="w-full flex items-center justify-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl shadow-lg bg-[#F0F5F9] font-medium text-[#467EC7] cursor-pointer text-sm sm:text-base"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <img src={"/logos/google-icon.png"} className="w-6 h-6"/>
+          <img src={"/logos/google-icon.png"} className="w-5 h-5 sm:w-6 sm:h-6"/>
           Google
         </motion.button>
       </div>

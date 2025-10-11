@@ -1,5 +1,16 @@
 import Link from "next/link";
-import { User2, LogOutIcon, FileEditIcon, Award, Trophy, FolderOpen, Bookmark, Shield, Loader } from "lucide-react";
+import {
+  User2,
+  LogOutIcon,
+  FileEditIcon,
+  Award,
+  Trophy,
+  FolderOpen,
+  Bookmark,
+  Shield,
+  Loader,
+  Medal,
+} from "lucide-react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { motion } from "framer-motion";
 
@@ -58,21 +69,21 @@ export default function NavbarMobileMenu({
               </Link>
             ))}
 
-        <div className="flex flex-col gap-2 pt-2 bg-[#F0F5F9] rounded-xl">
+        <div className="flex flex-col gap-2 bg-[#F0F5F9] rounded-xl">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Loader className="w-8 h-8 text-[#24CFA7]" />
-                </motion.div>
-              </div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <Loader className="w-8 h-8 text-[#24CFA7]" />
+              </motion.div>
+            </div>
           ) : user ? (
             <>
               <Link
                 href="/cv-generator"
-                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                className="px-4 pb-2 pt-4 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
                 onClick={closeMenu}
               >
                 <FileEditIcon size={18} /> CV Generator
@@ -92,6 +103,20 @@ export default function NavbarMobileMenu({
                 <Trophy size={18} /> My Results
               </Link>
               <Link
+                href="/badges"
+                className="px-4 py-2 hover:bg-[#467EC7]/10 text-sm flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <Medal size={18} /> My Badges
+              </Link>
+              <Link
+                href="/verify-certificate"
+                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
+                onClick={closeMenu}
+              >
+                <Shield size={18} /> Verify Certificate
+              </Link>
+              <Link
                 href="/my-applications"
                 className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
                 onClick={closeMenu}
@@ -104,13 +129,6 @@ export default function NavbarMobileMenu({
                 onClick={closeMenu}
               >
                 <Bookmark size={18} /> Saved Jobs
-              </Link>
-              <Link
-                href="/verify-certificate"
-                className="px-4 py-2 hover:bg-secondary text-sm rounded-lg flex gap-2 items-center"
-                onClick={closeMenu}
-              >
-                <Shield size={18} /> Verify Certificate
               </Link>
               <Link
                 href="/profile/edit"
@@ -133,7 +151,7 @@ export default function NavbarMobileMenu({
           ) : (
             <Link
               href="/auth/signin"
-              className="flex-1 text-center px-4 py-2 rounded-xl border border-border text-foreground/80 hover:bg-[#F5F5F5] text-sm transition-colors"
+              className="flex-1 text-center px-4 py-2 rounded-xl font-semibold text-white bg-[#467ec7] hover:bg-[#467ec7] text-sm transition-colors"
               onClick={closeMenu}
             >
               Sign in

@@ -45,18 +45,18 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 p-6">
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 p-2 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8 w-full max-w-md"
+        className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-4 sm:p-8 w-full max-w-md"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-[#467EC7]">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-[#467EC7]">
           Forgot Password
         </h2>
 
         {submitted ? (
-          <p className="text-muted-foreground text-center">
+          <p className="text-sm sm:text-base text-muted-foreground text-center px-4">
             Reset password link has sended. Please check your email.
           </p>
         ) : (
@@ -64,30 +64,30 @@ export default function ForgotPasswordPage() {
             {() => (
               <Form>
                 {/* Email */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                <div className="mb-4 sm:mb-6">
+                  <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <Field
                       name="email"
                       type="email"
                       placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-input bg-secondary focus:outline-none focus:border-primary hover:bg-background transition-all"
+                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl border-2 border-input bg-secondary focus:outline-none focus:border-primary hover:bg-background transition-all text-sm sm:text-base"
                     />
                   </div>
                   <ErrorMessage
                     name="email"
                     component="div"
-                    className="text-red-400 text-sm mt-1"
+                    className="text-red-400 text-xs mt-1"
                   />
                 </div>
 
                 {/* Submit */}
                 <motion.button
                   type="submit"
-                  className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+                  className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all text-sm sm:text-base ${
                     isLoading
                       ? "cursor-not-allowed opacity-70"
                       : "hover:shadow-xl cursor-pointer"
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
                       <motion.div
-                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
+                        className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
                         aria-label="Loading spinner"
                       />
                       Sending...
@@ -115,12 +115,12 @@ export default function ForgotPasswordPage() {
       </motion.div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl">
+        <DialogContent className="sm:max-w-md !rounded-3xl mx-2 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#467EC7]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
               {dialogTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-muted-foreground">
+            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
               {dialogMessage}
             </DialogDescription>
           </DialogHeader>
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2"
             >
               OK
             </Button>

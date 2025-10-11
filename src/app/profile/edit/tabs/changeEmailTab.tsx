@@ -58,7 +58,7 @@ export default function EmailTab() {
         validationSchema={changeEmailSchema}
         onSubmit={handleChangeEmail}
       >
-        <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
+        <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-4 sm:p-8">
           <InputField
             name="newEmail"
             label="Your Email"
@@ -69,7 +69,7 @@ export default function EmailTab() {
 
           <motion.button
             type="submit"
-            className={`w-full mt-6 px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg ${
+            className={`w-full mt-4 sm:mt-6 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg text-sm sm:text-base ${
               isLoading
                 ? "cursor-not-allowed opacity-70"
                 : "hover:shadow-xl cursor-pointer"
@@ -80,7 +80,7 @@ export default function EmailTab() {
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
-                <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <motion.div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Updating...
               </span>
             ) : (
@@ -91,12 +91,12 @@ export default function EmailTab() {
       </Formik>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl">
+        <DialogContent className="sm:max-w-md !rounded-3xl mx-2 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#467EC7]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
               {dialogTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-muted-foreground">
+            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
               {dialogMessage}
             </DialogDescription>
           </DialogHeader>
@@ -106,7 +106,7 @@ export default function EmailTab() {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2"
             >
               OK
             </Button>

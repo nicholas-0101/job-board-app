@@ -11,14 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Copy, CopyCheck } from "lucide-react";
 import {
-  Linkedin,
-  Facebook,
-  Twitter,
-  MessageCircle,
-  Copy,
-  CopyCheck,
-} from "lucide-react";
+  FaLinkedinIn,
+  FaFacebook,
+  FaTwitter,
+  FaWhatsapp,
+} from "react-icons/fa";
 
 interface ShareCompanyDialogProps {
   open: boolean;
@@ -73,9 +72,9 @@ export default function ShareCompanyDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="mx-2 sm:mx-0">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-[#467EC7]">
+          <DialogTitle className="text-lg sm:text-xl font-bold text-[#467EC7]">
             Share this company
           </DialogTitle>
         </DialogHeader>
@@ -86,7 +85,7 @@ export default function ShareCompanyDialog({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Add a custom message before sharing <strong>{company.name}</strong>.
           </p>
 
@@ -104,7 +103,7 @@ export default function ShareCompanyDialog({
           </motion.div>
 
           <motion.div
-            className="flex justify-between gap-2 mt-4"
+            className="flex flex-col sm:flex-row justify-between gap-2 mt-3 sm:mt-4"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.3 }}
@@ -117,9 +116,10 @@ export default function ShareCompanyDialog({
               <Button
                 onClick={() => handleShare("linkedin")}
                 variant="outline"
-                className="w-full border-[#0A66C2] text-[#0A66C2] hover:text-[#0A66C2] rounded-lg"
+                className="w-full border-[#0A66C2] text-[#0A66C2] hover:text-[#0A66C2] rounded-lg text-xs sm:text-sm"
               >
-                <Linkedin className="mr-2 w-4 h-4" /> LinkedIn
+                <FaLinkedinIn className="mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                LinkedIn
               </Button>
             </motion.div>
             <motion.div
@@ -130,15 +130,16 @@ export default function ShareCompanyDialog({
               <Button
                 onClick={() => handleShare("facebook")}
                 variant="outline"
-                className="w-full border-[#1877F2] text-[#1877F2] hover:text-[#1877F2] rounded-lg"
+                className="w-full border-[#1877F2] text-[#1877F2] hover:text-[#1877F2] rounded-lg text-xs sm:text-sm"
               >
-                <Facebook className="mr-2 w-4 h-4" /> Facebook
+                <FaFacebook className="mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                Facebook
               </Button>
             </motion.div>
           </motion.div>
 
           <motion.div
-            className="flex justify-between gap-2 mt-2"
+            className="flex flex-col sm:flex-row justify-between gap-2 mt-2"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.3 }}
@@ -151,9 +152,10 @@ export default function ShareCompanyDialog({
               <Button
                 onClick={() => handleShare("twitter")}
                 variant="outline"
-                className="w-full border-[#1DA1F2] text-[#1DA1F2] hover:text-[#1DA1F2] rounded-lg"
+                className="w-full border-[#1DA1F2] text-[#1DA1F2] hover:text-[#1DA1F2] rounded-lg text-xs sm:text-sm"
               >
-                <Twitter className="mr-2 w-4 h-4" /> Twitter
+                <FaTwitter className="mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                Twitter
               </Button>
             </motion.div>
             <motion.div
@@ -164,20 +166,21 @@ export default function ShareCompanyDialog({
               <Button
                 onClick={() => handleShare("whatsapp")}
                 variant="outline"
-                className="w-full border-[#25D366] text-[#25D366] hover:text-[#25D366] rounded-lg"
+                className="w-full border-[#25D366] text-[#25D366] hover:text-[#25D366] rounded-lg text-xs sm:text-sm"
               >
-                <MessageCircle className="mr-2 w-4 h-4" /> WhatsApp
+                <FaWhatsapp className="mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                WhatsApp
               </Button>
             </motion.div>
           </motion.div>
 
           <motion.div
-            className="flex items-center justify-between mt-4 p-2 border rounded-lg bg-[#F0F5F9]"
+            className="flex items-center justify-between mt-3 sm:mt-4 p-2 border rounded-lg bg-[#F0F5F9]"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.3 }}
           >
-            <span className="truncate text-sm text-muted-foreground max-w-106">
+            <span className="truncate text-xs sm:text-sm text-muted-foreground max-w-50 sm:max-w-106">
               {companyUrl}
             </span>
             <motion.button
@@ -186,24 +189,13 @@ export default function ShareCompanyDialog({
               onClick={handleCopyLink}
             >
               {copied ? (
-                <CopyCheck className="w-5 h-5 text-[#467EC7]" />
+                <CopyCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#467EC7]" />
               ) : (
-                <Copy className="w-5 h-5 text-[#467EC7]" />
+                <Copy className="w-4 h-4 sm:w-5 sm:h-5 text-[#467EC7]" />
               )}
             </motion.button>
           </motion.div>
         </motion.div>
-
-        <DialogFooter className="mt-4">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-            <Button
-              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 rounded-lg"
-              onClick={onClose}
-            >
-              Close
-            </Button>
-          </motion.div>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
