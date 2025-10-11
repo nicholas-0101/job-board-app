@@ -143,7 +143,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 pb-20 pt-10 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-2 sm:p-4 pb-12 sm:pb-20 pt-8 sm:pt-10 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -167,7 +167,7 @@ export default function SignUpPage() {
           {({ values, handleChange, handleSubmit, errors, touched }) => (
             <Form
               onSubmit={handleSubmit}
-              className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8"
+              className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-4 sm:p-8"
             >
               <Tabs tab={tab} setTab={setTab} />
               <SignUpForm
@@ -184,7 +184,7 @@ export default function SignUpPage() {
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                className={`w-full px-6 py-3 mt-6 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+                className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 mt-4 sm:mt-6 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all text-sm sm:text-base ${
                   isLoading
                     ? "cursor-not-allowed opacity-70"
                     : "hover:shadow-xl cursor-pointer"
@@ -195,7 +195,7 @@ export default function SignUpPage() {
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <motion.div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Creating...
                   </span>
                 ) : (
@@ -204,12 +204,12 @@ export default function SignUpPage() {
               </motion.button>
 
               {/* Divider + Social */}
-              <div className="relative my-8">
+              <div className="relative my-6 sm:my-8">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-background text-muted-foreground">
+                <div className="relative flex justify-center text-xs sm:text-sm">
+                  <span className="px-3 sm:px-4 bg-background text-muted-foreground">
                     Or continue with
                   </span>
                 </div>
@@ -226,7 +226,7 @@ export default function SignUpPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-center mt-8 text-muted-foreground"
+          className="text-center mt-6 sm:mt-8 text-sm sm:text-base text-muted-foreground"
         >
           Already have an account?{" "}
           <Link
@@ -239,12 +239,12 @@ export default function SignUpPage() {
       </motion.div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl">
+        <DialogContent className="sm:max-w-md !rounded-3xl mx-2 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#467EC7]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
               {dialogTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-muted-foreground">
+            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
               {dialogMessage}
             </DialogDescription>
           </DialogHeader>
@@ -254,7 +254,7 @@ export default function SignUpPage() {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2"
             >
               OK
             </Button>

@@ -23,7 +23,7 @@ function EditProfilePageContent() {
   );
 
   return (
-    <section className="min-h-screen py-30 flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+    <section className="min-h-screen py-16 sm:py-30 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -31,12 +31,12 @@ function EditProfilePageContent() {
         className="w-full max-w-2xl relative z-10"
       >
         {/* Tabs */}
-        <div className="flex justify-around mb-8 border-b border-border">
+        <div className="flex justify-around mb-6 sm:mb-8 border-b border-border">
           {["profile", "email", "password"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`px-6 py-3 font-semibold transition-all ${
+              className={`px-3 py-2 sm:px-6 sm:py-3 font-semibold transition-all text-sm sm:text-base ${
                 activeTab === tab
                   ? "text-[#467EC7] border-b-2 border-[#467EC7]"
                   : "text-muted-foreground hover:text-[#467EC7]"

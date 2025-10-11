@@ -79,7 +79,7 @@ export default function JobDetailPage() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
-          <Loader className="w-8 h-8 text-[#24CFA7]" />
+          <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-[#24CFA7]" />
         </motion.div>
       </div>
     );
@@ -88,22 +88,23 @@ export default function JobDetailPage() {
   if (!job) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center py-20">
-          <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-            <SearchX size={48} color="#24CFA7" /> Job not found.
+        <div className="text-center py-16 sm:py-20">
+          <h3 className="text-lg sm:text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+            <SearchX size={40} className="sm:w-12 sm:h-12" color="#24CFA7" /> 
+            <span className="px-4">Job not found.</span>
           </h3>
-          <p className="text-muted-foreground">Please select another job.</p>
+          <p className="text-sm sm:text-base text-muted-foreground px-4">Please select another job.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#24CFA7]/10 via-white to-[#467EC7]/10">
-      <Container className="py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+      <Container className="py-4 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Job Detail */}
-          <div className="lg:col-span-8 flex flex-col gap-4">
+          <div className="lg:col-span-8 flex flex-col gap-3 sm:gap-4">
             <JobDetailCard job={job} />
             <CompanyInfoCard company={job.company} />
           </div>
@@ -115,22 +116,22 @@ export default function JobDetailPage() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-4"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">
                 Related Jobs
               </h2>
               <a
                 href="/explore/jobs"
-                className="text-[#467EC7] hover:opacity-80 font-medium flex items-center gap-1 transition-colors"
+                className="text-[#467EC7] hover:opacity-80 font-medium flex items-center gap-1 transition-colors text-sm sm:text-base"
               >
-                See all <ExternalLink className="w-4 h-4" />
+                See all <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
               </a>
             </div>
-            <div className="grid gap-3">
+            <div className="grid gap-2 sm:gap-3">
               {relatedJobs.length > 0 ? (
                 relatedJobs.map((job) => <JobCard key={job.slug} {...job} />)
               ) : (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   No related jobs found.
                 </p>
               )}

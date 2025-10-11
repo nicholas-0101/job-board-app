@@ -6,7 +6,7 @@ import { X, Building2, User, Eye, EyeOff, LogIn } from "lucide-react";
 import { apiCall } from "@/helper/axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import StarRating from "@/components/StarRating";
+import StarRating from "@/components/review/StarRating";
 
 interface CreateReviewDialogProps {
   open: boolean;

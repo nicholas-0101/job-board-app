@@ -252,13 +252,14 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#F0F5F9] text-card-foreground rounded-2xl p-6"
+        className="bg-[#F0F5F9] text-card-foreground rounded-2xl p-4 sm:p-6"
       >
         {/* Title + Actions */}
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-[#467EC7]">{job.title}</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#467EC7]">{job.title}</h1>
 
-          <div className="flex items-center gap-2">
+          {/* Desktop Actions */}
+          <div className="hidden sm:flex items-center gap-2">
             {preselectionStatus?.required && (
               <button
                 onClick={handlePretestClick}
@@ -275,29 +276,31 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
             >
               Apply
             </button>
-            <button
-              onClick={() => setOpenShare(true)}
-              className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
-            >
-              <Share2 className="w-5 h-5 text-foreground" />
-            </button>
-            <button
-              onClick={toggleSaveJob}
-              className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
-            >
-              <Bookmark
-                className={`w-5 h-5 ${
-                  saved ? "text-foreground fill-current" : "text-foreground"
-                }`}
-              />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setOpenShare(true)}
+                className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
+              >
+                <Share2 className="w-5 h-5 text-foreground" />
+              </button>
+              <button
+                onClick={toggleSaveJob}
+                className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
+              >
+                <Bookmark
+                  className={`w-5 h-5 ${
+                    saved ? "text-foreground fill-current" : "text-foreground"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Preselection Test Status Banner */}
         {preselectionStatus?.required && isAuthenticated && (
           <div
-            className={`mb-4 p-4 rounded-lg border ${
+            className={`mb-4 p-3 sm:p-4 rounded-lg border ${
               preselectionStatus.submitted
                 ? preselectionStatus.isPassed
                   ? "bg-green-50 border-green-300"
@@ -309,8 +312,8 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
               {preselectionStatus.submitted ? (
                 preselectionStatus.isPassed ? (
                   <>
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="text-green-800 font-medium">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                    <span className="text-green-800 font-medium text-sm sm:text-base">
                       ✓ Pre-selection Test Passed (Score:{" "}
                       {preselectionStatus.score}/
                       {preselectionStatus.passingScore || 25})
@@ -318,8 +321,8 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
                   </>
                 ) : (
                   <>
-                    <XCircle className="w-5 h-5 text-red-600" />
-                    <span className="text-red-800 font-medium">
+                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+                    <span className="text-red-800 font-medium text-sm sm:text-base">
                       ✗ Pre-selection Test Failed (Score:{" "}
                       {preselectionStatus.score}/
                       {preselectionStatus.passingScore || 25})
@@ -328,8 +331,8 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
                 )
               ) : (
                 <>
-                  <AlertCircle className="w-5 h-5 text-yellow-600" />
-                  <span className="text-yellow-800 font-medium">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
+                  <span className="text-yellow-800 font-medium text-sm sm:text-base">
                     ⚠ Pre-selection Test Required - Complete the test before
                     applying
                   </span>
@@ -340,29 +343,29 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         )}
 
         {/* Company + City + Deadline */}
-        <div className="flex items-center gap-6 text-muted-foreground mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-muted-foreground mb-4">
           <div className="flex items-center gap-1">
             <Building2 className="w-4 h-4" />
             {job.company?.slug ? (
               <Link
                 href={`/explore/companies/${job.company.slug}`}
-                className="text-muted-foreground hover:underline"
+                className="text-muted-foreground hover:underline text-sm sm:text-base"
               >
                 {job.company.name}
               </Link>
             ) : (
-              <span>{job.company?.name}</span>
+              <span className="text-sm sm:text-base">{job.company?.name}</span>
             )}
           </div>
 
           <div className="flex items-center gap-1">
             <MapPin className="w-4 h-4" />
-            <span>{job.city}</span>
+            <span className="text-sm sm:text-base">{job.city}</span>
           </div>
 
           <div className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            <span>
+            <span className="text-sm sm:text-base">
               Deadline:{" "}
               {job.applyDeadline
                 ? new Date(job.applyDeadline).toDateString()
@@ -372,13 +375,13 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         </div>
 
         {/* Category */}
-        <p className="mb-4">
+        <p className="mb-4 text-sm sm:text-base">
           <span className="font-medium">Category:</span> {job.category}
         </p>
 
         {/* Salary */}
         {(job.salaryMin || job.salaryMax) && (
-          <div className="flex items-center gap-1 text-foreground text-lg font-semibold mb-4">
+          <div className="flex items-center gap-1 text-foreground text-base sm:text-lg font-semibold mb-4">
             <span>
               IDR {job.salaryMin?.toLocaleString()} -{" "}
               {job.salaryMax?.toLocaleString()}
@@ -388,11 +391,11 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
 
         {/* Tags */}
         {job.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
             {job.tags.map((tag: string, idx: number) => (
               <span
                 key={idx}
-                className="px-3 py-1 bg-primary/3 text-primary text-xs font-medium rounded-full border border-primary/20"
+                className="px-2.5 sm:px-3 py-1 bg-primary/3 text-primary text-xs font-medium rounded-full border border-primary/20"
               >
                 {tag}
               </span>
@@ -402,22 +405,62 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
 
         {/* Description */}
         <div
-          className="text-muted-foreground prose prose-sm max-w-none 
-                     prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-3
-                     prose-h1:text-2xl prose-h1:text-foreground prose-h1:font-bold prose-h1:mb-4
-                     prose-h2:text-xl prose-h2:text-foreground prose-h2:font-bold prose-h2:mb-3
-                     prose-h3:text-lg prose-h3:text-foreground prose-h3:font-semibold prose-h3:mb-3
-                     prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-p:text-base
-                     prose-ul:text-muted-foreground prose-ul:mb-4 prose-ul:list-disc prose-ul:pl-6
-                     prose-ol:text-muted-foreground prose-ol:mb-4 prose-ol:list-decimal prose-ol:pl-6
-                     prose-li:text-muted-foreground prose-li:mb-2 prose-li:text-base
+          className="text-muted-foreground prose prose-sm sm:prose-base max-w-none 
+                     prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-4 sm:prose-headings:mt-6 prose-headings:mb-2 sm:prose-headings:mb-3
+                     prose-h1:text-xl sm:prose-h1:text-2xl prose-h1:text-foreground prose-h1:font-bold prose-h1:mb-3 sm:prose-h1:mb-4
+                     prose-h2:text-lg sm:prose-h2:text-xl prose-h2:text-foreground prose-h2:font-bold prose-h2:mb-2 sm:prose-h2:mb-3
+                     prose-h3:text-base sm:prose-h3:text-lg prose-h3:text-foreground prose-h3:font-semibold prose-h3:mb-2 sm:prose-h3:mb-3
+                     prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-3 sm:prose-p:mb-4 prose-p:text-sm sm:prose-p:text-base
+                     prose-ul:text-muted-foreground prose-ul:mb-3 sm:prose-ul:mb-4 prose-ul:list-disc prose-ul:pl-4 sm:prose-ul:pl-6
+                     prose-ol:text-muted-foreground prose-ol:mb-3 sm:prose-ol:mb-4 prose-ol:list-decimal prose-ol:pl-4 sm:prose-ol:pl-6
+                     prose-li:text-muted-foreground prose-li:mb-1 sm:prose-li:mb-2 prose-li:text-sm sm:prose-li:text-base
                      prose-strong:text-foreground prose-strong:font-semibold
                      prose-em:text-foreground prose-em:italic
                      prose-a:text-[#467EC7] prose-a:underline prose-a:hover:text-[#24CFA7]
-                     prose-blockquote:border-l-4 prose-blockquote:border-[#24CFA7] prose-blockquote:pl-4 prose-blockquote:italic
-                     prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
+                     prose-blockquote:border-l-4 prose-blockquote:border-[#24CFA7] prose-blockquote:pl-3 sm:prose-blockquote:pl-4 prose-blockquote:italic
+                     prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs sm:prose-code:text-sm"
           dangerouslySetInnerHTML={{ __html: formattedDescription }}
         />
+
+        {/* Mobile Actions - Bottom of Card */}
+        <div className="flex sm:hidden items-center justify-between gap-2 mt-6 pt-4 border-t border-border">
+          <div className="flex items-center gap-2">
+            {preselectionStatus?.required && (
+              <button
+                onClick={handlePretestClick}
+                className="px-3 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-xs font-medium transition-colors cursor-pointer"
+              >
+                {preselectionStatus.submitted
+                  ? "View Test Result"
+                  : "Take Pretest"}
+              </button>
+            )}
+            <button
+              onClick={handleApplyClick}
+              className="px-3 py-2 rounded-lg bg-[#24CFA7] text-white hover:bg-[#24CFA7]/80 text-xs font-medium transition-colors cursor-pointer"
+            >
+              Apply
+            </button>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setOpenShare(true)}
+              className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
+            >
+              <Share2 className="w-4 h-4 text-foreground" />
+            </button>
+            <button
+              onClick={toggleSaveJob}
+              className="p-2 rounded-lg hover:text-muted-foreground cursor-pointer"
+            >
+              <Bookmark
+                className={`w-4 h-4 ${
+                  saved ? "text-foreground fill-current" : "text-foreground"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
       </motion.div>
       <ShareJobDialog
         open={openShare}
@@ -426,12 +469,12 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl">
+        <DialogContent className="sm:max-w-md !rounded-3xl mx-4 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#467EC7]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
               {dialogTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-muted-foreground">
+            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
               {dialogMessage}
             </DialogDescription>
           </DialogHeader>
@@ -441,7 +484,7 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base"
             >
               OK
             </Button>

@@ -6,25 +6,35 @@ import { useCVGenerator } from "@/components/cv-generator/useCVGenerator";
 import SubscriptionGuard from "@/components/subscription/SubscriptionGuard";
 import CVForm from "@/components/cv-generator/CVForm";
 import MyCVsList from "@/components/cv-generator/MyCVsList";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 // Helper component for tab navigation (max 15 lines)
-const TabNavigation = ({ activeTab, setActiveTab }: { 
-  activeTab: string; 
-  setActiveTab: (tab: any) => void; 
+const TabNavigation = ({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: string;
+  setActiveTab: (tab: any) => void;
 }) => (
   <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-8">
     <Button
-      variant={activeTab === 'generate' ? 'default' : 'ghost'}
-      onClick={() => setActiveTab('generate')}
-      className={`flex-1 ${activeTab === 'generate' ? 'bg-[#467EC7] text-white' : ''}`}
+      variant={activeTab === "generate" ? "default" : "ghost"}
+      onClick={() => setActiveTab("generate")}
+      className={`flex-1 ${
+        activeTab === "generate" ? "bg-[#467EC7] text-white" : ""
+      }`}
     >
       <Plus className="w-4 h-4 mr-2" />
       Create CV
     </Button>
     <Button
-      variant={activeTab === 'my-cvs' ? 'default' : 'ghost'}
-      onClick={() => setActiveTab('my-cvs')}
-      className={`flex-1 ${activeTab === 'my-cvs' ? 'bg-[#467EC7] text-white' : ''}`}
+      variant={activeTab === "my-cvs" ? "default" : "ghost"}
+      onClick={() => setActiveTab("my-cvs")}
+      className={`flex-1 ${
+        activeTab === "my-cvs" ? "bg-[#467EC7] text-white" : ""
+      }`}
     >
       <FileText className="w-4 h-4 mr-2" />
       My CVs
@@ -51,9 +61,12 @@ export default function CVGeneratorPage() {
       <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">CV Generator</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              CV Generator
+            </h1>
             <p className="text-xl text-gray-600">
-              Create professional, ATS-friendly CVs with our easy-to-use generator.
+              Create professional, ATS-friendly CVs with our easy-to-use
+              generator.
             </p>
           </div>
 
@@ -66,9 +79,12 @@ export default function CVGeneratorPage() {
 
           {!isLoading && (
             <>
-              <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+              <TabNavigation
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
 
-              {activeTab === 'generate' && (
+              {activeTab === "generate" && (
                 <CVForm
                   formData={formData}
                   onInputChange={handleInputChange}
@@ -77,12 +93,12 @@ export default function CVGeneratorPage() {
                 />
               )}
 
-              {activeTab === 'my-cvs' && (
+              {activeTab === "my-cvs" && (
                 <MyCVsList
                   generatedCVs={generatedCVs}
                   onDownloadCV={handleDownloadCV}
                   onDeleteCV={handleDeleteCV}
-                  onSwitchToGenerate={() => setActiveTab('generate')}
+                  onSwitchToGenerate={() => setActiveTab("generate")}
                 />
               )}
             </>

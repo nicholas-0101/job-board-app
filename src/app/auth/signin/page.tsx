@@ -171,7 +171,7 @@ export default function SignInPage() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -183,12 +183,12 @@ export default function SignInPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-center mb-8"
+          className="text-center mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl font-bold text-[#467EC7] mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#467EC7] mb-2">
             Welcome back!
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-4">
             Sign in to access your account
           </p>
         </motion.div>
@@ -216,7 +216,7 @@ export default function SignInPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-center mt-8 text-muted-foreground"
+          className="text-center mt-6 sm:mt-8 text-sm sm:text-base text-muted-foreground"
         >
           Don't have an account?{" "}
           <Link
@@ -229,12 +229,12 @@ export default function SignInPage() {
       </motion.div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl">
+        <DialogContent className="sm:max-w-md !rounded-3xl mx-2 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#467EC7]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
               {dialogTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-muted-foreground">
+            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
               {dialogMessage}
             </DialogDescription>
           </DialogHeader>
@@ -244,7 +244,7 @@ export default function SignInPage() {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2"
             >
               OK
             </Button>

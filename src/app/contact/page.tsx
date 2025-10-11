@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Instagram, Facebook, Twitter, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/helper/axios";
 import {
@@ -178,19 +179,19 @@ export default function ContactUsPage() {
             href="https://www.instagram.com/workoo"
             className="text-[#E1306C] p-4 rounded-full hover:scale-105 hover:bg-neutral-100 transition transform"
           >
-            <Instagram className="w-6 h-6" />
+            <FaInstagram className="w-6 h-6" />
           </a>
           <a
             href="https://facebook.com/workoo"
             className="text-[#1877F2] p-4 rounded-full hover:scale-105 hover:bg-neutral-100 transition transform"
           >
-            <Facebook className="w-6 h-6" />
+            <FaFacebook className="w-6 h-6" />
           </a>
           <a
             href="https://x.com/workoo"
             className="text-[#1DA1F2] p-4 rounded-full hover:scale-105 hover:bg-neutral-100 transition transform"
           >
-            <Twitter className="w-6 h-6" />
+            <FaTwitter className="w-6 h-6" />
           </a>
         </motion.div>
       </section>

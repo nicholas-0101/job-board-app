@@ -199,7 +199,7 @@ export default function JobsPage() {
 
   return (
     <section className="min-h-screen">
-      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 py-20">
+      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 py-12 sm:py-16 md:py-20">
         <div className="absolute inset-0" />
         <div className="relative container mx-auto px-4 text-center max-w-5xl">
           <motion.div
@@ -208,15 +208,15 @@ export default function JobsPage() {
             transition={{ duration: 0.6 }}
             className="flex flex-col justify-center items-center"
           >
-            <h1 className="text-5xl font-bold mb-6 text-[#467EC7]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-[#467EC7]">
               Choose Your <span className="text-[#24CFA7]">Next Career</span>
             </h1>
-            <p className="text-xl opacity-90 mb-8 text-muted-foreground max-w-3xl">
+            <p className="text-base sm:text-lg md:text-xl opacity-90 mb-6 sm:mb-8 text-muted-foreground max-w-3xl px-4">
               Discover opportunities that align with your passion and skills,
               and take the next step toward the career you've always dreamed of
             </p>
 
-            <div className="w-full lg:max-w-5xl z-1">
+            <div className="w-full lg:max-w-5xl z-1 px-2 sm:px-4">
               <SearchBar
                 keyword={searchInputs.keyword}
                 setKeyword={(v) =>
@@ -234,31 +234,54 @@ export default function JobsPage() {
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
 
-      <section className="lg:max-w-6xl mx-auto pb-12">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-muted-foreground">
+      <section className="lg:max-w-6xl mx-auto pb-8 sm:pb-12 px-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Showing{" "}
             <span className="font-semibold text-foreground">{jobs.length}</span>{" "}
             of {total} jobs
           </p>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
-              <div className="relative" ref={wrapperRef}>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
+              {/* Mobile: Sort button first, then posted filter */}
+              <button
+                onClick={toggleSortOrder}
+                className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 transition-colors shadow-sm order-1 sm:order-2"
+                title={`Sort ${
+                  filters.order === "asc" ? "Descending" : "Ascending"
+                }`}
+              >
+                {filters.order === "asc" ? (
+                  <>
+                    <ArrowUpDown className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-medium">Oldest Jobs</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-medium">Newest Jobs</span>
+                  </>
+                )}
+              </button>
+
+              <div className="relative order-2 sm:order-1" ref={wrapperRef}>
                 <button
                   type="button"
                   onClick={() => setShowPostedDropdown((prev) => !prev)}
-                  className="w-46 px-4 py-2 rounded-lg bg-[#467EC7] text-white font-semibold text-sm text-left flex justify-between items-center"
+                  className="w-full sm:w-46 px-3 sm:px-4 py-2 rounded-lg bg-[#467EC7] text-white font-semibold text-xs sm:text-sm text-left flex justify-between items-center"
                 >
-                  {filters.postedWithin === "1"
-                    ? "Posted Today"
-                    : filters.postedWithin === "3"
-                    ? "Posted Last 3 days"
-                    : filters.postedWithin === "7"
-                    ? "Posted Last 7 days"
-                    : filters.postedWithin === "30"
-                    ? "Posted Last 30 days"
-                    : "All Post"}
+                  <span className="truncate">
+                    {filters.postedWithin === "1"
+                      ? "Posted Today"
+                      : filters.postedWithin === "3"
+                      ? "Posted Last 3 days"
+                      : filters.postedWithin === "7"
+                      ? "Posted Last 7 days"
+                      : filters.postedWithin === "30"
+                      ? "Posted Last 30 days"
+                      : "All Post"}
+                  </span>
                   <span className="ml-2">▾</span>
                 </button>
 
@@ -286,7 +309,7 @@ export default function JobsPage() {
                             }));
                             setShowPostedDropdown(false);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-[#467EC7]/10 transition-colors rounded-lg"
+                          className="w-full text-left px-3 sm:px-4 py-2 hover:bg-[#467EC7]/10 transition-colors rounded-lg text-xs sm:text-sm"
                         >
                           {label}
                         </button>
@@ -296,69 +319,51 @@ export default function JobsPage() {
                 )}
               </div>
 
-              <button
-                onClick={toggleSortOrder}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 transition-colors shadow-sm"
-                title={`Sort ${
-                  filters.order === "asc" ? "Descending" : "Ascending"
-                }`}
-              >
-                {filters.order === "asc" ? (
-                  <>
-                    <ArrowUpDown className="w-5 h-5" />
-                    <span className="text-sm font-medium">Oldest Jobs</span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowDownUp className="w-5 h-5" />
-                    <span className="text-sm font-medium">Newest Jobs</span>
-                  </>
-                )}
-              </button>
+              <div className="hidden sm:block w-px bg-border h-6 mx-2 order-3" />
 
-              <div className="w-px bg-border h-6 mx-2" />
-
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-all ${
-                  viewMode === "grid"
-                    ? "bg-[#467EC7] text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                <Grid3x3 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-all ${
-                  viewMode === "list"
-                    ? "bg-[#467EC7] text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                <List className="w-5 h-5" />
-              </button>
+              <div className="hidden sm:flex items-center gap-1 order-4">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-all ${
+                    viewMode === "grid"
+                      ? "bg-[#467EC7] text-primary-foreground"
+                      : "text-muted-foreground hover:bg-secondary"
+                  }`}
+                >
+                  <Grid3x3 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-lg transition-all ${
+                    viewMode === "list"
+                      ? "bg-[#467EC7] text-primary-foreground"
+                      : "text-muted-foreground hover:bg-secondary"
+                  }`}
+                >
+                  <List className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Job List */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-16 sm:py-20">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             >
-              <Loader className="w-8 h-8 text-[#24CFA7]" />
+              <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-[#24CFA7]" />
             </motion.div>
           </div>
         ) : jobs.length === 0 ? (
-          <div className="text-center py-20">
-            <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-              <SearchX size={48} color="#24CFA7" /> No jobs found matching your
-              search.
+          <div className="text-center py-16 sm:py-20">
+            <h3 className="text-lg sm:text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+              <SearchX size={40} className="sm:w-12 sm:h-12" color="#24CFA7" /> 
+              <span className="px-4">No jobs found matching your search.</span>
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground px-4">
               Try adjusting filters or searching a different keyword.
             </p>
           </div>
@@ -370,9 +375,9 @@ export default function JobsPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className={`grid gap-4 ${
+              className={`grid gap-3 sm:gap-4 ${
                 viewMode === "grid"
-                  ? "md:grid-cols-2 lg:grid-cols-3"
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                   : "grid-cols-1"
               }`}
             >
@@ -384,25 +389,25 @@ export default function JobsPage() {
         )}
 
         {/* Pagination */}
-        <div className="mt-6 flex items-center justify-center gap-2">
+        <div className="mt-4 sm:mt-6 flex items-center justify-center gap-1 sm:gap-2">
           <button
             onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page === 1}
-            className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+            className="p-1.5 sm:p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
           >
-            <ChevronLeft />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
           {getVisiblePages(page, totalPages).map((p, i) =>
             typeof p === "string" ? (
-              <span key={i} className="px-3 py-2">
+              <span key={i} className="px-2 sm:px-3 py-1 sm:py-2 text-sm">
                 {p}
               </span>
             ) : (
               <button
                 key={i}
                 onClick={() => setPage(p)}
-                className={`w-10 h-10 rounded-xl font-medium ${
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-medium text-sm sm:text-base ${
                   page === p
                     ? "bg-[#467EC7] text-primary-foreground"
                     : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
@@ -416,9 +421,9 @@ export default function JobsPage() {
           <button
             onClick={() => setPage(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
-            className="p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
+            className="p-1.5 sm:p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
           >
-            <ChevronRight />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </section>

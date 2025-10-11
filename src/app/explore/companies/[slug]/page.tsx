@@ -46,7 +46,7 @@ export default function CompanyDetailPage() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
-          <Loader className="w-8 h-8 text-[#24CFA7]" />
+          <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-[#24CFA7]" />
         </motion.div>
       </div>
     );
@@ -55,11 +55,12 @@ export default function CompanyDetailPage() {
   if (!company) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center py-20">
-          <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-            <SearchX size={48} color="#24CFA7" /> Company not found.
+        <div className="text-center py-16 sm:py-20">
+          <h3 className="text-lg sm:text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+            <SearchX size={40} className="sm:w-12 sm:h-12" color="#24CFA7" /> 
+            <span className="px-4">Company not found.</span>
           </h3>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-4">
             Please select another company.
           </p>
         </div>
@@ -68,11 +69,74 @@ export default function CompanyDetailPage() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#24CFA7]/10 via-white to-[#467EC7]/10">
-      <Container className="py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+      <Container className="py-4 sm:py-6">
+        {/* Mobile Layout - Vertical Stack */}
+        <div className="flex flex-col lg:hidden space-y-4 sm:space-y-6">
+          {/* Company Detail Card */}
+          <CompanyDetailCard 
+            company={company} 
+            onReviewSubmitted={handleReviewSubmitted}
+          />
+          
+          {/* Company Jobs */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">
+                Jobs at {company.name}
+              </h2>
+              <a
+                href="/explore/jobs"
+                className="text-[#467EC7] hover:opacity-80 font-medium flex items-center gap-1 transition-colors text-sm sm:text-base"
+              >
+                See all <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+              </a>
+            </div>
+
+            <div className="grid gap-2 sm:gap-3">
+              {company.jobs?.length > 0 ? (
+                company.jobs.map((job: any) => (
+                  <JobCard
+                    key={job.slug}
+                    id={job.id}
+                    slug={job.slug}
+                    title={job.title}
+                    company={company.name}
+                    logo={company.logoUrl}
+                    city={job.city}
+                    salary={
+                      job.salaryMin && job.salaryMax
+                        ? `${job.salaryMin} - ${job.salaryMax}`
+                        : ""
+                    }
+                    category={job.category}
+                    tags={job.tags || []}
+                    rating={company.companyRating || 0}
+                  />
+                ))
+              ) : (
+                <p className="text-muted-foreground text-xs sm:text-sm">
+                  No jobs available from this company.
+                </p>
+              )}
+            </div>
+          </motion.section>
+          
+          {/* Company Reviews */}
+          <CompanyReviews 
+            companyId={company.id} 
+            refreshTrigger={reviewRefreshTrigger}
+          />
+        </div>
+
+        {/* Desktop Layout - Original Grid */}
+        <div className="hidden lg:grid grid-cols-12 gap-6">
           {/* Company Detail */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="col-span-8 space-y-6">
             <CompanyDetailCard 
               company={company} 
               onReviewSubmitted={handleReviewSubmitted}
@@ -88,7 +152,7 @@ export default function CompanyDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-4"
+            className="col-span-4"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-foreground">

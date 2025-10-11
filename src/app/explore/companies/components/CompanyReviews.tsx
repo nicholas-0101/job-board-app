@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { User, Briefcase, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { apiCall } from "@/helper/axios";
-import StarRating from "@/components/StarRating";
+import StarRating from "@/components/review/StarRating";
 
 interface Review {
   id: number;
@@ -130,15 +130,15 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
 
   if (loading && reviews.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-6">
+      <div className="bg-white rounded-2xl p-4 sm:p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-5 sm:h-6 bg-gray-200 rounded w-1/3"></div>
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="border rounded-lg p-4 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-full"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div key={i} className="border rounded-lg p-3 sm:p-4 space-y-2">
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
               </div>
             ))}
           </div>
@@ -152,16 +152,16 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="bg-white rounded-2xl p-6 border border-[#E1F1F3]"
+      className="bg-white rounded-2xl p-4 sm:p-6 border border-[#E1F1F3]"
     >
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-[#467EC7]">Employee Reviews</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-bold text-[#467EC7]">Employee Reviews</h2>
         {stats && (
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <div className="flex items-center gap-2">
               <StarRating rating={parseFloat(stats.avgOverallRating) || 0} />
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-gray-500">
               {stats.totalReviews} review{stats.totalReviews !== 1 ? 's' : ''}
             </p>
           </div>
@@ -170,21 +170,21 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
 
       {/* Review Statistics */}
       {stats && stats.totalReviews > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-[#E1F1F3] rounded-lg">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6 p-3 sm:p-4 bg-[#E1F1F3] rounded-lg">
           <div className="text-center">
-            <p className="text-sm text-[#467EC7] font-medium">Culture</p>
+            <p className="text-xs sm:text-sm text-[#467EC7] font-medium">Culture</p>
             <StarRating rating={parseFloat(stats.avgCultureRating) || 0} />
           </div>
           <div className="text-center">
-            <p className="text-sm text-[#467EC7] font-medium">Facilities</p>
+            <p className="text-xs sm:text-sm text-[#467EC7] font-medium">Facilities</p>
             <StarRating rating={parseFloat(stats.avgFacilityRating) || 0} />
           </div>
           <div className="text-center">
-            <p className="text-sm text-[#467EC7] font-medium">Work-Life</p>
+            <p className="text-xs sm:text-sm text-[#467EC7] font-medium">Work-Life</p>
             <StarRating rating={parseFloat(stats.avgWorklifeRating) || 0} />
           </div>
           <div className="text-center">
-            <p className="text-sm text-[#467EC7] font-medium">Career</p>
+            <p className="text-xs sm:text-sm text-[#467EC7] font-medium">Career</p>
             <StarRating rating={parseFloat(stats.avgCareerRating) || 0} />
           </div>
         </div>
@@ -192,12 +192,12 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
 
       {/* Error State */}
       {error && (
-        <div className="text-center py-8">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <User className="w-6 h-6 text-red-600" />
+        <div className="text-center py-6 sm:py-8">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <User className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
           </div>
-          <p className="text-red-600 font-medium">Failed to load reviews</p>
-          <p className="text-sm text-red-500 mb-4">{error}</p>
+          <p className="text-sm sm:text-base text-red-600 font-medium">Failed to load reviews</p>
+          <p className="text-xs sm:text-sm text-red-500 mb-3 sm:mb-4 px-4">{error}</p>
           <button
             onClick={() => {
               setError(null);
@@ -205,7 +205,7 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
               fetchReviews();
               fetchStats();
             }}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
           >
             Try Again
           </button>
@@ -214,40 +214,40 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
 
       {/* Reviews List */}
       {!error && reviews.length === 0 ? (
-        <div className="text-center py-8">
-          <User className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No reviews yet</p>
-          <p className="text-sm text-gray-400">Be the first to review this company</p>
+        <div className="text-center py-6 sm:py-8">
+          <User className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-sm sm:text-base text-gray-500">No reviews yet</p>
+          <p className="text-xs sm:text-sm text-gray-400">Be the first to review this company</p>
         </div>
       ) : !error ? (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {reviews.map((review, index) => (
             <motion.div
               key={review.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="border border-[#E1F1F3] rounded-lg p-4 hover:shadow-sm transition-shadow bg-white hover:border-[#467EC7]/30"
+              className="border border-[#E1F1F3] rounded-lg p-3 sm:p-4 hover:shadow-sm transition-shadow bg-white hover:border-[#467EC7]/30"
             >
               <div className="flex items-start mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#467EC7]/10 to-[#24CFA7]/10 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-[#467EC7]" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#467EC7]/10 to-[#24CFA7]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#467EC7]" />
                   </div>
-                  <div>
-                    <p className="font-medium text-[#467EC7]">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-[#467EC7] text-sm sm:text-base">
                       {review.isAnonymous !== false 
                         ? "Anonymous" 
                         : (review.reviewerSnapshot || review.reviewer?.name || "Anonymous")
                       }
                     </p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
                       <div className="flex items-center gap-1">
-                        <Briefcase className="w-4 h-4" />
-                        <span>{review.positionTitle}</span>
+                        <Briefcase className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="truncate">{review.positionTitle}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>{formatDate(review.createdAt)}</span>
                       </div>
                     </div>
@@ -256,7 +256,7 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
               </div>
 
               {/* Rating Breakdown */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 text-sm">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-3 text-xs sm:text-sm">
                 <div>
                   <span className="text-[#A3B6CE]">Culture: </span>
                   <span className="font-medium text-[#467EC7]">{review.ratingCulture}/5</span>
@@ -277,7 +277,7 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
 
               {/* Salary Info */}
               {(review.salaryEstimateMin || review.salaryEstimateMax) && (
-                <div className="mb-3 p-2 bg-[#24CFA7]/10 rounded text-sm border border-[#24CFA7]/20">
+                <div className="mb-3 p-2 bg-[#24CFA7]/10 rounded text-xs sm:text-sm border border-[#24CFA7]/20">
                   <span className="text-[#24CFA7] font-medium">
                     Salary Estimate: {formatSalary(review.salaryEstimateMin, review.salaryEstimateMax)}
                   </span>
@@ -285,17 +285,17 @@ export default function CompanyReviews({ companyId, refreshTrigger }: CompanyRev
               )}
 
               {/* Review Content */}
-              <p className="text-[#A3B6CE] leading-relaxed">{review.body}</p>
+              <p className="text-[#A3B6CE] leading-relaxed text-sm sm:text-base">{review.body}</p>
             </motion.div>
           ))}
 
           {/* Load More Button */}
           {hasMore && (
-            <div className="text-center pt-4">
+            <div className="text-center pt-3 sm:pt-4">
               <button
                 onClick={loadMore}
                 disabled={loading}
-                className="px-6 py-2 border border-[#467EC7] text-[#467EC7] rounded-lg hover:bg-[#467EC7] hover:text-white transition-colors disabled:opacity-50"
+                className="px-4 sm:px-6 py-2 border border-[#467EC7] text-[#467EC7] rounded-lg hover:bg-[#467EC7] hover:text-white transition-colors disabled:opacity-50 text-sm sm:text-base"
               >
                 {loading ? "Loading..." : "Load More Reviews"}
               </button>

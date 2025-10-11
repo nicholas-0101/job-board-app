@@ -69,7 +69,7 @@ export default function HomePage() {
         router.replace("/admin");
         return;
       }
-    } catch {}
+    } catch { }
 
     const fetchJobs = async () => {
       try {
@@ -112,9 +112,8 @@ export default function HomePage() {
         if (keyword) params.set("keyword", keyword);
         if (selectedLocation) params.set("city", selectedLocation);
 
-        const newUrl = `${pathname}${
-          params.toString() ? "?" + params.toString() : ""
-        }`;
+        const newUrl = `${pathname}${params.toString() ? "?" + params.toString() : ""
+          }`;
         if (window.location.pathname + window.location.search !== newUrl) {
           router.replace(newUrl, { scroll: false });
         }
@@ -202,30 +201,30 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative container mx-auto px-4 pt-24 pb-12">
+        <div className="relative container mx-auto px-4 pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-10 md:pb-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-14"
+            className="text-center mb-8 sm:mb-10 md:mb-14"
           >
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-5">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-5">
               <span className="text-[#467EC7]">Find Your</span>
               <br />
               <span className="text-[#24CFA7]">Dream Career</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10 px-4">
               Connect with top companies and discover opportunities that match
               your skills, passion, and career goals with workoo
             </p>
 
-            <div className="flex justify-center gap-8 mb-14">
+            <div className="grid grid-cols-2 sm:flex sm:justify-center gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-10 md:mb-14">
               {stats.map((stat, i) => (
                 <div key={i} className="text-center">
-                  <div className="text-3xl font-bold tracking-tight text-[#467EC7]">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[#467EC7]">
                     <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     {stat.label}
                   </div>
                 </div>
@@ -237,7 +236,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="max-w-4xl mx-auto"
+            className="max-w-4xl mx-auto px-2 sm:px-4 relative z-10"
           >
             <SearchBar
               keyword={keyword}
@@ -254,29 +253,29 @@ export default function HomePage() {
       {/* Jobs */}
       <section
         ref={exploreRef}
-        className="container mx-auto px-4 py-16 min-h-[100vh]"
+        className="container mx-auto px-4 py-8 sm:py-12 md:py-16 min-h-[100vh]"
       >
-        <div className="text-center mb-12 mt-10">
-          <h2 className="text-3xl font-bold text-[#467EC7] mb-2">
+        <div className="text-center mb-8 sm:mb-10 md:mb-12 mt-6 sm:mt-8 md:mt-10">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#467EC7] mb-2">
             Explore Your Dream Career
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Find career that match your passion
           </p>
         </div>
 
         {jobs.length === 0 ? (
-          <div className="text-center py-30">
-            <h3 className="text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-              <SearchX size={48} color="#24CFA7" /> No jobs found matching your
-              search.
+          <div className="text-center py-16 sm:py-20 md:py-30">
+            <h3 className="text-lg sm:text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
+              <SearchX size={40} className="sm:w-12 sm:h-12" color="#24CFA7" />
+              <span className="px-4">No jobs found matching your search.</span>
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground px-4">
               Try adjusting filters or searching a different keyword.
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {jobs.map((job, index) => (
               <motion.div
                 key={job.id}
@@ -291,38 +290,38 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="text-center mt-10">
+        <div className="text-center mt-8 sm:mt-10">
           <Link href="/explore/jobs">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#24CFA7] text-primary-foreground font-semibold rounded-xl hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[#24CFA7] text-primary-foreground font-semibold rounded-xl hover:shadow-lg transition-all text-sm sm:text-base"
             >
               Explore All Jobs
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </Link>
         </div>
       </section>
 
       {/* Trusted Companies */}
-      <section className="relative container mx-auto px-4 py-16 text-center bg-gradient-to-br from-[#467EC7]/25 via-white/90 to-[#24CFA7]/10">
+      <section className="relative container mx-auto px-4 py-8 sm:py-12 md:py-16 text-center bg-gradient-to-br from-[#467EC7]/25 via-white/90 to-[#24CFA7]/10">
         <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-b from-white via-transparent to-transparent pointer-events-none" />
 
-        <h3 className="text-lg font-semibold text-muted-foreground mb-8">
+        <h3 className="text-base sm:text-lg font-semibold text-muted-foreground mb-6 sm:mb-8">
           Trusted by professionals from
         </h3>
-        <div className="flex justify-center items-center gap-12 flex-wrap">
+        <div className="grid grid-cols-2 sm:flex sm:justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 flex-wrap">
           {trustedCompanies.map((company) => (
             <a
               key={company.name}
               href={company.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[#A3B6CE] hover:text-[#467EC7] transition-colors"
+              className="flex items-center gap-1 sm:gap-2 text-[#A3B6CE] hover:text-[#467EC7] transition-colors justify-center sm:justify-start"
             >
-              <span className="text-3xl">{company.logo}</span>
-              <span className="text-xl font-semibold">{company.name}</span>
+              <span className="text-2xl sm:text-3xl">{company.logo}</span>
+              <span className="text-sm sm:text-lg md:text-xl font-semibold">{company.name}</span>
             </a>
           ))}
         </div>

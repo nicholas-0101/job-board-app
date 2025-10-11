@@ -22,8 +22,11 @@ export default function UserOnlyGuard({ children }: UserOnlyGuardProps) {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
-    // If no token, allow access (public pages)
-    if (!token) return;
+    // If no token, go to signin
+    if (!token) {
+      router.replace("/go-to-signin");
+      return;
+    }
 
     // If admin tries to access user pages, redirect to admin
     if (role === "ADMIN") {

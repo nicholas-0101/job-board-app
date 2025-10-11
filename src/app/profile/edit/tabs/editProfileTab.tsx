@@ -55,12 +55,12 @@ export default function ProfileTab() {
 
   if (loadingProfile) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-12 sm:py-20">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
-          <Loader className="w-8 h-8 text-[#24CFA7]" />
+          <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-[#24CFA7]" />
         </motion.div>
       </div>
     );
@@ -113,7 +113,7 @@ export default function ProfileTab() {
         onSubmit={handleEditProfile}
       >
         {({ setFieldValue }) => (
-          <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8">
+          <Form className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-4 sm:p-8">
             {user?.role === "ADMIN" ? (
               <>
                 <InputField
@@ -195,7 +195,7 @@ export default function ProfileTab() {
 
             <motion.button
               type="submit"
-              className={`w-full mt-6 px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
+              className={`w-full mt-4 sm:mt-6 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all text-sm sm:text-base ${
                 isSaving
                   ? "cursor-not-allowed opacity-70"
                   : "hover:shadow-xl cursor-pointer"
@@ -209,12 +209,12 @@ export default function ProfileTab() {
       </Formik>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl">
+        <DialogContent className="sm:max-w-md !rounded-3xl mx-2 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#467EC7]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
               {dialogTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-muted-foreground">
+            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
               {dialogMessage}
             </DialogDescription>
           </DialogHeader>
@@ -224,7 +224,7 @@ export default function ProfileTab() {
                 setDialogOpen(false);
                 dialogAction?.();
               }}
-              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg"
+              className="bg-[#24CFA7] hover:bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2"
             >
               OK
             </Button>
