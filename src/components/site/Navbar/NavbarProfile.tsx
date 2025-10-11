@@ -8,8 +8,8 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 interface Props {
   user: {
     id: number;
-    name: string;
-    profilePicture?: string | null | undefined;
+    name?: string | null;
+    profilePicture?: string | null;
   };
   logout: () => void;
   router: AppRouterInstance;
@@ -53,7 +53,9 @@ export default function NavbarProfile({ user, logout, router }: Props) {
             className="rounded-full"
           />
         )}
-        <span className="hidden md:block text-sm font-medium">{user.name}</span>
+        <span className="hidden md:block text-sm font-medium">
+          {user.name || "User"}
+        </span>
       </button>
 
       {open && (

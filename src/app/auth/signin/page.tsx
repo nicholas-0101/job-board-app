@@ -57,10 +57,16 @@ export default function SignInPage() {
         throw new Error("Invalid response from server");
       }
 
+      const isProfileComplete = Boolean(user.isProfileComplete);
+
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("role", user.role);
       localStorage.setItem("userId", user.id.toString());
+      localStorage.setItem(
+        "isProfileComplete",
+        isProfileComplete ? "true" : "false"
+      );
 
       // Get company ID for admin
       if (user.role === "ADMIN") {
@@ -74,20 +80,24 @@ export default function SignInPage() {
           const companyId = Number(
             companyResponse.data?.id ?? companyResponse.data?.data?.id
           );
-          localStorage.setItem("companyId", companyId.toString());
+          if (!Number.isNaN(companyId)) {
+            localStorage.setItem("companyId", companyId.toString());
+          }
         } catch (err) {
           // Ignore company fetch error
         }
       }
 
-      setUser(user);
+      setUser({ ...user, isProfileComplete });
 
-      // Redirect based on role
       if (user.role === "ADMIN") {
-        router.replace("/admin");
+        router.replace(
+          isProfileComplete ? "/admin" : "/admin/profile/complete"
+        );
       } else {
-        router.replace("/");
+        router.replace(isProfileComplete ? "/" : "/profile/complete");
       }
+
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.error ||
@@ -126,6 +136,7 @@ export default function SignInPage() {
             role,
           });
           const userData = res.data.data;
+          const isProfileComplete = Boolean(userData.isProfileComplete);
 
           // If admin, fetch companyId like in password sign-in
           if (userData.role === "ADMIN") {
@@ -138,7 +149,9 @@ export default function SignInPage() {
               const companyId = Number(
                 companyResponse.data?.id ?? companyResponse.data?.data?.id
               );
-              localStorage.setItem("companyId", companyId.toString());
+              if (!Number.isNaN(companyId)) {
+                localStorage.setItem("companyId", companyId.toString());
+              }
             } catch (err) {
               // ignore company fetch error
             }
@@ -148,13 +161,18 @@ export default function SignInPage() {
           localStorage.setItem("user", JSON.stringify(userData));
           localStorage.setItem("role", userData.role);
           localStorage.setItem("userId", userData.id.toString());
-          setUser(userData);
+          localStorage.setItem(
+            "isProfileComplete",
+            isProfileComplete ? "true" : "false"
+          );
+          setUser({ ...userData, isProfileComplete });
 
-          // Redirect based on role
           if (userData.role === "ADMIN") {
-            router.replace("/admin");
+            router.replace(
+              isProfileComplete ? "/admin" : "/admin/profile/complete"
+            );
           } else {
-            router.replace("/");
+            router.replace(isProfileComplete ? "/" : "/profile/complete");
           }
         } catch (err: any) {
           openDialog(

@@ -31,6 +31,7 @@ export default function HomePage() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
 
   const heroRef = useRef(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -53,23 +54,30 @@ export default function HomePage() {
   useEffect(() => {
     if (!mounted) return;
 
-    const searchParams = new URLSearchParams(window.location.search);
-    setKeyword(searchParams.get("keyword") || "");
-    setSelectedLocation(searchParams.get("city") || "");
-    setPathname(window.location.pathname);
-  }, [mounted]);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    // Only redirect admin, let regular users access homepage
     try {
       const role = localStorage.getItem("role");
       if (role === "ADMIN") {
         router.replace("/admin");
         return;
       }
-    } catch { }
+    } catch {
+      // ignore access errors, allow rendering
+    }
+
+    setHasAccess(true);
+  }, [mounted, router]);
+
+  useEffect(() => {
+    if (!hasAccess) return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    setKeyword(searchParams.get("keyword") || "");
+    setSelectedLocation(searchParams.get("city") || "");
+    setPathname(window.location.pathname);
+  }, [hasAccess]);
+
+  useEffect(() => {
+    if (!hasAccess) return;
 
     const fetchJobs = async () => {
       try {
@@ -101,11 +109,11 @@ export default function HomePage() {
     };
 
     fetchJobs();
-  }, [keyword, selectedLocation, mounted, router]);
+  }, [keyword, selectedLocation, hasAccess, router]);
 
   const handleSearch = useCallback(
     async (shouldScroll: boolean = true) => {
-      if (!pathname) return;
+      if (!hasAccess || !pathname) return;
 
       try {
         const params = new URLSearchParams();
@@ -174,10 +182,10 @@ export default function HomePage() {
     fetchLocationAndJobs();
   }, [mounted]);
 
-  if (!mounted) {
+  if (!mounted || !hasAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#24CFA7]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#24CFA7]" />
       </div>
     );
   }

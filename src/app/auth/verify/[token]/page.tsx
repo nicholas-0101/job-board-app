@@ -31,14 +31,43 @@ export default function VerifyPage() {
       const verifiedUser = res.data.user;
       setUser(verifiedUser);
       localStorage.setItem("verifiedUser", JSON.stringify(verifiedUser));
+      localStorage.setItem("user", JSON.stringify(verifiedUser));
+
+      if (verifiedUser?.role) {
+        localStorage.setItem("role", verifiedUser.role);
+      }
+
+      if (verifiedUser?.id) {
+        localStorage.setItem("userId", verifiedUser.id.toString());
+      }
 
       const verifiedToken = res.data.token;
       if (verifiedToken) {
         localStorage.setItem("verifiedToken", verifiedToken);
+        localStorage.setItem("token", verifiedToken);
       }
+
+      const isProfileComplete = Boolean(verifiedUser?.isProfileComplete);
+
+      localStorage.setItem(
+        "isProfileComplete",
+        isProfileComplete ? "true" : "false"
+      );
 
       setStatus("success");
       setMessage(res.data.message || "Account verified successfully!");
+
+      const target =
+        verifiedUser?.role === "ADMIN"
+          ? isProfileComplete
+            ? "/admin"
+            : "/admin/profile/complete"
+          : isProfileComplete
+          ? "/"
+          : "/profile/complete";
+
+      router.replace(target);
+      return;
     } catch (err: any) {
       const msg = err.response?.data?.message || "Verification failed!";
       setMessage(msg);
@@ -93,7 +122,31 @@ export default function VerifyPage() {
   };
 
   const handleRedirect = () => {
-    router.push("/profile/complete");
+    let role = user?.role;
+
+    if (!role) {
+      try {
+        role =
+          (localStorage.getItem("role") as "ADMIN" | "USER" | null) ??
+          JSON.parse(localStorage.getItem("verifiedUser") || "{}")?.role;
+      } catch {
+        role = user?.role;
+      }
+    }
+
+    const profileCompleteFlag =
+      localStorage.getItem("isProfileComplete") === "true";
+
+    const target =
+      role === "ADMIN"
+        ? profileCompleteFlag
+          ? "/admin"
+          : "/admin/profile/complete"
+        : profileCompleteFlag
+        ? "/"
+        : "/profile/complete";
+
+    router.push(target);
   };
 
   return (

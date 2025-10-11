@@ -2,18 +2,18 @@ import { create } from "zustand";
 
 export interface User {
   id: number;
-  name: string;
+  name?: string | null;
   email: string;
-  profilePicture: string | null;
+  profilePicture?: string | null;
   role: "USER" | "ADMIN";
   passwordHash?: string | null;
-
-  phone: string;
-  gender: string;
-  dob: string;
-  education: string;
-  address: string;
-  city:string;
+  phone?: string | null;
+  gender?: string | null;
+  dob?: string | null;
+  education?: string | null;
+  address?: string | null;
+  city?: string | null;
+  isProfileComplete?: boolean;
 }
 
 interface UserState {
@@ -26,7 +26,22 @@ export const useUserStore = create<UserState>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   logout: () => {
-    localStorage.removeItem("token");
+    [
+      "token",
+      "verifiedToken",
+      "user",
+      "verifiedUser",
+      "role",
+      "userId",
+      "companyId",
+      "isProfileComplete",
+    ].forEach((key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // ignore storage errors
+      }
+    });
     set({ user: null });
   },
 }));

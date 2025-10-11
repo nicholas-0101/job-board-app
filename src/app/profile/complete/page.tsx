@@ -34,6 +34,7 @@ export default function CompleteProfilePage() {
   const { user, setUser } = useUserStore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("Notice");
   const [dialogMessage, setDialogMessage] = useState("");
@@ -48,21 +49,109 @@ export default function CompleteProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      const saved = localStorage.getItem("verifiedUser");
-      if (saved) setUser(JSON.parse(saved));
+      const savedUser =
+        localStorage.getItem("user") || localStorage.getItem("verifiedUser");
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch {
+          // ignore invalid cached data
+        }
+      }
     }
-  }, []);
+  }, [user, setUser]);
+
+  useEffect(() => {
+    const evaluateAccess = () => {
+      const storedCompletion = localStorage.getItem("isProfileComplete") === "true";
+      const resolvedRole =
+        user?.role ||
+        (localStorage.getItem("role") as "ADMIN" | "USER" | null) ||
+        null;
+
+      if (storedCompletion || user?.isProfileComplete) {
+        const target =
+          resolvedRole === "ADMIN"
+            ? "/admin"
+            : resolvedRole === "USER"
+            ? "/"
+            : "/";
+        router.replace(target);
+        return;
+      }
+
+      setCheckingAccess(false);
+    };
+
+    evaluateAccess();
+  }, [user, router]);
 
   const handleCompleteProfile = async (values: any, { resetForm }: any) => {
     setIsLoading(true);
     try {
       if (values.dob) values.dob = new Date(values.dob).toISOString();
       const formData = new FormData();
-      for (const key in values)
-        if (values[key]) formData.append(key, values[key]);
+      for (const key in values) {
+        if (values[key]) {
+          formData.append(key, values[key]);
+        }
+      }
+
       const res = await apiCall.put("/profile/complete", formData);
+      const payload = res.data?.data;
+
+      const currentRole =
+        user?.role ||
+        (localStorage.getItem("role") as "ADMIN" | "USER" | null) ||
+        (payload?.user?.role ?? payload?.role ?? null);
+
+      let nextUser = user ?? null;
+
+      if (currentRole === "ADMIN") {
+        const updatedUser = payload?.user ?? payload;
+        nextUser = {
+          ...(user ?? {}),
+          ...(updatedUser ?? {}),
+          isProfileComplete: true,
+        };
+
+        const companyId =
+          payload?.company?.id ?? payload?.company?.data?.id ?? null;
+        if (companyId) {
+          localStorage.setItem("companyId", companyId.toString());
+        }
+      } else {
+        nextUser = {
+          ...(user ?? {}),
+          ...(payload ?? {}),
+          isProfileComplete: true,
+        };
+      }
+
+      if (nextUser) {
+        try {
+          localStorage.setItem("user", JSON.stringify(nextUser));
+        } catch {
+          // ignore storage write errors
+        }
+        setUser(nextUser as any);
+      }
+
+      localStorage.setItem("isProfileComplete", "true");
+      if (currentRole) {
+        localStorage.setItem("role", currentRole);
+      }
+      if (nextUser && "id" in nextUser && nextUser.id) {
+        localStorage.setItem("userId", nextUser.id.toString());
+      }
+
       resetForm();
-      router.replace("/auth/signin");
+
+      if (currentRole === "ADMIN") {
+        router.replace("/admin");
+      } else {
+        router.replace("/");
+      }
     } catch (err: any) {
       openDialog(
         "Error",
@@ -144,6 +233,21 @@ export default function CompleteProfilePage() {
     </>
   );
 
+  if (checkingAccess) {
+    return (
+      <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="text-center text-muted-foreground"
+        >
+          Checking profile status...
+        </motion.div>
+      </section>
+    );
+  }
+
   return (
     <section className="min-h-screen pb-20 pt-15 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
@@ -167,14 +271,16 @@ export default function CompleteProfilePage() {
         </motion.div>
 
         <Formik
+          enableReinitialize
           initialValues={
             user?.role === "ADMIN"
               ? {
                   phone: "",
                   location: "",
+                  city: "",
                   description: "",
                   website: "",
-                  logo: null,
+                  logoUrl: null,
                 }
               : {
                   phone: "",
@@ -182,6 +288,7 @@ export default function CompleteProfilePage() {
                   dob: "",
                   education: "",
                   address: "",
+                  city: "",
                   profilePicture: null,
                 }
           }

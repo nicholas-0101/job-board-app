@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminGuard } from "@/components/auth/AdminGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Building2, Edit, User } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user } = useUserStore();
   const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [loadingCompany, setLoadingCompany] = useState(true);
@@ -70,11 +71,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // Redirect to homepage
     router.replace("/");
   };
+
+  const isProfileCompletionPage = pathname?.startsWith("/admin/profile/complete");
+
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-background">
-        <div className="container mx-auto px-4 py-6 md:py-8 grid gap-4 md:gap-6 md:grid-cols-[260px_1fr]">
-          <aside className="h-fit md:sticky md:top-24">
+        <div
+          className={
+            isProfileCompletionPage
+              ? "container mx-auto px-4 py-6 md:py-8"
+              : "container mx-auto px-4 py-6 md:py-8 grid gap-4 md:gap-6 md:grid-cols-[260px_1fr]"
+          }
+        >
+          {!isProfileCompletionPage && (
+            <aside className="h-fit md:sticky md:top-24">
             {/* Navigation Card */}
             <Card className="shadow-lg border-t-4 border-t-[#24CFA7]">
               <CardHeader className="pb-4">
@@ -122,7 +133,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </CardContent>
             </Card>
           </aside>
-          <section className="min-w-0">{children}</section>
+          )}
+          <section className={isProfileCompletionPage ? "" : "min-w-0"}>
+            {children}
+          </section>
         </div>
       </div>
     </AdminGuard>

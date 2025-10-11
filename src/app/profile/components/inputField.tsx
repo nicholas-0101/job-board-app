@@ -22,6 +22,7 @@ export default function InputField ({
   onToggle?: () => void;
 }) {
   const [field, meta] = useField(name);
+  const value = field.value ?? "";
 
   return (
     <div className="mb-6">
@@ -42,6 +43,7 @@ export default function InputField ({
         <input
           id={name}
           {...field}
+          value={value}
           type={type}
           placeholder={placeholder}
           className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background ${
