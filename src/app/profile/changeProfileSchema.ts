@@ -13,8 +13,8 @@ export const adminProfileSchema = Yup.object().shape({
   phone: Yup.string()
     .matches(/^\+?\d{10,15}$/, "Invalid phone number")
     .required("Phone is required"),
-  address: Yup.string().required("Location is required"),
-  locationCity: Yup.string().required("City is required"), 
+  location: Yup.string().required("Location is required"),
+  city: Yup.string().required("City is required"), 
   website: Yup.string().required("Website URL is required").url("Invalid website URL"),
   description: Yup.string().required("Description is required")
   .test("not-empty", "Description is required", (val) => {

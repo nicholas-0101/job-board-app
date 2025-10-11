@@ -7,6 +7,32 @@ interface AuthRedirectGuardProps {
   children: React.ReactNode;
 }
 
+const getStoredRole = () => {
+  const role = localStorage.getItem("role");
+  if (role === "ADMIN" || role === "USER") return role;
+
+  try {
+    const savedUser = localStorage.getItem("user") || localStorage.getItem("verifiedUser");
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      if (parsed?.role === "ADMIN" || parsed?.role === "USER") {
+        return parsed.role as "ADMIN" | "USER";
+      }
+    }
+  } catch {
+    // ignore parsing issues
+  }
+
+  return null;
+};
+
+const getProfileCompletionFlag = () => {
+  const flag = localStorage.getItem("isProfileComplete");
+  if (flag === "true") return true;
+  if (flag === "false") return false;
+  return null;
+};
+
 export default function AuthRedirectGuard({ children }: AuthRedirectGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -15,26 +41,40 @@ export default function AuthRedirectGuard({ children }: AuthRedirectGuardProps) 
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
     const savedUser = localStorage.getItem("verifiedUser");
 
-    // restore user if available
     if (!user && savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch {
+        // ignore invalid saved user data
+      }
     }
 
-    // If user has token and is on /auth/... route → redirect accordingly
-    if (token && pathname.startsWith("/auth")) {
-      if (role === "ADMIN") {
-        router.replace("/admin");
-      } else {
-        router.replace("/");
-      }
+    if (!token || !pathname.startsWith("/auth")) {
+      setChecking(false);
+      return;
+    }
+
+    // Allow access to the verification route until the process completes.
+    if (pathname.startsWith("/auth/verify")) {
+      setChecking(false);
+      return;
+    }
+
+    const role = getStoredRole();
+    const profileFlag = getProfileCompletionFlag();
+    const isProfileComplete = profileFlag === null ? true : profileFlag;
+
+    if (role === "ADMIN") {
+      setChecking(false);
+      router.replace(isProfileComplete ? "/admin" : "/admin/profile/complete");
       return;
     }
 
     setChecking(false);
-  }, [user, setUser, pathname, router]);
+    router.replace(isProfileComplete ? "/" : "/profile/complete");
+  }, [pathname, router, setUser, user]);
 
   if (checking) {
     return (

@@ -19,10 +19,47 @@ export function useKeepLogin() {
         const res = await apiCall.get("/auth/keep", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(res.data.data); 
+
+        const payload = res.data?.data;
+        if (!payload) {
+          setUser(null);
+          return;
+        }
+
+        const { token: refreshedToken, ...rest } = payload;
+
+        if (refreshedToken) {
+          localStorage.setItem("token", refreshedToken);
+        }
+        if (rest.role) {
+          localStorage.setItem("role", rest.role);
+        }
+        if (typeof rest.isProfileComplete === "boolean") {
+          localStorage.setItem(
+            "isProfileComplete",
+            rest.isProfileComplete ? "true" : "false"
+          );
+        }
+        if (rest.id) {
+          localStorage.setItem("userId", rest.id.toString());
+        }
+
+        try {
+          localStorage.setItem("user", JSON.stringify(rest));
+        } catch {
+          // ignore storage errors
+        }
+
+        setUser(rest);
       } catch (err) {
         console.error("Keep login failed", err);
-        localStorage.removeItem("token");
+        ["token", "role", "isProfileComplete", "user", "userId"].forEach((key) => {
+          try {
+            localStorage.removeItem(key);
+          } catch {
+            // ignore storage errors
+          }
+        });
         setUser(null);
       } finally {
         setLoading(false);

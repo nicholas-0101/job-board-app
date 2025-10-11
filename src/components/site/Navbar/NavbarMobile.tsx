@@ -18,7 +18,12 @@ interface Props {
   links: { href: string; label: string }[];
   pathname: string | null;
   loading: boolean;
-  user: { id: number; name: string; role?: string } | null;
+  user: {
+    id: number;
+    name?: string | null;
+    role?: string;
+    profilePicture?: string | null;
+  } | null;
   logout: () => void;
   closeMenu: () => void;
   router: AppRouterInstance;

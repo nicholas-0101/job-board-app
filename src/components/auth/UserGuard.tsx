@@ -1,13 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { apiCall } from "@/helper/axios";
 import { Loader } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function UserGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
   const [allowed, setAllowed] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -27,31 +26,43 @@ export function UserGuard({ children }: { children: React.ReactNode }) {
         const response = await apiCall.get("/auth/keep");
 
         if (response.data.success) {
-          const userRole = response.data.data.role;
-          
-          // Allow admin to access ONLY profile edit/complete pages (for company profile editing)
-          const allowedProfilePages = ['/profile/edit', '/profile/complete'];
-          const isAllowedProfilePage = allowedProfilePages.some(page => pathname === page);
-          
-          // STRICT: Block admin from accessing user pages (except profile edit/complete)
-          if (userRole === "ADMIN" && !isAllowedProfilePage) {
-            console.log("Admin user blocked from user pages, redirecting to admin dashboard");
-            router.replace("/admin");
+          const data = response.data.data;
+          const userRole = data.role;
+          const isProfileComplete = Boolean(data.isProfileComplete);
+          const refreshedToken = data.token;
+
+          if (refreshedToken) {
+            localStorage.setItem("token", refreshedToken);
+          }
+          if (userRole) {
+            localStorage.setItem("role", userRole);
+          }
+          localStorage.setItem(
+            "isProfileComplete",
+            isProfileComplete ? "true" : "false"
+          );
+
+          // Admins and developers should not access user pages
+          if (userRole === "ADMIN") {
+            router.replace(
+              isProfileComplete ? "/admin" : "/admin/profile/complete"
+            );
             setLoading(false);
-            // Don't set allowed to true - keep admin blocked
             return;
           }
-          
-          // STRICT: Block developer from accessing user pages
+
           if (userRole === "DEVELOPER") {
-            console.log("Developer user blocked from user pages, redirecting to developer dashboard");
             router.replace("/developer");
             setLoading(false);
-            // Don't set allowed to true - keep developer blocked
             return;
           }
-          
-          // Allow USER role, ADMIN on profile pages, or public
+
+          if (!isProfileComplete && userRole === "USER") {
+            router.replace("/profile/complete");
+            setLoading(false);
+            return;
+          }
+
           setAllowed(true);
         } else {
           // Invalid token, allow access but token will be handled by other auth flows
@@ -67,7 +78,7 @@ export function UserGuard({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, [router, pathname]);
+  }, [router]);
 
   if (loading) {
     return (
