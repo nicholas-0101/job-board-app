@@ -13,37 +13,34 @@ import GeneratedCVCard from "./components/GeneratedCVCard";
 
 export default function CVGeneratorPage() {
   const [templates, setTemplates] = useState<CVTemplate[]>(mockTemplates);
-  const [generatedCVs, setGeneratedCVs] = useState<GeneratedCV[]>(mockGeneratedCVs);
-  const [activeTab, setActiveTab] = useState<"templates" | "generated">("templates");
+  const [generatedCVs, setGeneratedCVs] =
+    useState<GeneratedCV[]>(mockGeneratedCVs);
+  const [activeTab, setActiveTab] = useState<"templates" | "generated">(
+    "templates"
+  );
 
   const handleEditTemplate = (template: CVTemplate) => {
     // TODO: Implement edit functionality
-    console.log("Edit template:", template);
   };
 
   const handleDeleteTemplate = (templateId: number) => {
     // TODO: Implement delete functionality
-    console.log("Delete template:", templateId);
   };
 
   const handleViewTemplate = (template: CVTemplate) => {
     // TODO: Implement view functionality
-    console.log("View template:", template);
   };
 
   const handleDownloadCV = (cv: GeneratedCV) => {
     // TODO: Implement download functionality
-    console.log("Download CV:", cv);
   };
 
   const handleViewCV = (cv: GeneratedCV) => {
     // TODO: Implement view functionality
-    console.log("View CV:", cv);
   };
 
   const handleDeleteCV = (cvId: number) => {
     // TODO: Implement delete functionality
-    console.log("Delete CV:", cvId);
   };
 
   return (
@@ -112,8 +109,12 @@ export default function CVGeneratorPage() {
                 {templates.length === 0 ? (
                   <div className="text-center py-12">
                     <Layout className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Templates Yet</h3>
-                    <p className="text-gray-500 mb-4">Create your first CV template to get started.</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      No Templates Yet
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      Create your first CV template to get started.
+                    </p>
                     <Button className="bg-[#467EC7] hover:bg-[#467EC7]/90">
                       <Plus className="w-4 h-4 mr-1" />
                       Create Template
@@ -146,8 +147,12 @@ export default function CVGeneratorPage() {
                 {generatedCVs.length === 0 ? (
                   <div className="text-center py-12">
                     <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No CVs Generated Yet</h3>
-                    <p className="text-gray-500">Generated CVs will appear here when users create them.</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      No CVs Generated Yet
+                    </h3>
+                    <p className="text-gray-500">
+                      Generated CVs will appear here when users create them.
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

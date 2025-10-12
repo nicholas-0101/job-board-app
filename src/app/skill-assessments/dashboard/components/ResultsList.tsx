@@ -3,7 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Download, Eye, Trophy, Calendar } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Download,
+  Eye,
+  Trophy,
+  Calendar,
+} from "lucide-react";
 
 interface AssessmentResult {
   id: number;
@@ -18,6 +25,7 @@ interface AssessmentResult {
     id: number;
     title: string;
     description?: string;
+    passScore: number;
     badgeTemplate?: {
       id: number;
       name: string;
@@ -32,8 +40,8 @@ interface AssessmentResult {
 
 interface ResultsListProps {
   results: AssessmentResult[];
-  getScoreColor: (score: number) => string;
-  getPerformanceLevel: (score: number) => string;
+  getScoreColor: (score: number, passScore?: number) => string;
+  getPerformanceLevel: (score: number, passScore?: number) => string;
   onViewResult: (resultId: number) => void;
   onDownloadCertificate: (certificateUrl: string) => void;
 }
@@ -46,10 +54,10 @@ export default function ResultsList({
   onDownloadCertificate,
 }: ResultsListProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -62,7 +70,8 @@ export default function ResultsList({
             No Assessment Results
           </h3>
           <p className="text-gray-600">
-            You haven't completed any assessments yet. Start taking assessments to see your results here.
+            You haven't completed any assessments yet. Start taking assessments
+            to see your results here.
           </p>
         </CardContent>
       </Card>
@@ -77,17 +86,18 @@ export default function ResultsList({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-lg mb-2">
-                  {result.assessment?.title || 'Unknown Assessment'}
+                  {result.assessment?.title || "Unknown Assessment"}
                 </CardTitle>
                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
                   <Calendar className="w-4 h-4" />
                   <span>Completed on {formatDate(result.finishedAt)}</span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  Created by {result.assessment?.creator?.name || 'Unknown Creator'}
+                  Created by{" "}
+                  {result.assessment?.creator?.name || "Unknown Creator"}
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {result.isPassed ? (
                   <Badge className="bg-green-100 text-green-800 border-green-200">
@@ -95,14 +105,20 @@ export default function ResultsList({
                     Passed
                   </Badge>
                 ) : (
-                  <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+                  <Badge
+                    variant="destructive"
+                    className="bg-red-100 text-red-800 border-red-200"
+                  >
                     <XCircle className="w-3 h-3 mr-1" />
                     Failed
                   </Badge>
                 )}
-                
+
                 {result.assessment?.badgeTemplate && result.isPassed && (
-                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                  <Badge
+                    variant="secondary"
+                    className="bg-yellow-100 text-yellow-800 border-yellow-200"
+                  >
                     <Trophy className="w-3 h-3 mr-1" />
                     Certificate
                   </Badge>
@@ -110,15 +126,26 @@ export default function ResultsList({
               </div>
             </div>
           </CardHeader>
-          
+
           <CardContent>
             <div className="space-y-4">
               {/* Score Progress */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Score</span>
-                  <span className={`text-sm font-bold ${getScoreColor(result.score)}`}>
-                    {result.score}% - {getPerformanceLevel(result.score)}
+                  <span className="text-sm font-medium text-gray-700">
+                    Score
+                  </span>
+                  <span
+                    className={`text-sm font-bold ${getScoreColor(
+                      result.score,
+                      result.assessment.passScore
+                    )}`}
+                  >
+                    {result.score}% -{" "}
+                    {getPerformanceLevel(
+                      result.score,
+                      result.assessment.passScore
+                    )}
                   </span>
                 </div>
                 <Progress value={result.score} className="h-2" />
@@ -130,7 +157,9 @@ export default function ResultsList({
                   <div className="flex items-center gap-2 mb-1">
                     <Trophy className="w-4 h-4 text-yellow-600" />
                     <span className="text-sm font-medium text-yellow-800">
-                      Certificate: {result.assessment?.badgeTemplate?.name || 'Certificate Available'}
+                      Certificate:{" "}
+                      {result.assessment?.badgeTemplate?.name ||
+                        "Certificate Available"}
                     </span>
                   </div>
                   {result.certificateCode && (
@@ -152,12 +181,14 @@ export default function ResultsList({
                   <Eye className="w-4 h-4" />
                   View Details
                 </Button>
-                
+
                 {result.certificateUrl && (
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => onDownloadCertificate(result.certificateUrl!)}
+                    onClick={() =>
+                      onDownloadCertificate(result.certificateUrl!)
+                    }
                     className="flex items-center gap-2 bg-[#467EC7] hover:bg-[#467EC7]/90"
                   >
                     <Download className="w-4 h-4" />

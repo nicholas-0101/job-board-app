@@ -17,6 +17,7 @@ interface AssessmentResult {
     id: number;
     title: string;
     description?: string;
+    passScore: number;
     badgeTemplate?: {
       id: number;
       name: string;
@@ -38,7 +39,7 @@ export function useDashboardState() {
     try {
       setLoading(true);
       const response = await getUserResults();
-      
+
       let resultsData = [];
       if (response.data?.results && Array.isArray(response.data.results)) {
         resultsData = response.data.results;
@@ -47,7 +48,7 @@ export function useDashboardState() {
       } else if (Array.isArray(response)) {
         resultsData = response;
       }
-      
+
       setResults(resultsData);
     } catch (error: any) {
       toast.error("Failed to load assessment results");
@@ -57,19 +58,24 @@ export function useDashboardState() {
     }
   }, []);
 
-  const getScoreColor = useCallback((score: number) => {
+  const getScoreColor = useCallback((score: number, passScore?: number) => {
+    const threshold = passScore || 75;
     if (score >= 90) return "text-green-600";
-    if (score >= 75) return "text-blue-600";
+    if (score >= threshold) return "text-blue-600";
     if (score >= 60) return "text-yellow-600";
     return "text-red-600";
   }, []);
 
-  const getPerformanceLevel = useCallback((score: number) => {
-    if (score >= 90) return "Excellent";
-    if (score >= 75) return "Good";
-    if (score >= 60) return "Fair";
-    return "Needs Improvement";
-  }, []);
+  const getPerformanceLevel = useCallback(
+    (score: number, passScore?: number) => {
+      const threshold = passScore || 75;
+      if (score >= 90) return "Excellent";
+      if (score >= threshold) return "Good";
+      if (score >= 60) return "Fair";
+      return "Needs Improvement";
+    },
+    []
+  );
 
   return {
     results,

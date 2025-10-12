@@ -16,8 +16,12 @@ export default function TakeAssessmentPage() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = parseInt(params.id as string);
-  const { hasSubscription, isLoading: subscriptionLoading, isAuthenticated } = useSubscription();
-  
+  const {
+    hasSubscription,
+    isLoading: subscriptionLoading,
+    isAuthenticated,
+  } = useSubscription();
+
   const {
     assessment,
     loading,
@@ -37,13 +41,16 @@ export default function TakeAssessmentPage() {
     submitAssessmentData,
   } = useAssessmentState(assessmentId);
 
-  const handleSubmitRef = useRef<((isAutoSubmit?: boolean) => Promise<void>) | null>(null);
-  
-  const { timeLeft, formatTime, getTimeWarning, stopTimer } = useAssessmentTimer({
-    onTimeUp: () => handleSubmitRef.current?.(true),
-    started,
-    initialTime: interruptionInfo?.remainingTime,
-  });
+  const handleSubmitRef = useRef<
+    ((isAutoSubmit?: boolean) => Promise<void>) | null
+  >(null);
+
+  const { timeLeft, formatTime, getTimeWarning, stopTimer } =
+    useAssessmentTimer({
+      onTimeUp: () => handleSubmitRef.current?.(true),
+      started,
+      initialTime: interruptionInfo?.remainingTime,
+    });
 
   // Update ref when submitAssessmentData changes
   useEffect(() => {
@@ -114,11 +121,11 @@ export default function TakeAssessmentPage() {
   // Show subscription guard if not authenticated or no subscription
   if (isAuthenticated === false || hasSubscription === false) {
     return (
-      <SubscriptionGuard 
+      <SubscriptionGuard
         hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
-        onUpgrade={() => router.push('/subscription')}
-        onSignIn={() => router.push('/signin')}
+        onUpgrade={() => router.push("/subscription")}
+        onSignIn={() => router.push("/signin")}
       />
     );
   }
@@ -128,7 +135,9 @@ export default function TakeAssessmentPage() {
       <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Assessment not found</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Assessment not found
+            </h1>
           </div>
         </div>
       </div>
@@ -143,55 +152,56 @@ export default function TakeAssessmentPage() {
       <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <AssessmentHeader
-          title={assessment.title}
-          description={assessment.description}
-          creatorName={assessment.creator.name}
-          badgeTemplate={assessment.badgeTemplate}
-          timeLeft={timeLeft}
-          formatTime={formatTime}
-          getTimeWarning={getTimeWarning}
-          started={started}
-          onBack={handleBack}
-        />
-
-        {!started ? (
-          <StartScreen
             title={assessment.title}
             description={assessment.description}
-            questionCount={assessment.questions.length}
+            creatorName={assessment.creator.name}
             badgeTemplate={assessment.badgeTemplate}
-            onStart={handleStart}
+            timeLeft={timeLeft}
+            formatTime={formatTime}
+            getTimeWarning={getTimeWarning}
+            started={started}
+            onBack={handleBack}
           />
-        ) : (
-          <div className="space-y-6">
-            <QuestionDisplay
-              question={currentQuestionData}
-              questionIndex={currentQuestion}
-              totalQuestions={assessment.questions.length}
-              selectedAnswer={answers[currentQuestionData.id]}
-              onAnswerChange={handleAnswerChange}
-            />
 
-            <NavigationControls
-              currentQuestion={currentQuestion}
-              totalQuestions={assessment.questions.length}
-              answeredCount={answeredCount}
-              submitting={submitting}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              onSubmit={handleSubmit}
+          {!started ? (
+            <StartScreen
+              title={assessment.title}
+              description={assessment.description}
+              questionCount={assessment.questions.length}
+              passScore={assessment.passScore}
+              badgeTemplate={assessment.badgeTemplate}
+              onStart={handleStart}
             />
-          </div>
-        )}
+          ) : (
+            <div className="space-y-6">
+              <QuestionDisplay
+                question={currentQuestionData}
+                questionIndex={currentQuestion}
+                totalQuestions={assessment.questions.length}
+                selectedAnswer={answers[currentQuestionData.id]}
+                onAnswerChange={handleAnswerChange}
+              />
 
-        <ResumeDialog
-          show={showResumeDialog}
-          interruptionInfo={interruptionInfo}
-          onResume={handleResume}
-          onStartNew={handleStartNew}
-        />
+              <NavigationControls
+                currentQuestion={currentQuestion}
+                totalQuestions={assessment.questions.length}
+                answeredCount={answeredCount}
+                submitting={submitting}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                onSubmit={handleSubmit}
+              />
+            </div>
+          )}
+
+          <ResumeDialog
+            show={showResumeDialog}
+            interruptionInfo={interruptionInfo}
+            onResume={handleResume}
+            onStartNew={handleStartNew}
+          />
+        </div>
       </div>
-    </div>
     </AssessmentLimitGuard>
   );
 }

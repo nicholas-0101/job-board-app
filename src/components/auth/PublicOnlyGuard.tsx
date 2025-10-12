@@ -27,14 +27,12 @@ export default function PublicOnlyGuard({ children }: PublicOnlyGuardProps) {
 
     // If admin is logged in, redirect to admin
     if (role === "ADMIN") {
-      console.log("🔒 Admin logged in, redirecting to admin panel");
       router.replace("/admin");
       return;
     }
 
     // If user is logged in, redirect to explore jobs (better landing page)
     if (role === "USER") {
-      console.log("🔒 User logged in, redirecting to explore jobs");
       router.replace("/explore/jobs");
       return;
     }

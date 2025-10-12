@@ -10,16 +10,16 @@ interface BadgeCardProps {
 export default function BadgeCard({ badge }: BadgeCardProps) {
   const formatEarnedDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600 bg-green-100";
-    if (score >= 75) return "text-blue-600 bg-blue-100";
+    if (score >= 75) return "text-blue-600 bg-blue-100"; // Keep 75 as general threshold for badge display
     return "text-yellow-600 bg-yellow-100";
   };
 
@@ -28,56 +28,63 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
       const response = await fetch(url);
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `${badgeName.replace(/[^a-z0-9]/gi, '_')}_Certificate.pdf`;
+      link.download = `${badgeName.replace(
+        /[^a-z0-9]/gi,
+        "_"
+      )}_Certificate.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      console.error('Failed to download certificate:', error);
+      console.error("Failed to download certificate:", error);
       // Fallback to opening in new tab
-      window.open(url, '_blank');
+      window.open(url, "_blank");
     }
   };
 
   return (
-    <Card className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
-      badge.earned 
-        ? "border-[#24CFA7]/30 bg-gradient-to-br from-[#24CFA7]/5 to-white" 
-        : "border-gray-200 bg-gray-50/50 opacity-75"
-    }`}>
+    <Card
+      className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+        badge.earned
+          ? "border-[#24CFA7]/30 bg-gradient-to-br from-[#24CFA7]/5 to-white"
+          : "border-gray-200 bg-gray-50/50 opacity-75"
+      }`}
+    >
       <CardContent className="p-6">
         {/* Badge Icon */}
-        <BadgeIcon 
-          icon={badge.icon} 
-          name={badge.name} 
-          earned={badge.earned} 
-        />
+        <BadgeIcon icon={badge.icon} name={badge.name} earned={badge.earned} />
 
         {/* Badge Name */}
-        <h3 className={`text-lg font-semibold text-center mb-2 ${
-          badge.earned ? "text-gray-900" : "text-gray-500"
-        }`}>
+        <h3
+          className={`text-lg font-semibold text-center mb-2 ${
+            badge.earned ? "text-gray-900" : "text-gray-500"
+          }`}
+        >
           {badge.name}
         </h3>
 
         {/* Assessment Title */}
-        <p className={`text-sm text-center mb-3 ${
-          badge.earned ? "text-gray-600" : "text-gray-400"
-        }`}>
+        <p
+          className={`text-sm text-center mb-3 ${
+            badge.earned ? "text-gray-600" : "text-gray-400"
+          }`}
+        >
           {badge.assessmentTitle}
         </p>
 
         {/* Category */}
         {badge.category && (
           <div className="flex justify-center mb-3">
-            <span className={`px-2 py-1 text-xs rounded-full ${
-              badge.earned 
-                ? "bg-[#467EC7]/10 text-[#467EC7]" 
-                : "bg-gray-200 text-gray-500"
-            }`}>
+            <span
+              className={`px-2 py-1 text-xs rounded-full ${
+                badge.earned
+                  ? "bg-[#467EC7]/10 text-[#467EC7]"
+                  : "bg-gray-200 text-gray-500"
+              }`}
+            >
               {badge.category}
             </span>
           </div>
@@ -90,7 +97,11 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
             {badge.score && (
               <div className="flex items-center justify-center gap-2">
                 <Award className="w-4 h-4 text-[#24CFA7]" />
-                <span className={`px-2 py-1 text-sm font-medium rounded-full ${getScoreColor(badge.score)}`}>
+                <span
+                  className={`px-2 py-1 text-sm font-medium rounded-full ${getScoreColor(
+                    badge.score
+                  )}`}
+                >
                   {badge.score}%
                 </span>
               </div>
@@ -108,7 +119,9 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
             {badge.certificateUrl && (
               <div className="flex gap-2 mt-4">
                 <button
-                  onClick={() => handleCertificateDownload(badge.certificateUrl!, badge.name)}
+                  onClick={() =>
+                    handleCertificateDownload(badge.certificateUrl!, badge.name)
+                  }
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#467EC7] text-white text-sm rounded-lg hover:bg-[#467EC7]/90 transition-colors"
                 >
                   <Download className="w-4 h-4" />

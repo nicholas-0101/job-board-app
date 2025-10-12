@@ -9,6 +9,7 @@ import MyCVsList from "@/components/cv-generator/MyCVsList";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import DeveloperBlockGuard from "@/components/auth/DeveloperBlockGuard";
 
 // Helper component for tab navigation (max 15 lines)
 const TabNavigation = ({
@@ -57,54 +58,56 @@ export default function CVGeneratorPage() {
   } = useCVGenerator();
 
   return (
-    <SubscriptionGuard feature="CV Generator">
-      <div className="min-h-screen bg-[#F0F5F9] py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              CV Generator
-            </h1>
-            <p className="text-xl text-gray-600">
-              Create professional, ATS-friendly CVs with our easy-to-use
-              generator.
-            </p>
-          </div>
-
-          {isLoading && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#467EC7] mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
+    <DeveloperBlockGuard>
+      <SubscriptionGuard feature="CV Generator">
+        <div className="min-h-screen bg-[#F0F5F9] py-8">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                CV Generator
+              </h1>
+              <p className="text-xl text-gray-600">
+                Create professional, ATS-friendly CVs with our easy-to-use
+                generator.
+              </p>
             </div>
-          )}
 
-          {!isLoading && (
-            <>
-              <TabNavigation
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-              />
+            {isLoading && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#467EC7] mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading...</p>
+              </div>
+            )}
 
-              {activeTab === "generate" && (
-                <CVForm
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onGenerateCV={handleGenerateCV}
-                  isGenerating={isGenerating}
+            {!isLoading && (
+              <>
+                <TabNavigation
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
                 />
-              )}
 
-              {activeTab === "my-cvs" && (
-                <MyCVsList
-                  generatedCVs={generatedCVs}
-                  onDownloadCV={handleDownloadCV}
-                  onDeleteCV={handleDeleteCV}
-                  onSwitchToGenerate={() => setActiveTab("generate")}
-                />
-              )}
-            </>
-          )}
+                {activeTab === "generate" && (
+                  <CVForm
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    onGenerateCV={handleGenerateCV}
+                    isGenerating={isGenerating}
+                  />
+                )}
+
+                {activeTab === "my-cvs" && (
+                  <MyCVsList
+                    generatedCVs={generatedCVs}
+                    onDownloadCV={handleDownloadCV}
+                    onDeleteCV={handleDeleteCV}
+                    onSwitchToGenerate={() => setActiveTab("generate")}
+                  />
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </SubscriptionGuard>
+      </SubscriptionGuard>
+    </DeveloperBlockGuard>
   );
 }

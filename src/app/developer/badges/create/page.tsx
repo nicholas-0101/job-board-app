@@ -65,13 +65,12 @@ export default function CreateBadgePage() {
         icon: storedData.icon || "",
         category: storedData.category || "",
       });
-      
+
       // Restore icon preview if exists
       if (storedData.iconPreview) {
         setIconPreview(storedData.iconPreview);
       }
-      
-      console.log("Loaded badge draft from localStorage:", storedData);
+
       toast.success("Draft restored from previous session");
     }
   }, []);
@@ -83,21 +82,31 @@ export default function CreateBadgePage() {
       iconPreview,
       lastSaved: new Date().toISOString(),
     };
-    
+
     // Only save if there's meaningful data (not just empty initial state)
-    if (formData.name.trim() || formData.description.trim() || formData.category.trim() || iconPreview) {
+    if (
+      formData.name.trim() ||
+      formData.description.trim() ||
+      formData.category.trim() ||
+      iconPreview
+    ) {
       saveToStorage(dataToSave);
     }
   }, [formData, iconPreview]);
 
   // Warn user before leaving page with unsaved changes
   useEffect(() => {
-    const hasUnsavedData = formData.name.trim() || formData.description.trim() || formData.category.trim() || iconPreview;
-    
+    const hasUnsavedData =
+      formData.name.trim() ||
+      formData.description.trim() ||
+      formData.category.trim() ||
+      iconPreview;
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedData) {
         e.preventDefault();
-        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
         return "You have unsaved changes. Are you sure you want to leave?";
       }
     };
@@ -116,7 +125,7 @@ export default function CreateBadgePage() {
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file");
       return;
     }
@@ -128,7 +137,7 @@ export default function CreateBadgePage() {
     }
 
     setIconFile(file);
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -140,7 +149,7 @@ export default function CreateBadgePage() {
   const handleRemoveIcon = () => {
     setIconFile(null);
     setIconPreview("");
-    setFormData(prev => ({ ...prev, icon: "" }));
+    setFormData((prev) => ({ ...prev, icon: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,12 +179,9 @@ export default function CreateBadgePage() {
       category: formData.category || undefined,
     };
 
-    console.log("Creating badge with file:", iconFile.name);
-
     setLoading(true);
     try {
       const response = await createBadgeTemplate(payload);
-      console.log("Badge created:", response);
 
       clearStorage(); // Clear draft when successfully created
       toast.success("Badge template created successfully!");
@@ -186,18 +192,21 @@ export default function CreateBadgePage() {
       console.error("Error response data:", error.response?.data);
       console.error("Error status:", error.response?.status);
       console.error("Error message:", error.message);
-      
-      const errorMsg = error.response?.data?.message || 
-                       error.response?.data?.errors?.[0] || 
-                       error.message ||
-                       "Failed to create badge template";
+
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0] ||
+        error.message ||
+        "Failed to create badge template";
       toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -232,12 +241,16 @@ export default function CreateBadgePage() {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Draft info */}
-                {(formData.name.trim() || formData.description.trim() || formData.category.trim() || iconPreview) && (
+                {(formData.name.trim() ||
+                  formData.description.trim() ||
+                  formData.category.trim() ||
+                  iconPreview) && (
                   <div className="mt-4 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
                     <p className="text-sm text-blue-800">
-                      💾 Draft auto-saved (refreshing page will restore your work)
+                      💾 Draft auto-saved (refreshing page will restore your
+                      work)
                     </p>
                     <Button
                       type="button"
@@ -314,13 +327,15 @@ export default function CreateBadgePage() {
                           disabled={loading || uploading}
                           className="hidden"
                         />
-                        <label 
-                          htmlFor="icon" 
+                        <label
+                          htmlFor="icon"
                           className="cursor-pointer flex flex-col items-center"
                         >
                           <Upload className="w-12 h-12 text-gray-400 mb-2" />
                           <p className="text-sm font-medium text-gray-700">
-                            {uploading ? "Uploading..." : "Click to upload badge icon"}
+                            {uploading
+                              ? "Uploading..."
+                              : "Click to upload badge icon"}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
                             PNG, JPG up to 2MB
@@ -331,8 +346,8 @@ export default function CreateBadgePage() {
                       <div className="relative border-2 border-gray-200 rounded-lg p-4">
                         <div className="flex items-center space-x-4">
                           <div className="w-16 h-16 rounded-full bg-[#467EC7]/20 flex items-center justify-center overflow-hidden">
-                            <img 
-                              src={iconPreview} 
+                            <img
+                              src={iconPreview}
                               alt="Badge icon preview"
                               className="w-full h-full object-cover"
                             />
