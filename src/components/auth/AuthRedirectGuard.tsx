@@ -12,7 +12,8 @@ const getStoredRole = () => {
   if (role === "ADMIN" || role === "USER") return role;
 
   try {
-    const savedUser = localStorage.getItem("user") || localStorage.getItem("verifiedUser");
+    const savedUser =
+      localStorage.getItem("user") || localStorage.getItem("verifiedUser");
     if (savedUser) {
       const parsed = JSON.parse(savedUser);
       if (parsed?.role === "ADMIN" || parsed?.role === "USER") {
@@ -33,7 +34,9 @@ const getProfileCompletionFlag = () => {
   return null;
 };
 
-export default function AuthRedirectGuard({ children }: AuthRedirectGuardProps) {
+export default function AuthRedirectGuard({
+  children,
+}: AuthRedirectGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useUserStore();
@@ -58,6 +61,11 @@ export default function AuthRedirectGuard({ children }: AuthRedirectGuardProps) 
 
     // Allow access to the verification route until the process completes.
     if (pathname.startsWith("/auth/verify")) {
+      setChecking(false);
+      return;
+    }
+
+    if (pathname.startsWith("/auth/preverify")) {
       setChecking(false);
       return;
     }
