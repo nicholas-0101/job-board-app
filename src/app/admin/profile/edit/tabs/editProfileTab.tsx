@@ -123,21 +123,6 @@ export default function AdminProfileTab() {
               </h3>
 
               <InputField
-                name="name"
-                label="Company Name"
-                placeholder="Enter company name"
-                icon={Building}
-              />
-
-              <InputField
-                name="email"
-                label="Company Email"
-                placeholder="contact@company.com"
-                icon={Mail}
-                type="email"
-              />
-
-              <InputField
                 name="phone"
                 label="Company Phone"
                 placeholder="+628123456789"

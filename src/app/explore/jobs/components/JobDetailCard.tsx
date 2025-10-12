@@ -196,6 +196,7 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
       );
       return;
     }
+    router.push(`/jobs/${job.slug}/apply`);
   };
 
   const toggleSaveJob = async () => {
