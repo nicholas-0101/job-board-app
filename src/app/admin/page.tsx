@@ -94,7 +94,6 @@ export default function AdminPage() {
 
       if (!cid || Number.isNaN(cid)) {
         // No company yet - show empty state
-        console.log("Company not found, admin should complete profile");
         setLoading(false);
         return;
       }

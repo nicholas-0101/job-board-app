@@ -8,7 +8,7 @@ export const mockBadges: Badge[] = [
     icon: "🏆",
     color: "#FFD700",
     category: "Programming",
-    requirements: "Pass JavaScript Assessment with 75% score",
+    requirements: "Pass JavaScript Assessment with passing score",
     issuedCount: 89,
     status: "active",
     createdAt: "2024-01-15"
@@ -20,7 +20,7 @@ export const mockBadges: Badge[] = [
     icon: "⚛️",
     color: "#61DAFB",
     category: "Frontend",
-    requirements: "Pass React Assessment with 75% score",
+    requirements: "Pass React Assessment with passing score",
     issuedCount: 52,
     status: "active",
     createdAt: "2024-01-20"
@@ -32,7 +32,7 @@ export const mockBadges: Badge[] = [
     icon: "🟢",
     color: "#339933",
     category: "Backend",
-    requirements: "Pass Node.js Assessment with 75% score",
+    requirements: "Pass Node.js Assessment with passing score",
     issuedCount: 0,
     status: "draft",
     createdAt: "2024-02-01"
@@ -44,7 +44,7 @@ export const mockBadges: Badge[] = [
     icon: "🗄️",
     color: "#FF6B35",
     category: "Database",
-    requirements: "Pass Database Assessment with 75% score",
+    requirements: "Pass Database Assessment with passing score",
     issuedCount: 71,
     status: "active",
     createdAt: "2024-01-10"

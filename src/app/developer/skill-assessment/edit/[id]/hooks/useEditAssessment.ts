@@ -1,17 +1,26 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Question, getAssessmentById, updateAssessment } from "@/lib/skillAssessment";
-import { saveToStorage, loadFromStorage, clearStorage } from "../utils/localStorage";
+import {
+  Question,
+  getAssessmentById,
+  updateAssessment,
+} from "@/lib/skillAssessment";
+import {
+  saveToStorage,
+  loadFromStorage,
+  clearStorage,
+} from "../utils/localStorage";
 
 export function useEditAssessment(assessmentId: string) {
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [savingQuestion, setSavingQuestion] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [passScore, setPassScore] = useState(75);
   const [badgeTemplateId, setBadgeTemplateId] = useState<number | undefined>();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [savedQuestions, setSavedQuestions] = useState<Set<number>>(new Set());
@@ -22,49 +31,62 @@ export function useEditAssessment(assessmentId: string) {
     try {
       const response = await getAssessmentById(parseInt(assessmentId));
       const data = response.data?.data || response.data;
-      
+
       if (data) {
         setTitle(data.title || "");
         setDescription(data.description || "");
+        setPassScore(data.passScore || 75);
         setBadgeTemplateId(data.badgeTemplateId || undefined);
-        
-        const mappedQuestions = data.questions?.map((q: any) => ({
-          question: q.question,
-          options: Array.isArray(q.options) ? q.options : [],
-          answer: q.answer,
-        })) || [];
-        
+
+        const mappedQuestions =
+          data.questions?.map((q: any) => ({
+            question: q.question,
+            options: Array.isArray(q.options) ? q.options : [],
+            answer: q.answer,
+          })) || [];
+
         if (mappedQuestions.length > 0) {
           setQuestions(mappedQuestions);
         } else {
-          toast.error("Questions could not be loaded. Please restart backend server.", {
-            duration: 5000,
-          });
-          setQuestions([{ question: "", options: ["", "", "", ""], answer: "" }]);
+          toast.error(
+            "Questions could not be loaded. Please restart backend server.",
+            {
+              duration: 5000,
+            }
+          );
+          setQuestions([
+            { question: "", options: ["", "", "", ""], answer: "" },
+          ]);
         }
-        
+
         setOriginalData({
           title: data.title || "",
           description: data.description || "",
+          passScore: data.passScore || 75,
           badgeTemplateId: data.badgeTemplateId || undefined,
           questions: mappedQuestions,
         });
-        
+
         const originalSavedQuestions = new Set<number>();
         mappedQuestions.forEach((_: any, index: number) => {
           originalSavedQuestions.add(index);
         });
         setSavedQuestions(originalSavedQuestions);
-        
+
         const storedData = loadFromStorage(assessmentId);
         if (storedData) {
           setTitle(storedData.title || data.title || "");
           setDescription(storedData.description || data.description || "");
-          setBadgeTemplateId(storedData.badgeTemplateId || data.badgeTemplateId || undefined);
+          setPassScore(storedData.passScore || data.passScore || 75);
+          setBadgeTemplateId(
+            storedData.badgeTemplateId || data.badgeTemplateId || undefined
+          );
           setQuestions(storedData.questions || mappedQuestions);
           setSavedQuestions(new Set(storedData.savedQuestions || []));
-          
-          toast.success("Draft restored from previous session", { duration: 3000 });
+
+          toast.success("Draft restored from previous session", {
+            duration: 3000,
+          });
         }
       }
     } catch (error) {
@@ -80,7 +102,9 @@ export function useEditAssessment(assessmentId: string) {
 
     if (!validateForm()) return;
 
-    const hasUnsavedQuestions = questions.some((_, index) => !savedQuestions.has(index));
+    const hasUnsavedQuestions = questions.some(
+      (_, index) => !savedQuestions.has(index)
+    );
     if (hasUnsavedQuestions) {
       toast.error("Please save all questions before updating the assessment");
       return;
@@ -91,6 +115,7 @@ export function useEditAssessment(assessmentId: string) {
       const assessmentData = {
         title,
         description,
+        passScore,
         badgeTemplateId: badgeTemplateId || undefined,
         questions: questions.map((q) => ({
           question: q.question,
@@ -117,6 +142,10 @@ export function useEditAssessment(assessmentId: string) {
       return false;
     }
 
+    if (passScore < 1 || passScore > 100) {
+      toast.error("Pass score must be between 1 and 100");
+      return false;
+    }
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
@@ -124,7 +153,7 @@ export function useEditAssessment(assessmentId: string) {
         toast.error(`Question ${i + 1}: Question text is required`);
         return false;
       }
-      if (q.options.some(opt => !opt.trim())) {
+      if (q.options.some((opt) => !opt.trim())) {
         toast.error(`Question ${i + 1}: All options must be filled`);
         return false;
       }
@@ -133,7 +162,9 @@ export function useEditAssessment(assessmentId: string) {
         return false;
       }
       if (!q.options.includes(q.answer)) {
-        toast.error(`Question ${i + 1}: Correct answer must match one of the options`);
+        toast.error(
+          `Question ${i + 1}: Correct answer must match one of the options`
+        );
         return false;
       }
     }
@@ -150,6 +181,8 @@ export function useEditAssessment(assessmentId: string) {
     setTitle,
     description,
     setDescription,
+    passScore,
+    setPassScore,
     badgeTemplateId,
     setBadgeTemplateId,
     questions,

@@ -2,6 +2,7 @@ export interface Assessment {
   id: number;
   title: string;
   description?: string;
+  passScore: number;
   createdAt: string;
   badgeTemplate?: {
     id: number;

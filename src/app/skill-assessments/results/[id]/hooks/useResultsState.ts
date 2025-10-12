@@ -41,7 +41,7 @@ export function useResultsState(resultId: number) {
     try {
       setLoading(true);
       const response = await getUserResults();
-      
+
       let resultsData = [];
       if (response.data?.results && Array.isArray(response.data.results)) {
         resultsData = response.data.results;
@@ -50,14 +50,16 @@ export function useResultsState(resultId: number) {
       } else if (Array.isArray(response)) {
         resultsData = response;
       }
-      
-      const foundResult = resultsData.find((r: AssessmentResult) => r.id === resultId);
+
+      const foundResult = resultsData.find(
+        (r: AssessmentResult) => r.id === resultId
+      );
       if (!foundResult) {
         toast.error("Assessment result not found");
         router.push("/skill-assessments/dashboard");
         return;
       }
-      
+
       setResult(foundResult);
     } catch (error: any) {
       toast.error("Failed to load assessment result");
@@ -67,28 +69,36 @@ export function useResultsState(resultId: number) {
     }
   }, [resultId, router]);
 
-  const getScoreColor = useCallback((score: number, passScore: number = 75) => {
+  const getScoreColor = useCallback((score: number, passScore?: number) => {
+    const threshold = passScore || 75;
     if (score >= 90) return "text-[#24CFA7]";
-    if (score >= passScore) return "text-[#467EC7]";
-    if (score >= Math.max(60, passScore * 0.8)) return "text-orange-500";
+    if (score >= threshold) return "text-[#467EC7]";
+    if (score >= Math.max(60, threshold * 0.8)) return "text-orange-500";
     return "text-red-500";
   }, []);
 
-  const getPerformanceLevel = useCallback((score: number, passScore: number = 75) => {
-    if (score >= 90) return "Excellent";
-    if (score >= passScore) return "Good";
-    if (score >= Math.max(60, passScore * 0.8)) return "Fair";
-    return "Needs Improvement";
-  }, []);
+  const getPerformanceLevel = useCallback(
+    (score: number, passScore?: number) => {
+      const threshold = passScore || 75;
+      if (score >= 90) return "Excellent";
+      if (score >= threshold) return "Good";
+      if (score >= Math.max(60, threshold * 0.8)) return "Fair";
+      return "Needs Improvement";
+    },
+    []
+  );
 
-  const calculateDuration = useCallback((startedAt: string, finishedAt: string) => {
-    const start = new Date(startedAt);
-    const end = new Date(finishedAt);
-    const diffMs = end.getTime() - start.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffSecs = Math.floor((diffMs % 60000) / 1000);
-    return `${diffMins}m ${diffSecs}s`;
-  }, []);
+  const calculateDuration = useCallback(
+    (startedAt: string, finishedAt: string) => {
+      const start = new Date(startedAt);
+      const end = new Date(finishedAt);
+      const diffMs = end.getTime() - start.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffSecs = Math.floor((diffMs % 60000) / 1000);
+      return `${diffMins}m ${diffSecs}s`;
+    },
+    []
+  );
 
   return {
     result,

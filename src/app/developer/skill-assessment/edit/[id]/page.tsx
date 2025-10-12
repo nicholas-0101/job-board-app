@@ -14,7 +14,7 @@ export default function EditAssessmentPage() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = params.id as string;
-  
+
   const {
     loading,
     fetching,
@@ -22,6 +22,8 @@ export default function EditAssessmentPage() {
     setTitle,
     description,
     setDescription,
+    passScore,
+    setPassScore,
     badgeTemplateId,
     setBadgeTemplateId,
     questions,
@@ -39,7 +41,12 @@ export default function EditAssessmentPage() {
     handleRemoveQuestion,
     handleQuestionChange,
     handleSaveQuestion,
-  } = useQuestionHandlers(questions, setQuestions, savedQuestions, setSavedQuestions);
+  } = useQuestionHandlers(
+    questions,
+    setQuestions,
+    savedQuestions,
+    setSavedQuestions
+  );
 
   useEffect(() => {
     fetchAssessment();
@@ -48,26 +55,38 @@ export default function EditAssessmentPage() {
   // Auto-save to localStorage whenever form data changes
   useEffect(() => {
     if (!originalData || fetching) return;
-    
+
     const dataToSave = {
       title,
       description,
+      passScore,
       badgeTemplateId,
       questions,
       savedQuestions: Array.from(savedQuestions),
       lastSaved: new Date().toISOString(),
     };
-    
-    const hasChanges = 
+
+    const hasChanges =
       title !== originalData.title ||
       description !== originalData.description ||
+      passScore !== originalData.passScore ||
       badgeTemplateId !== originalData.badgeTemplateId ||
       JSON.stringify(questions) !== JSON.stringify(originalData.questions);
-    
+
     if (hasChanges) {
       saveToStorage(assessmentId, dataToSave);
     }
-  }, [title, description, badgeTemplateId, questions, savedQuestions, originalData, fetching, assessmentId]);
+  }, [
+    title,
+    description,
+    passScore,
+    badgeTemplateId,
+    questions,
+    savedQuestions,
+    originalData,
+    fetching,
+    assessmentId,
+  ]);
 
   const unsavedQuestionsCount = questions.length - savedQuestions.size;
 
@@ -108,9 +127,12 @@ export default function EditAssessmentPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm text-blue-800 font-medium">Changes auto-saved</p>
+                <p className="text-sm text-blue-800 font-medium">
+                  Changes auto-saved
+                </p>
                 <p className="text-sm text-blue-700 mt-1">
-                  Your changes are automatically saved to local storage. You can safely refresh the page.
+                  Your changes are automatically saved to local storage. You can
+                  safely refresh the page.
                 </p>
               </div>
             </div>
@@ -121,6 +143,8 @@ export default function EditAssessmentPage() {
             setTitle={setTitle}
             description={description}
             setDescription={setDescription}
+            passScore={passScore}
+            setPassScore={setPassScore}
             badgeTemplateId={badgeTemplateId}
             setBadgeTemplateId={setBadgeTemplateId}
             questions={questions}

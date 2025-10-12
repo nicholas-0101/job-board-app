@@ -8,6 +8,7 @@ interface StartScreenProps {
   title: string;
   description?: string;
   questionCount: number;
+  passScore: number;
   badgeTemplate?: {
     name: string;
     icon?: string;
@@ -20,6 +21,7 @@ export default function StartScreen({
   title,
   description,
   questionCount,
+  passScore,
   badgeTemplate,
   onStart,
 }: StartScreenProps) {
@@ -85,7 +87,7 @@ export default function StartScreen({
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 flex-grow">
-                  Assessment will auto-submit when time expires
+                  Timer will countdown automatically
                 </p>
               </div>
 
@@ -102,43 +104,56 @@ export default function StartScreen({
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 flex-grow">
-                  Navigate between questions freely
+                  Multiple choice questions with instant feedback
                 </p>
               </div>
             </div>
 
             {/* Instructions */}
-            <div className="p-6 bg-[#F0F5F9] border border-[#A3B6CE]/30 rounded-xl">
+            <div className="bg-gradient-to-r from-[#F0F5F9] to-[#E1F1F3] border border-[#A3B6CE]/30 rounded-xl p-6">
               <div className="flex items-start gap-4">
-                <div className="p-2 bg-[#467EC7]/10 rounded-lg">
+                <div className="p-3 bg-[#467EC7]/10 rounded-xl flex-shrink-0">
                   <AlertCircle className="w-6 h-6 text-[#467EC7]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-800 mb-3">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">
                     Important Instructions
                   </h4>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-                    <ul className="space-y-2">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-[#467EC7] rounded-full"></div>
-                        You have <strong>2 minutes</strong> to complete this
-                        assessment (Testing Mode)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-[#467EC7] rounded-full"></div>
-                        Navigate between questions freely
-                      </li>
-                    </ul>
-                    <ul className="space-y-2">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-[#467EC7] rounded-full"></div>
-                        Your progress is automatically saved
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-[#467EC7] rounded-full"></div>
-                        Passing score is <strong>75%</strong>
-                      </li>
-                    </ul>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#467EC7] rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        You have{" "}
+                        <span className="font-semibold text-[#467EC7]">
+                          2 minutes
+                        </span>{" "}
+                        to complete this assessment (Testing Mode)
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#467EC7] rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Your progress is automatically saved as you answer each
+                        question
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#467EC7] rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Passing score is{" "}
+                        <span className="font-semibold text-[#24CFA7]">
+                          {passScore}%
+                        </span>{" "}
+                        to earn your certificate
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#467EC7] rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        You can navigate between questions freely and change
+                        your answers
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

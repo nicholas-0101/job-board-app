@@ -59,22 +59,26 @@ export default function AssessmentLimitGuard({
       const attemptsData = attemptsResponse.data?.data || [];
 
       // Check monthly limit by counting unique assessments this month
-      const monthlyResponse = await apiCall.get('/skill-assessment/user/results');
+      const monthlyResponse = await apiCall.get(
+        "/skill-assessment/user/results"
+      );
       const allResults = monthlyResponse.data?.data?.results || [];
-      
+
       // Get current month start
       const currentMonth = new Date();
       currentMonth.setDate(1);
       currentMonth.setHours(0, 0, 0, 0);
-      
+
       // Count unique assessments this month
-      const thisMonthResults = allResults.filter((result: any) => 
-        new Date(result.createdAt) >= currentMonth
+      const thisMonthResults = allResults.filter(
+        (result: any) => new Date(result.createdAt) >= currentMonth
       );
-      
-      const uniqueAssessments = new Set(thisMonthResults.map((result: any) => result.assessmentId));
+
+      const uniqueAssessments = new Set(
+        thisMonthResults.map((result: any) => result.assessmentId)
+      );
       const monthlyCount = uniqueAssessments.size;
-      
+
       // Check if current assessment is already taken
       const hasCurrentAssessment = uniqueAssessments.has(assessmentId);
 
@@ -87,14 +91,13 @@ export default function AssessmentLimitGuard({
       // Check access permission
       const planCode = subscriptionData?.plan?.code || "STANDARD";
       const perAssessmentAccess = checkCanAccess(planCode, attemptsData);
-      
+
       // Check monthly limit for Standard plan
-      const monthlyLimitExceeded = planCode === "STANDARD" && 
-        monthlyCount >= 2 && 
-        !hasCurrentAssessment;
-      
+      const monthlyLimitExceeded =
+        planCode === "STANDARD" && monthlyCount >= 2 && !hasCurrentAssessment;
+
       const hasAccess = perAssessmentAccess && !monthlyLimitExceeded;
-      
+
       setCanAccess(hasAccess);
       setMonthlyLimitReached(monthlyLimitExceeded);
       setMonthlyCount(monthlyCount);
@@ -159,7 +162,9 @@ export default function AssessmentLimitGuard({
             </h1>
           </div>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            {monthlyLimitReached ? "Monthly assessment limit reached" : "Assessment attempt limit reached"}
+            {monthlyLimitReached
+              ? "Monthly assessment limit reached"
+              : "Assessment attempt limit reached"}
           </p>
         </div>
 
@@ -171,7 +176,9 @@ export default function AssessmentLimitGuard({
               </div>
 
               <h2 className="text-2xl font-bold text-[#467EC7] mb-4">
-                {monthlyLimitReached ? "Monthly Limit Reached" : "Assessment Limit Reached"}
+                {monthlyLimitReached
+                  ? "Monthly Limit Reached"
+                  : "Assessment Limit Reached"}
               </h2>
 
               <div className="bg-[#F0F5F9] rounded-lg p-6 mb-8">
@@ -181,25 +188,44 @@ export default function AssessmentLimitGuard({
                     Standard Plan Limits
                   </span>
                 </div>
-                
+
                 {monthlyLimitReached ? (
                   <div>
                     <p className="text-gray-600 mb-4">
-                      You have taken <strong className="text-gray-800">{monthlyCount} out of 2</strong>{" "}
-                      assessments this month. Standard plan users are limited
-                      to <strong className="text-gray-800">2 assessments per month</strong>.
+                      You have taken{" "}
+                      <strong className="text-gray-800">
+                        {monthlyCount} out of 2
+                      </strong>{" "}
+                      assessments this month. Standard plan users are limited to{" "}
+                      <strong className="text-gray-800">
+                        2 assessments per month
+                      </strong>
+                      .
                     </p>
                     <div className="text-sm text-gray-500">
                       Your monthly quota will reset on{" "}
-                      <strong className="text-gray-700">{new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString()}</strong>
+                      <strong className="text-gray-700">
+                        {new Date(
+                          new Date().getFullYear(),
+                          new Date().getMonth() + 1,
+                          1
+                        ).toLocaleDateString()}
+                      </strong>
                     </div>
                   </div>
                 ) : (
                   <div>
                     <p className="text-gray-600 mb-4">
-                      You have completed <strong className="text-gray-800">{attempts.length} out of 2</strong>{" "}
-                      attempts for this assessment. Standard plan users are limited
-                      to <strong className="text-gray-800">2 attempts per assessment</strong>.
+                      You have completed{" "}
+                      <strong className="text-gray-800">
+                        {attempts.length} out of 2
+                      </strong>{" "}
+                      attempts for this assessment. Standard plan users are
+                      limited to{" "}
+                      <strong className="text-gray-800">
+                        2 attempts per assessment
+                      </strong>
+                      .
                     </p>
                     <div className="text-sm text-gray-500">
                       Last attempt:{" "}
@@ -221,8 +247,11 @@ export default function AssessmentLimitGuard({
                   </span>
                 </div>
                 <p className="text-[#467EC7] mb-4">
-                  Get <strong className="text-[#467EC7]">unlimited assessment attempts</strong> and access
-                  to all professional features!
+                  Get{" "}
+                  <strong className="text-[#467EC7]">
+                    unlimited assessment attempts
+                  </strong>{" "}
+                  and access to all professional features!
                 </p>
                 <ul className="text-sm text-[#467EC7] space-y-1 mb-4">
                   <li>✓ Unlimited assessment retakes</li>

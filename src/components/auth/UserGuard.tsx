@@ -14,7 +14,7 @@ export function UserGuard({ children }: { children: React.ReactNode }) {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
-        
+
         if (!token) {
           // No token, allow access (public pages)
           setAllowed(true);
@@ -69,7 +69,6 @@ export function UserGuard({ children }: { children: React.ReactNode }) {
           setAllowed(true);
         }
       } catch (error) {
-        console.log("Auth verification failed:", error);
         // On error, allow access (user might not be logged in)
         setAllowed(true);
       } finally {
@@ -97,7 +96,6 @@ export function UserGuard({ children }: { children: React.ReactNode }) {
 
   // If not allowed (admin/developer), don't render children
   if (!allowed) return null;
-  
+
   return <>{children}</>;
 }
-
