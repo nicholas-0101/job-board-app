@@ -14,7 +14,7 @@ import PaymentProofModal from "../components/PaymentProofModal";
 export default function PendingApprovalsPage() {
   const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [processingPayments, setProcessingPayments] = useState<Set<number>>(new Set());
+  const [processingPayments, setProcessingPayments] = useState<Set<string>>(new Set()); // Changed to track by slug
   const [selectedPaymentProof, setSelectedPaymentProof] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -34,33 +34,33 @@ export default function PendingApprovalsPage() {
     }
   };
 
-  const handleApprove = async (paymentId: number) => {
-    setProcessingPayments(prev => new Set(prev).add(paymentId));
+  const handleApprove = async (paymentSlug: string) => {
+    setProcessingPayments(prev => new Set(prev).add(paymentSlug));
     try {
-      await approvePendingPayment(paymentId);
+      await approvePendingPayment(paymentSlug);
       await loadPayments(); // Reload data
     } catch (error) {
       // Error handling is done in the API function
     } finally {
       setProcessingPayments(prev => {
         const newSet = new Set(prev);
-        newSet.delete(paymentId);
+        newSet.delete(paymentSlug);
         return newSet;
       });
     }
   };
 
-  const handleReject = async (paymentId: number) => {
-    setProcessingPayments(prev => new Set(prev).add(paymentId));
+  const handleReject = async (paymentSlug: string) => {
+    setProcessingPayments(prev => new Set(prev).add(paymentSlug));
     try {
-      await rejectPendingPayment(paymentId);
+      await rejectPendingPayment(paymentSlug);
       await loadPayments(); // Reload data
     } catch (error) {
       // Error handling is done in the API function
     } finally {
       setProcessingPayments(prev => {
         const newSet = new Set(prev);
-        newSet.delete(paymentId);
+        newSet.delete(paymentSlug);
         return newSet;
       });
     }
@@ -150,7 +150,7 @@ export default function PendingApprovalsPage() {
                       onApprove={handleApprove}
                       onReject={handleReject}
                       onViewProof={handleViewProof}
-                      isProcessing={processingPayments.has(payment.id)}
+                      isProcessing={processingPayments.has(payment.slug)}
                     />
                   ))}
                 </div>

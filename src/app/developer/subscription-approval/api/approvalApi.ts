@@ -28,9 +28,10 @@ export const loadAllPayments = async (): Promise<Payment[]> => {
   }
 };
 
-export const approvePayment = async (paymentId: number): Promise<void> => {
+// Updated to use slug-based endpoints for better security
+export const approvePayment = async (paymentSlug: string): Promise<void> => {
   try {
-    await apiCall.put(`/subscription/approve-payment/${paymentId}`);
+    await apiCall.patch(`/subscription/payments/slug/${paymentSlug}/approve`);
     toast.success('Payment approved successfully!');
   } catch (error: any) {
     console.error('Error approving payment:', error);
@@ -40,9 +41,34 @@ export const approvePayment = async (paymentId: number): Promise<void> => {
   }
 };
 
-export const rejectPayment = async (paymentId: number): Promise<void> => {
+export const rejectPayment = async (paymentSlug: string): Promise<void> => {
   try {
-    await apiCall.put(`/subscription/reject-payment/${paymentId}`);
+    await apiCall.patch(`/subscription/payments/slug/${paymentSlug}/reject`);
+    toast.success('Payment rejected successfully!');
+  } catch (error: any) {
+    console.error('Error rejecting payment:', error);
+    const errorMessage = error.response?.data?.message || 'Failed to reject payment';
+    toast.error(errorMessage);
+    throw error;
+  }
+};
+
+// Fallback functions for backward compatibility (if needed)
+export const approvePaymentById = async (paymentId: number): Promise<void> => {
+  try {
+    await apiCall.patch(`/subscription/payments/${paymentId}/approve`);
+    toast.success('Payment approved successfully!');
+  } catch (error: any) {
+    console.error('Error approving payment:', error);
+    const errorMessage = error.response?.data?.message || 'Failed to approve payment';
+    toast.error(errorMessage);
+    throw error;
+  }
+};
+
+export const rejectPaymentById = async (paymentId: number): Promise<void> => {
+  try {
+    await apiCall.patch(`/subscription/payments/${paymentId}/reject`);
     toast.success('Payment rejected successfully!');
   } catch (error: any) {
     console.error('Error rejecting payment:', error);

@@ -9,7 +9,7 @@ import {
   buildTransactionData
 } from "../helpers/transactionHelpers";
 
-export const useTransactionData = (paymentId: string | null) => {
+export const useTransactionData = (paymentIdentifier: string | null) => {
   const [transactionData, setTransactionData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,13 +30,13 @@ export const useTransactionData = (paymentId: string | null) => {
       const latestSubscription = subscriptions[subscriptions.length - 1];
       const userData = await fetchUserData();
       
-      let payment = await findPaymentInSubscription(latestSubscription.id, paymentId || "");
+      let payment = await findPaymentInSubscription(latestSubscription.id, paymentIdentifier || "");
       
-      if (!payment && paymentId) {
-        payment = await searchPaymentInAllSubscriptions(subscriptions, paymentId);
+      if (!payment && paymentIdentifier) {
+        payment = await searchPaymentInAllSubscriptions(subscriptions, paymentIdentifier);
         
         if (!payment) {
-          payment = createBasicPaymentObject(paymentId, latestSubscription);
+          payment = createBasicPaymentObject(paymentIdentifier, latestSubscription);
         }
       }
       
@@ -57,13 +57,13 @@ export const useTransactionData = (paymentId: string | null) => {
   };
 
   useEffect(() => {
-    if (paymentId) {
+    if (paymentIdentifier) {
       loadTransactionData();
     } else {
-      setError("Payment ID not found");
+      setError("Payment identifier not found");
       setIsLoading(false);
     }
-  }, [paymentId]);
+  }, [paymentIdentifier]);
 
   const handleRefresh = () => {
     loadTransactionData(true);

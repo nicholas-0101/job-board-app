@@ -23,8 +23,12 @@ export default function TransactionSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("paymentId");
+  const paymentSlug = searchParams.get("paymentSlug");
   
-  const { transactionData, isLoading, error, isRefreshing, handleRefresh } = useTransactionData(paymentId);
+  // Use slug if available, fallback to paymentId for backward compatibility
+  const paymentIdentifier = paymentSlug || paymentId;
+  
+  const { transactionData, isLoading, error, isRefreshing, handleRefresh } = useTransactionData(paymentIdentifier);
 
   if (isLoading) {
     return <TransactionLoading />;
@@ -87,7 +91,7 @@ export default function TransactionSuccessContent() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Transaction ID</p>
-                    <p className="font-semibold">#{payment?.id || paymentId}</p>
+                    <p className="font-semibold">#{payment?.slug ? payment.slug.slice(-8).toUpperCase() : paymentId}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Plan</p>

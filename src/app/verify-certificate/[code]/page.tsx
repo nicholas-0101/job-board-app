@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Loader2, Award, Calendar, User, FileText } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
+import SubscriptionGuard from '@/components/verify-certificate/SubscriptionGuard';
 
 interface CertificateData {
   id: number;
@@ -28,44 +30,50 @@ interface CertificateData {
 
 export default function VerifyCertificatePage() {
   const params = useParams();
+  const router = useRouter();
   const certificateCode = params.code as string;
   const [certificate, setCertificate] = useState<CertificateData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { hasSubscription, isAuthenticated, isLoading: authLoading } = useSubscription();
 
   useEffect(() => {
-    const verifyCertificate = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BE_URL || 'http://localhost:4400'}/skill-assessment/verify/${certificateCode}`);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError('Certificate not found. Please check the certificate code.');
-          } else {
-            setError('Failed to verify certificate. Please try again later.');
+    // Only fetch certificate if user has subscription
+    if (hasSubscription === true) {
+      const verifyCertificate = async () => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BE_URL || 'http://localhost:4400'}/skill-assessment/verify/${certificateCode}`);
+          
+          if (!response.ok) {
+            if (response.status === 404) {
+              setError('Certificate not found. Please check the certificate code.');
+            } else {
+              setError('Failed to verify certificate. Please try again later.');
+            }
+            return;
           }
-          return;
-        }
 
-        const data = await response.json();
-        if (data.success && data.certificate) {
-          setCertificate(data.certificate);
-        } else {
-          setError(data.message || 'Certificate verification failed');
+          const data = await response.json();
+          if (data.success && data.certificate) {
+            setCertificate(data.certificate);
+          } else {
+            setError(data.message || 'Certificate verification failed');
+          }
+        } catch (err) {
+          setError('Failed to verify certificate. Please check your internet connection.');
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        setError('Failed to verify certificate. Please check your internet connection.');
-      } finally {
-        setLoading(false);
+      };
+
+      if (certificateCode) {
+        verifyCertificate();
       }
-    };
-
-    if (certificateCode) {
-      verifyCertificate();
     }
-  }, [certificateCode]);
+  }, [certificateCode, hasSubscription]);
 
-  if (loading) {
+  // Show loading state
+  if (authLoading || (hasSubscription === true && loading)) {
     return (
       <div className="min-h-screen bg-[#F0F5F9] flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -75,6 +83,18 @@ export default function VerifyCertificatePage() {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  // Show subscription guard if needed
+  if (isAuthenticated === false || hasSubscription === false) {
+    return (
+      <SubscriptionGuard 
+        hasSubscription={hasSubscription}
+        isAuthenticated={isAuthenticated}
+        onUpgrade={() => router.push("/subscription")}
+        onSignIn={() => router.push("/signin")}
+      />
     );
   }
 

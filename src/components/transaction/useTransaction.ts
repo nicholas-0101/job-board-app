@@ -135,14 +135,15 @@ export function useTransaction() {
       });
 
       const paymentId = subscribeResponse.data.payment.id;
+      const paymentSlug = subscribeResponse.data.payment.slug; // Get slug from response
 
-      // Step 3: Upload payment proof if bank transfer
+      // Step 3: Upload payment proof if bank transfer (using secure slug endpoint)
       if (paymentMethod === "transfer" && paymentProof) {
         const formData = new FormData();
         formData.append("paymentProof", paymentProof);
 
-        // Don't set Content-Type manually for FormData - let browser handle it
-        await apiCall.post(`/subscription/payments/${paymentId}/upload-proof`, formData, {
+        // Use slug-based endpoint for better security
+        await apiCall.post(`/subscription/payments/slug/${paymentSlug}/upload-proof`, formData, {
           headers: {
             'Content-Type': undefined, // Remove default application/json
           },
@@ -150,7 +151,8 @@ export function useTransaction() {
       }
 
       toast.success("Transaction submitted successfully!");
-      router.push(`/transaction/success?paymentId=${paymentId}`);
+      // Use slug for URL parameter for better security
+      router.push(`/transaction/success?paymentSlug=${paymentSlug}`);
       
     } catch (error: any) {
       

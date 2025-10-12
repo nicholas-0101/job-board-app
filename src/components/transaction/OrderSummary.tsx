@@ -16,7 +16,7 @@ export default function OrderSummary({ selectedPlan }: OrderSummaryProps) {
       <CardContent>
         <div className="space-y-4">
           {/* Plan Details */}
-          <div className="flex items-center gap-4 p-4 bg-[#F0F5F9] rounded-lg">
+          <div className="flex items-center gap-4 p-4 bg-[#E1F1F3]/30 rounded-lg">
             <div className={`p-3 rounded-xl bg-gradient-to-br ${selectedPlan.color}`}>
               <IconComponent className="w-6 h-6 text-white" />
             </div>
@@ -56,7 +56,7 @@ export default function OrderSummary({ selectedPlan }: OrderSummaryProps) {
           </div>
 
           {/* Billing Info */}
-          <div className="bg-[#467EC7]/5 p-3 rounded-lg">
+          <div className="bg-[#E1F1F3]/40 p-3 rounded-lg border border-[#A3B6CE]/20">
             <p className="text-xs text-[#467EC7]">
               You will be charged IDR {selectedPlan.price.toLocaleString()} monthly. 
               Cancel anytime from your account settings.

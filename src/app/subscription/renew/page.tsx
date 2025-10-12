@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/common/Toast";
@@ -53,7 +53,7 @@ export default function SubscriptionRenewalPage() {
   const handleUploadProof = async (file: File) => {
     if (!renewalInfo?.pendingPayment) return;
 
-    const success = await uploadPaymentProof(renewalInfo.pendingPayment.id, file);
+    const success = await uploadPaymentProof(renewalInfo.pendingPayment.slug || renewalInfo.pendingPayment.id.toString(), file);
     
     if (success) {
       setToastMessage("Payment proof uploaded successfully! Waiting for approval.");
@@ -86,11 +86,11 @@ export default function SubscriptionRenewalPage() {
     }
     
     return (
-      <Card className="border-gray-200">
+      <Card className="border-[#A3B6CE]/30 bg-[#E1F1F3]/30">
         <CardContent className="flex items-center justify-center p-8">
           <div className="text-center">
-            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">
+            <AlertCircle className="w-12 h-12 text-[#A3B6CE] mx-auto mb-4" />
+            <p className="text-[#A3B6CE]">
               {renewalInfo?.message || "Renewal not available at this time"}
             </p>
           </div>
@@ -108,41 +108,42 @@ export default function SubscriptionRenewalPage() {
   if (!renewalInfo) return <ErrorMessage message="No renewal information available" onRetry={loadRenewalData} />;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Renew Your Subscription
-          </h1>
-          <p className="text-gray-600">
+    <div className="min-h-screen bg-[#F0F5F9] py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Header - Same as payment page */}
+        <div className="mb-8">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/subscription")}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Subscription
+          </Button>
+          <h1 className="text-3xl font-bold text-[#467EC7] mb-2">Renew Your Subscription</h1>
+          <p className="text-[#A3B6CE]">
             Continue enjoying premium features with subscription renewal
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <CurrentSubscriptionCard subscription={renewalInfo.currentSubscription} />
-          {renderRightCard()}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Order Summary - Left side (1/3 width) */}
+          <div className="lg:col-span-1">
+            <CurrentSubscriptionCard subscription={renewalInfo.currentSubscription} />
+          </div>
+
+          {/* Payment Information - Right side (2/3 width) */}
+          <div className="lg:col-span-2">
+            {renderRightCard()}
+          </div>
         </div>
 
-        <div className="mt-8 text-center">
-          <Button 
-            variant="outline" 
-            onClick={() => router.push("/subscription")}
-          >
-            Back to Subscription
-          </Button>
-        </div>
-      </motion.div>
-
-      <Toast 
-        message={toastMessage}
-        show={showToast}
-        onClose={() => setShowToast(false)}
-      />
+        <Toast 
+          message={toastMessage}
+          show={showToast}
+          onClose={() => setShowToast(false)}
+        />
+      </div>
     </div>
   );
 }

@@ -64,7 +64,40 @@ export const useRenewalApi = () => {
     }
   };
 
-  const uploadPaymentProof = async (paymentId: number, file: File): Promise<boolean> => {
+  const uploadPaymentProof = async (paymentSlug: string, file: File): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("paymentProof", file);
+
+      // Use slug-based endpoint for better security
+      const response = await fetch(`${API_BASE_URL}/subscription/payments/slug/${paymentSlug}/upload-proof`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload payment proof");
+      }
+
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to upload payment proof";
+      setError(errorMessage);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback function for backward compatibility
+  const uploadPaymentProofById = async (paymentId: number, file: File): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -101,5 +134,6 @@ export const useRenewalApi = () => {
     fetchRenewalInfo,
     renewSubscription,
     uploadPaymentProof,
+    uploadPaymentProofById, // Export fallback function
   };
 };

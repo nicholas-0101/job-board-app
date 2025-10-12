@@ -1,6 +1,7 @@
 // Interface sesuai dengan backend Prisma schema
 export interface Payment {
   id: number;
+  slug: string; // Added slug field for security
   subscriptionId: number;
   paymentMethod: 'TRANSFER' | 'GATEWAY';
   paymentProof?: string;
