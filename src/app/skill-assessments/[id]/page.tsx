@@ -8,6 +8,7 @@ import AssessmentHeader from "./components/AssessmentHeader";
 import StartScreen from "./components/StartScreen";
 import QuestionDisplay from "./components/QuestionDisplay";
 import NavigationControls from "./components/NavigationControls";
+import ResumeDialog from "./components/ResumeDialog";
 import SubscriptionGuard from "@/components/skill-assessments/SubscriptionGuard";
 import AssessmentLimitGuard from "@/components/skill-assessments/AssessmentLimitGuard";
 
@@ -26,9 +27,13 @@ export default function TakeAssessmentPage() {
     submitting,
     started,
     isSubmitted,
+    showResumeDialog,
+    interruptionInfo,
     handleAnswerChange,
     fetchAssessment,
     startAssessment,
+    resumeAssessment,
+    startNewAssessment,
     submitAssessmentData,
   } = useAssessmentState(assessmentId);
 
@@ -37,6 +42,7 @@ export default function TakeAssessmentPage() {
   const { timeLeft, formatTime, getTimeWarning, stopTimer } = useAssessmentTimer({
     onTimeUp: () => handleSubmitRef.current?.(true),
     started,
+    initialTime: interruptionInfo?.remainingTime,
   });
 
   // Update ref when submitAssessmentData changes
@@ -61,6 +67,14 @@ export default function TakeAssessmentPage() {
 
   const handleStart = () => {
     startAssessment();
+  };
+
+  const handleResume = () => {
+    resumeAssessment();
+  };
+
+  const handleStartNew = () => {
+    startNewAssessment();
   };
 
   const handleBack = () => {
@@ -169,6 +183,13 @@ export default function TakeAssessmentPage() {
             />
           </div>
         )}
+
+        <ResumeDialog
+          show={showResumeDialog}
+          interruptionInfo={interruptionInfo}
+          onResume={handleResume}
+          onStartNew={handleStartNew}
+        />
       </div>
     </div>
     </AssessmentLimitGuard>

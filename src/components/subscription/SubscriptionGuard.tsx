@@ -21,33 +21,59 @@ const LoadingState = () => (
   </div>
 );
 
-const SubscriptionRequiredCard = ({
+const SubscriptionRequiredPage = ({
   feature,
   onUpgrade,
 }: {
   feature: string;
   onUpgrade: () => void;
 }) => (
-  <Card className="border-[#24CFA7]/20 bg-[#24CFA7]/5">
-    <CardContent className="p-8">
-      <div className="text-center">
-        <Crown className="w-16 h-16 text-[#24CFA7] mx-auto mb-4" />
-        <h2 className="text-2xl font-semibold text-[#24CFA7] mb-4">
-          Subscription Required
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Access to {feature} requires an active subscription
+  <div className="min-h-screen bg-[#F0F5F9] py-8">
+    <div className="max-w-4xl mx-auto px-4">
+      <div className="text-center mb-8">
+        <div className="flex items-center gap-3 justify-center mb-4">
+          <div className="p-2 bg-[#467EC7]/10 rounded-lg">
+            <Crown className="w-6 h-6 text-[#467EC7]" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">{feature}</h1>
+        </div>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          {feature === "CV Generator" 
+            ? "Create professional, ATS-friendly CVs with our easy-to-use generator"
+            : `Access ${feature} to enhance your professional profile`
+          }
         </p>
-        <Button
-          onClick={onUpgrade}
-          className="bg-[#24CFA7] hover:bg-[#24CFA7]/90"
-        >
-          <Crown className="w-4 h-4 mr-2" />
-          Upgrade Now
-        </Button>
       </div>
-    </CardContent>
-  </Card>
+
+      <Card className="border-[#467EC7]/20 bg-gradient-to-br from-[#467EC7]/5 to-[#24CFA7]/5">
+        <CardContent className="p-12">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#467EC7]/10 rounded-full mb-6">
+              <Crown className="w-10 h-10 text-[#467EC7]" />
+            </div>
+            <h2 className="text-3xl font-bold text-[#467EC7] mb-4">
+              Subscription Required
+            </h2>
+            <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
+              {feature} is a premium feature that requires an active
+              subscription. Upgrade your account to access professional tools
+              and enhance your career opportunities.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={onUpgrade}
+                className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white px-8 py-3 text-lg"
+                size="lg"
+              >
+                View Subscription Plans
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
 );
 
 export default function SubscriptionGuard({
@@ -76,14 +102,10 @@ export default function SubscriptionGuard({
   
   if (!hasSubscription) {
     return (
-      <div className="min-h-screen bg-[#F0F5F9] py-8">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <SubscriptionRequiredCard
-            feature={feature}
-            onUpgrade={handleUpgrade}
-          />
-        </div>
-      </div>
+      <SubscriptionRequiredPage
+        feature={feature}
+        onUpgrade={handleUpgrade}
+      />
     );
   }
 

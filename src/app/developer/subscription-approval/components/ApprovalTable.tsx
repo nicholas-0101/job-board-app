@@ -8,9 +8,9 @@ import ApprovalActions from "./ApprovalActions";
 interface ApprovalTableProps {
   payments: Payment[];
   loading: boolean;
-  processingPayments: Set<number>;
-  onApprove: (paymentId: number) => void;
-  onReject: (paymentId: number) => void;
+  processingPayments: Set<string>; // Changed to track by slug
+  onApprove: (paymentSlug: string) => void; // Changed to use slug
+  onReject: (paymentSlug: string) => void; // Changed to use slug
   onViewProof: (proofUrl: string) => void;
 }
 
@@ -129,12 +129,13 @@ export default function ApprovalTable({
                   
                   <ApprovalActions
                     paymentId={payment.id}
+                    paymentSlug={payment.slug}
                     status={payment.status}
                     paymentProof={payment.paymentProof}
                     onApprove={onApprove}
                     onReject={onReject}
                     onViewProof={onViewProof}
-                    isProcessing={processingPayments.has(payment.id)}
+                    isProcessing={processingPayments.has(payment.slug)}
                   />
                 </div>
               </div>

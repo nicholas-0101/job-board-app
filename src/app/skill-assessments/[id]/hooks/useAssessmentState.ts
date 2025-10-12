@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getAssessmentForUser, submitAssessment } from "@/lib/skillAssessment";
 import toast from "react-hot-toast";
+import { useAssessmentPersistence } from "./useAssessmentPersistence";
 
 interface Question {
   id: number;
@@ -35,7 +36,20 @@ export function useAssessmentState(assessmentId: number) {
   const [submitting, setSubmitting] = useState(false);
   const [started, setStarted] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
+  const [originalStartTime, setOriginalStartTime] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [interruptionInfo, setInterruptionInfo] = useState<any>(null);
+
+  const {
+    saveProgress,
+    getProgress,
+    clearProgress,
+    initializeAssessment,
+    hasExistingSession,
+    getInterruptionInfo,
+    updateTimeSpent,
+  } = useAssessmentPersistence(assessmentId);
 
   const fetchAssessment = useCallback(async () => {
     try {
@@ -50,17 +64,87 @@ export function useAssessmentState(assessmentId: number) {
     }
   }, [assessmentId, router]);
 
+  // Load existing progress on component mount
+  useEffect(() => {
+    const existingProgress = getProgress();
+    if (existingProgress) {
+      // Restore state from localStorage
+      setCurrentQuestion(existingProgress.currentQuestion);
+      setAnswers(existingProgress.answers);
+      setStartTime(new Date(existingProgress.startTime));
+      setOriginalStartTime(existingProgress.startTime);
+      
+      const info = getInterruptionInfo();
+      setInterruptionInfo(info);
+      
+      // Show dialog only for significant interruptions (> 5 minutes)
+      if (info && info.wasInterrupted) {
+        setShowResumeDialog(true);
+      } else {
+        // Auto-resume for page refresh or short interruptions
+        setStarted(true);
+        if (info && info.timeSinceLastActive > 30) {
+          toast.success(`Assessment resumed! Time remaining: ${Math.floor(info.remainingTime / 60)}:${(info.remainingTime % 60).toString().padStart(2, '0')}`);
+        }
+      }
+    }
+  }, [getProgress, getInterruptionInfo]);
+
   const handleAnswerChange = useCallback((questionId: number, answer: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: answer,
-    }));
-  }, []);
+    setAnswers((prev) => {
+      const newAnswers = {
+        ...prev,
+        [questionId]: answer,
+      };
+      
+      // Save to localStorage
+      saveProgress({
+        answers: newAnswers,
+        currentQuestion,
+      });
+      
+      return newAnswers;
+    });
+  }, [saveProgress, currentQuestion]);
 
   const startAssessment = useCallback(() => {
+    const totalDuration = 3 * 60; // 3 minutes
+    const result = initializeAssessment(totalDuration);
+    
     setStarted(true);
-    setStartTime(new Date());
-  }, []);
+    setStartTime(result.startTime);
+    setOriginalStartTime(result.originalStartTime);
+    setCurrentQuestion(result.currentQuestion);
+    setAnswers(result.answers);
+    
+    return result;
+  }, [initializeAssessment]);
+
+  const resumeAssessment = useCallback(() => {
+    if (interruptionInfo) {
+      setStarted(true);
+      setShowResumeDialog(false);
+      
+      if (interruptionInfo.wasInterrupted) {
+        toast.success(
+          `Assessment resumed! You have ${Math.floor(interruptionInfo.remainingTime / 60)}:${(interruptionInfo.remainingTime % 60).toString().padStart(2, '0')} remaining.`
+        );
+      }
+      
+      return {
+        remainingTime: interruptionInfo.remainingTime,
+        isResuming: true,
+      };
+    }
+    return null;
+  }, [interruptionInfo]);
+
+  const startNewAssessment = useCallback(() => {
+    clearProgress();
+    setShowResumeDialog(false);
+    setInterruptionInfo(null);
+    startAssessment();
+  }, [clearProgress, startAssessment]);
 
   const submitAssessmentData = useCallback(async (isAutoSubmit = false) => {
     if (isSubmitted || submitting || !assessment || !startTime) {
@@ -80,6 +164,9 @@ export function useAssessmentState(assessmentId: number) {
       setSubmitting(true);
       setIsSubmitted(true);
 
+      // Clear localStorage immediately to prevent duplicate submissions
+      clearProgress();
+
       const formattedAnswers = assessment.questions
         .map((question) => ({
           questionId: question.id,
@@ -90,7 +177,7 @@ export function useAssessmentState(assessmentId: number) {
       const response = await submitAssessment({
         assessmentId,
         answers: formattedAnswers,
-        startedAt: startTime.toISOString(),
+        startedAt: originalStartTime || startTime.toISOString(),
       });
 
       const message = isAutoSubmit 
@@ -118,20 +205,41 @@ export function useAssessmentState(assessmentId: number) {
         toast.error(error.response?.data?.message || "Failed to submit assessment");
       }
     }
-  }, [assessment, answers, startTime, isSubmitted, submitting, assessmentId, router]);
+  }, [assessment, answers, startTime, originalStartTime, isSubmitted, submitting, assessmentId, router, clearProgress]);
+
+  // Update current question in localStorage
+  const updateCurrentQuestion = useCallback((questionIndex: number) => {
+    setCurrentQuestion(questionIndex);
+    saveProgress({ currentQuestion: questionIndex });
+  }, [saveProgress]);
+
+  // Periodically update time spent
+  useEffect(() => {
+    if (!started) return;
+
+    const interval = setInterval(() => {
+      updateTimeSpent();
+    }, 10000); // Update every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [started, updateTimeSpent]);
 
   return {
     assessment,
     loading,
     currentQuestion,
-    setCurrentQuestion,
+    setCurrentQuestion: updateCurrentQuestion,
     answers,
     submitting,
     started,
     isSubmitted,
+    showResumeDialog,
+    interruptionInfo,
     handleAnswerChange,
     fetchAssessment,
     startAssessment,
+    resumeAssessment,
+    startNewAssessment,
     submitAssessmentData,
   };
 }

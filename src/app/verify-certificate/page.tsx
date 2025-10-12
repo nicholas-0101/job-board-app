@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Shield, Award, CheckCircle } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import SubscriptionGuard from "@/components/verify-certificate/SubscriptionGuard";
 
 export default function VerifyCertificatePage() {
   const router = useRouter();
   const [certificateCode, setCertificateCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthenticated, isLoading: authLoading } = useSubscription();
+  const { hasSubscription, isAuthenticated, isLoading: authLoading } = useSubscription();
 
   useEffect(() => {
     if (!authLoading && isAuthenticated === false) {
@@ -36,6 +37,34 @@ export default function VerifyCertificatePage() {
       handleVerify();
     }
   };
+
+  // Show loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#F0F5F9] py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
+              <p className="text-[#A3B6CE]">Loading certificate verification...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show subscription guard if needed
+  if (isAuthenticated === false || hasSubscription === false) {
+    return (
+      <SubscriptionGuard 
+        hasSubscription={hasSubscription}
+        isAuthenticated={isAuthenticated}
+        onUpgrade={() => router.push("/subscription")}
+        onSignIn={() => router.push("/signin")}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F0F5F9] py-8">
@@ -91,7 +120,7 @@ export default function VerifyCertificatePage() {
             <Button
               onClick={handleVerify}
               disabled={isLoading || !certificateCode.trim()}
-              className="w-full bg-[#467EC7] hover:bg-[#467EC7]/90 text-white"
+              className="w-full bg-[#24CFA7] hover:bg-[#24CFA7]/90 text-white"
             >
               {isLoading ? (
                 <>

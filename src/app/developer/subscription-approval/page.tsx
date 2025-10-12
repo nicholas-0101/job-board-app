@@ -16,7 +16,7 @@ export default function SubscriptionApprovalPage() {
   const [allPayments, setAllPayments] = useState<Payment[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [processingPayments, setProcessingPayments] = useState<Set<number>>(new Set());
+  const [processingPayments, setProcessingPayments] = useState<Set<string>>(new Set()); // Changed to track by slug
   const [selectedPaymentProof, setSelectedPaymentProof] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -41,33 +41,33 @@ export default function SubscriptionApprovalPage() {
     }
   };
 
-  const handleApprove = async (paymentId: number) => {
-    setProcessingPayments(prev => new Set(prev).add(paymentId));
+  const handleApprove = async (paymentSlug: string) => {
+    setProcessingPayments(prev => new Set(prev).add(paymentSlug));
     try {
-      await approvePayment(paymentId);
+      await approvePayment(paymentSlug);
       await loadPayments(); // Reload data
     } catch (error) {
       // Error handling is done in the API function
     } finally {
       setProcessingPayments(prev => {
         const newSet = new Set(prev);
-        newSet.delete(paymentId);
+        newSet.delete(paymentSlug);
         return newSet;
       });
     }
   };
 
-  const handleReject = async (paymentId: number) => {
-    setProcessingPayments(prev => new Set(prev).add(paymentId));
+  const handleReject = async (paymentSlug: string) => {
+    setProcessingPayments(prev => new Set(prev).add(paymentSlug));
     try {
-      await rejectPayment(paymentId);
+      await rejectPayment(paymentSlug);
       await loadPayments(); // Reload data
     } catch (error) {
       // Error handling is done in the API function
     } finally {
       setProcessingPayments(prev => {
         const newSet = new Set(prev);
-        newSet.delete(paymentId);
+        newSet.delete(paymentSlug);
         return newSet;
       });
     }

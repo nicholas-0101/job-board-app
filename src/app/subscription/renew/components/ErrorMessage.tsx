@@ -6,27 +6,33 @@ export const ErrorMessage = ({ message, onRetry }: {
   message: string; 
   onRetry?: () => void; 
 }) => (
-  <Card className="border-red-200 bg-red-50">
-    <CardContent className="p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <AlertCircle className="w-6 h-6 text-red-600" />
-        <p className="text-red-800">{message}</p>
+  <div className="min-h-screen bg-[#F0F5F9] py-8">
+    <div className="container mx-auto px-4 max-w-2xl">
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Card className="border-red-200 bg-red-50 w-full">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+              <p className="text-red-800">{message}</p>
+            </div>
+            <div className="flex gap-3">
+              {onRetry && (
+                <Button onClick={onRetry} className="bg-[#24CFA7] hover:bg-[#24CFA7]/90 text-white" size="sm">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Retry
+                </Button>
+              )}
+              <Button 
+                onClick={() => window.location.href = "/subscription"} 
+                variant="outline" 
+                size="sm"
+              >
+                Go to Subscription
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      <div className="flex gap-3">
-        {onRetry && (
-          <Button onClick={onRetry} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Retry
-          </Button>
-        )}
-        <Button 
-          onClick={() => window.location.href = "/subscription"} 
-          variant="outline" 
-          size="sm"
-        >
-          Go to Subscription
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
+    </div>
+  </div>
 );

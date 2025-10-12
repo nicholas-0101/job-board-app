@@ -7,8 +7,8 @@ import { Payment } from "../types";
 
 interface PendingPaymentCardProps {
   payment: Payment;
-  onApprove: (paymentId: number) => void;
-  onReject: (paymentId: number) => void;
+  onApprove: (paymentSlug: string) => void; // Changed to use slug
+  onReject: (paymentSlug: string) => void; // Changed to use slug
   onViewProof: (proofUrl: string) => void;
   isProcessing: boolean;
 }
@@ -128,7 +128,7 @@ export default function PendingPaymentCard({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onReject(payment.id)}
+                  onClick={() => onReject(payment.slug)}
                   disabled={isProcessing}
                   className="text-red-600 border-red-600 hover:bg-red-50"
                 >
@@ -138,7 +138,7 @@ export default function PendingPaymentCard({
                 
                 <Button
                   size="sm"
-                  onClick={() => onApprove(payment.id)}
+                  onClick={() => onApprove(payment.slug)}
                   disabled={isProcessing}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >

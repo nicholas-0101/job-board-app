@@ -26,8 +26,8 @@ export default function TransactionContent() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#467EC7] mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading transaction details...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
+              <p className="text-[#A3B6CE]">Loading transaction details...</p>
             </div>
           </div>
         </div>
@@ -49,8 +49,8 @@ export default function TransactionContent() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Subscription
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Purchase</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-[#467EC7] mb-2">Complete Your Purchase</h1>
+            <p className="text-[#A3B6CE]">
               You're subscribing to the {selectedPlan.name} plan
             </p>
           </div>

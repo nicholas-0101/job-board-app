@@ -19,6 +19,7 @@ export interface RenewalInfo {
   renewalPrice: number;
   pendingPayment?: {
     id: number;
+    slug?: string; // Added slug for secure operations
     amount: number;
     status: string;
     paymentProof?: string;

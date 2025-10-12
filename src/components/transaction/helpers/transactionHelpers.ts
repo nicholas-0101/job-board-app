@@ -10,19 +10,23 @@ export const fetchUserData = async () => {
   return response.data.data;
 };
 
-export const findPaymentInSubscription = async (subscriptionId: number, paymentId: string) => {
+export const findPaymentInSubscription = async (subscriptionId: number, paymentIdentifier: string) => {
   try {
     const response = await apiCall.get(`/subscription/subscriptions/${subscriptionId}/payments`);
     const payments = response.data;
-    return payments.find((p: any) => p.id.toString() === paymentId);
+    
+    // Try to find by slug first, then by ID for backward compatibility
+    return payments.find((p: any) => 
+      p.slug === paymentIdentifier || p.id.toString() === paymentIdentifier
+    );
   } catch (error) {
     return null;
   }
 };
 
-export const searchPaymentInAllSubscriptions = async (subscriptions: any[], paymentId: string) => {
+export const searchPaymentInAllSubscriptions = async (subscriptions: any[], paymentIdentifier: string) => {
   for (const subscription of subscriptions) {
-    const payment = await findPaymentInSubscription(subscription.id, paymentId);
+    const payment = await findPaymentInSubscription(subscription.id, paymentIdentifier);
     if (payment) {
       return payment;
     }
@@ -30,9 +34,13 @@ export const searchPaymentInAllSubscriptions = async (subscriptions: any[], paym
   return null;
 };
 
-export const createBasicPaymentObject = (paymentId: string, subscription: any) => {
+export const createBasicPaymentObject = (paymentIdentifier: string, subscription: any) => {
+  // If identifier looks like a CUID slug, use it as slug, otherwise use as ID
+  const isSlug = paymentIdentifier.length > 10 && paymentIdentifier.startsWith('c');
+  
   return {
-    id: paymentId,
+    id: isSlug ? null : paymentIdentifier,
+    slug: isSlug ? paymentIdentifier : `payment-${paymentIdentifier}`,
     status: 'pending',
     amount: subscription.plan?.price || 0
   };

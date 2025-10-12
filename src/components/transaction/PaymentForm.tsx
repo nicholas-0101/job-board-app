@@ -39,7 +39,7 @@ export default function PaymentForm({
           <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
           <div className="space-y-3">
             {/* Bank Transfer */}
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#467EC7] transition-colors">
+            <label className="flex items-center gap-3 p-4 border-2 border-[#A3B6CE]/30 rounded-xl cursor-pointer hover:border-[#467EC7] transition-colors">
               <input
                 type="radio"
                 name="payment"
@@ -63,7 +63,7 @@ export default function PaymentForm({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="bg-[#467EC7]/5 border border-[#467EC7]/20 rounded-lg p-4"
+            className="bg-[#E1F1F3]/50 border border-[#A3B6CE]/30 rounded-lg p-4"
           >
             <h4 className="font-semibold text-[#467EC7] mb-3">
               Bank Transfer Details
@@ -114,7 +114,7 @@ export default function PaymentForm({
           <Button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="w-full bg-[#467EC7] hover:bg-[#467EC7]/90 text-white py-3 text-lg"
+            className="w-full bg-[#24CFA7] hover:bg-[#24CFA7]/90 text-white py-3 text-lg"
             size="lg"
           >
             {isSubmitting ? (
@@ -130,9 +130,9 @@ export default function PaymentForm({
             )}
           </Button>
           
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-600">
-            <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
-              <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse"></div>
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm text-[#A3B6CE]">
+            <div className="w-4 h-4 rounded-full border-2 border-[#A3B6CE] flex items-center justify-center">
+              <div className="w-2 h-2 bg-[#A3B6CE] rounded-full animate-pulse"></div>
             </div>
             <span>Processing time: 1-2 business days for manual verification</span>
           </div>
