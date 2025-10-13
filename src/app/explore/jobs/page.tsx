@@ -1,431 +1,73 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Grid3x3,
-  List,
-  Loader,
-  SearchX,
-  ArrowUpDown,
-  ArrowDownUp,
-} from "lucide-react";
-import { apiCall } from "@/helper/axios";
-import SearchBar from "@/components/site/SearchBar";
-import { JobCard } from "@/app/explore/jobs/components/JobCard";
-import { useRouter } from "next/navigation";
-import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
-type Filters = {
-  keyword?: string;
-  location?: string;
-  sort?: "createdAt";
-  order?: "asc" | "desc";
-  postedWithin?: "1" | "3" | "7" | "30";
-};
+import { useJobsPage } from "@/lib/hooks/useJobsPage";
+import JobsHero from "@/components/explore/jobs/JobsHero";
+import JobsControls from "@/components/explore/jobs/JobsControls";
+import JobsList from "@/components/explore/jobs/JobsList";
+import JobsPagination from "@/components/explore/jobs/JobsPagination";
 
 export default function JobsPage() {
-  const router = useRouter();
-
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [filters, setFilters] = useState<Filters>({
-    sort: "createdAt",
-    order: "desc",
-  });
-  const [page, setPage] = useState(1);
-  const [limit] = useState(9);
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [showPostedDropdown, setShowPostedDropdown] = useState(false);
-  const [searchInputs, setSearchInputs] = useState({
-    keyword: "",
-    location: "",
-  });
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        setShowPostedDropdown(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const keyword = params.get("keyword") || "";
-    const city = params.get("city") || "";
-    const pageParam = parseInt(params.get("page") || "1", 10);
-    const order = (params.get("order") as "asc" | "desc") || "desc";
-    const sort = (params.get("sort") as "createdAt") || "createdAt";
-
-    setSearchInputs({ keyword, location: city });
-    setFilters((prev) => ({ ...prev, keyword, location: city, sort, order }));
-    setPage(pageParam);
-    setSelectedLocation(city);
-  }, []);
-
-  const fetchJobs = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiCall.get("/job/all", {
-        params: {
-          keyword: filters.keyword || undefined,
-          city: filters.location || undefined,
-          limit,
-          page,
-          sortBy: filters.sort,
-          sortOrder: filters.order,
-          postedWithin: filters.postedWithin,
-        },
-      });
-
-      const jobsData = res.data.data.map((job: any) => ({
-        id: job.id,
-        slug: job.slug,
-        title: job.title,
-        company: job.companyName,
-        logo: job.companyLogo || "",
-        city: job.city,
-        salary: job.salary || "",
-        category: job.category || "",
-        tags: job.tags || [],
-        rating: Math.floor(Math.random() * 2) + 4,
-        createdAt: job.createdAt,
-      }));
-
-      setJobs(jobsData);
-      setTotal(res.data.total ?? 0);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to load jobs");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchJobs();
-
-    const params = new URLSearchParams();
-    if (filters.keyword) params.set("keyword", filters.keyword);
-    if (filters.location) params.set("city", filters.location);
-    if (filters.sort) params.set("sort", filters.sort);
-    if (filters.order) params.set("order", filters.order);
-    if (page > 1) params.set("page", page.toString());
-
-    const newUrl = `/explore/jobs${
-      params.toString() ? "?" + params.toString() : ""
-    }`;
-    if (window.location.pathname + window.location.search !== newUrl) {
-      router.replace(newUrl);
-    }
-  }, [filters, page]);
-
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-
-  const handleSearch = () => {
-    setFilters((prev) => {
-      if (
-        prev.keyword === searchInputs.keyword &&
-        prev.location === searchInputs.location
-      ) {
-        return prev;
-      }
-      return {
-        ...prev,
-        keyword: searchInputs.keyword,
-        location: searchInputs.location,
-      };
-    });
-  };
-
-  const toggleSortOrder = () => {
-    setFilters((prev) => ({
-      ...prev,
-      order: prev.order === "asc" ? "desc" : "asc",
-    }));
-  };
-
-  const getVisiblePages = (current: number, total: number, maxVisible = 5) => {
-    const pages: (number | string)[] = [];
-
-    if (total <= maxVisible + 2) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      let start = Math.max(current - 1, 2);
-      let end = Math.min(current + 1, total - 1);
-      if (start > 2) pages.push("…");
-      for (let i = start; i <= end; i++) pages.push(i);
-      if (end < total - 1) pages.push("…");
-
-      pages.push(total);
-    }
-
-    return pages;
-  };
-
-  useEffect(() => {
-    const fetchLocationAndSetFilter = async () => {
-      try {
-        const pos = await getUserLocation();
-        const { latitude, longitude } = pos.coords;
-        const { city } = await getCityFromCoords(latitude, longitude);
-
-        if (city && !filters.location) {
-          setSearchInputs((prev) => ({ ...prev, location: city }));
-          setFilters((prev) => ({ ...prev, location: city }));
-        }
-      } catch (err) {
-        console.warn("User denied location or geolocation failed:", err);
-      }
-    };
-
-    if (!selectedLocation) {
-      fetchLocationAndSetFilter();
-    }
-  }, []);
+  const {
+    loading,
+    viewMode,
+    filters,
+    page,
+    jobs,
+    total,
+    error,
+    searchInputs,
+    setSearchInputs,
+    showPostedDropdown,
+    wrapperRef,
+    handleSearch,
+    toggleSortOrder,
+    handleViewModeChange,
+    handlePageChange,
+    handleToggleDropdown,
+    handleSelectPostedWithin,
+    totalPages,
+  } = useJobsPage();
 
   return (
     <section className="min-h-screen">
-      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 py-12 sm:py-16 md:py-20">
-        <div className="absolute inset-0" />
-        <div className="relative container mx-auto px-4 text-center max-w-5xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col justify-center items-center"
-          >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-[#467EC7]">
-              Choose Your <span className="text-[#24CFA7]">Next Career</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl opacity-90 mb-6 sm:mb-8 text-muted-foreground max-w-3xl px-4">
-              Discover opportunities that align with your passion and skills,
-              and take the next step toward the career you've always dreamed of
-            </p>
-
-            <div className="w-full lg:max-w-5xl z-1 px-2 sm:px-4">
-              <SearchBar
-                keyword={searchInputs.keyword}
-                setKeyword={(v) =>
-                  setSearchInputs((prev) => ({ ...prev, keyword: v }))
-                }
-                city={searchInputs.location}
-                setCity={(v) =>
-                  setSearchInputs((prev) => ({ ...prev, location: v }))
-                }
-                onSearch={handleSearch}
-              />
-            </div>
-          </motion.div>
-        </div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-      </section>
+      <JobsHero
+        searchInputs={searchInputs}
+        onKeywordChange={(value) =>
+          setSearchInputs((prev) => ({ ...prev, keyword: value }))
+        }
+        onLocationChange={(value) =>
+          setSearchInputs((prev) => ({ ...prev, location: value }))
+        }
+        onSearch={handleSearch}
+      />
 
       <section className="lg:max-w-6xl mx-auto pb-8 sm:pb-12 px-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Showing{" "}
-            <span className="font-semibold text-foreground">{jobs.length}</span>{" "}
-            of {total} jobs
-          </p>
+        <JobsControls
+          jobsCount={jobs.length}
+          totalCount={total}
+          filters={filters}
+          viewMode={viewMode}
+          showPostedDropdown={showPostedDropdown}
+          onSortChange={toggleSortOrder}
+          onViewModeChange={handleViewModeChange}
+          onToggleDropdown={handleToggleDropdown}
+          onSelectPostedWithin={handleSelectPostedWithin}
+          wrapperRef={wrapperRef as React.RefObject<HTMLDivElement>}
+        />
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
-              {/* Mobile: Sort button first, then posted filter */}
-              <button
-                onClick={toggleSortOrder}
-                className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 transition-colors shadow-sm order-1 sm:order-2"
-                title={`Sort ${
-                  filters.order === "asc" ? "Descending" : "Ascending"
-                }`}
-              >
-                {filters.order === "asc" ? (
-                  <>
-                    <ArrowUpDown className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm font-medium">Oldest Jobs</span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowDownUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm font-medium">Newest Jobs</span>
-                  </>
-                )}
-              </button>
+        <JobsList
+          loading={loading}
+          jobs={jobs}
+          viewMode={viewMode}
+          page={page}
+          filters={filters}
+        />
 
-              <div className="relative order-2 sm:order-1" ref={wrapperRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowPostedDropdown((prev) => !prev)}
-                  className="w-full sm:w-46 px-3 sm:px-4 py-2 rounded-lg bg-[#467EC7] text-white font-semibold text-xs sm:text-sm text-left flex justify-between items-center"
-                >
-                  <span className="truncate">
-                    {filters.postedWithin === "1"
-                      ? "Posted Today"
-                      : filters.postedWithin === "3"
-                      ? "Posted Last 3 days"
-                      : filters.postedWithin === "7"
-                      ? "Posted Last 7 days"
-                      : filters.postedWithin === "30"
-                      ? "Posted Last 30 days"
-                      : "All Post"}
-                  </span>
-                  <span className="ml-2">▾</span>
-                </button>
-
-                {showPostedDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-sm z-10">
-                    {["", "1", "3", "7", "30"].map((value) => {
-                      const label =
-                        value === ""
-                          ? "All Post"
-                          : value === "1"
-                          ? "Posted Today"
-                          : value === "3"
-                          ? "Posted Last 3 days"
-                          : value === "7"
-                          ? "Posted Last 7 days"
-                          : "Posted Last 30 days";
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => {
-                            setFilters((prev) => ({
-                              ...prev,
-                              postedWithin: value as Filters["postedWithin"],
-                            }));
-                            setShowPostedDropdown(false);
-                          }}
-                          className="w-full text-left px-3 sm:px-4 py-2 hover:bg-[#467EC7]/10 transition-colors rounded-lg text-xs sm:text-sm"
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              <div className="hidden sm:block w-px bg-border h-6 mx-2 order-3" />
-
-              <div className="hidden sm:flex items-center gap-1 order-4">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "grid"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <Grid3x3 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "list"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Job List */}
-        {loading ? (
-          <div className="flex items-center justify-center py-16 sm:py-20">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            >
-              <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-[#24CFA7]" />
-            </motion.div>
-          </div>
-        ) : jobs.length === 0 ? (
-          <div className="text-center py-16 sm:py-20">
-            <h3 className="text-lg sm:text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-              <SearchX size={40} className="sm:w-12 sm:h-12" color="#24CFA7" /> 
-              <span className="px-4">No jobs found matching your search.</span>
-            </h3>
-            <p className="text-sm sm:text-base text-muted-foreground px-4">
-              Try adjusting filters or searching a different keyword.
-            </p>
-          </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${page}-${filters.order}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className={`grid gap-3 sm:gap-4 ${
-                viewMode === "grid"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1"
-              }`}
-            >
-              {jobs.map((job) => (
-                <JobCard key={job.slug} {...job} />
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        )}
-
-        {/* Pagination */}
-        <div className="mt-4 sm:mt-6 flex items-center justify-center gap-1 sm:gap-2">
-          <button
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="p-1.5 sm:p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
-          >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-
-          {getVisiblePages(page, totalPages).map((p, i) =>
-            typeof p === "string" ? (
-              <span key={i} className="px-2 sm:px-3 py-1 sm:py-2 text-sm">
-                {p}
-              </span>
-            ) : (
-              <button
-                key={i}
-                onClick={() => setPage(p)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-medium text-sm sm:text-base ${
-                  page === p
-                    ? "bg-[#467EC7] text-primary-foreground"
-                    : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
-                }`}
-              >
-                {p}
-              </button>
-            )
-          )}
-
-          <button
-            onClick={() => setPage(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages}
-            className="p-1.5 sm:p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
-          >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        </div>
+        <JobsPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </section>
     </section>
   );

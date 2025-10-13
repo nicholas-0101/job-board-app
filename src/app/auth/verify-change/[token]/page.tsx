@@ -94,7 +94,7 @@ export default function VerifyPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Go to Sign In
+              Continue
             </motion.button>
           )}
 

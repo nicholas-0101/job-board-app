@@ -1,6 +1,6 @@
 "use client";
 import { Formik, Form } from "formik";
-import InputField from "../../components/inputField";
+import InputField from "../../../../../components/admin-profile/components/inputField";
 import { Mail } from "lucide-react";
 import { useState } from "react";
 import { useUserStore } from "@/lib/store/userStore";

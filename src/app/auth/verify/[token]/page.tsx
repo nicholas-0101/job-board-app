@@ -1,244 +1,60 @@
 "use client";
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { apiCall } from "@/helper/axios";
-import { useUserStore } from "@/lib/store/userStore";
+
+import { useParams } from "next/navigation";
+import { useVerifyAccount } from "@/lib/hooks/useVerifyAccount";
+import { useResendVerification } from "@/lib/hooks/useResendVerification";
+import { useVerifyRedirect } from "@/lib/hooks/useVerifyRedirect";
+import VerifyContainer from "@/components/auth/verify/VerifyContainer";
+import VerifyHeader from "@/components/auth/verify/VerifyHeader";
+import VerifyButton from "@/components/auth/verify/VerifyButton";
+import SuccessButton from "@/components/auth/verify/SuccessButton";
+import ErrorButton from "@/components/auth/verify/ErrorButton";
+import ExpiredButton from "@/components/auth/verify/ExpiredButton";
 
 export default function VerifyPage() {
   const { token: rawToken } = useParams();
   const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
-  const router = useRouter();
-  const { user, setUser } = useUserStore();
+  
+  const { isLoading, status, message, setStatus, setMessage, handleVerify } =
+    useVerifyAccount();
+  const { resending, handleResend } = useResendVerification();
+  const { handleRedirect } = useVerifyRedirect();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<
-    "pending" | "success" | "error" | "expired" | "sent"
-  >("pending");
-  const [message, setMessage] = useState(
-    "Click verify to confirm your account"
-  );
-  const [resending, setResending] = useState(false);
-
-  const handleVerify = async () => {
-    if (!token) return;
-
-    setIsLoading(true);
-    try {
-      const res = await apiCall.get(`/auth/verify/${token}`);
-
-
-      const verifiedUser = res.data.user;
-      setUser(verifiedUser);
-      localStorage.setItem("verifiedUser", JSON.stringify(verifiedUser));
-      localStorage.setItem("user", JSON.stringify(verifiedUser));
-
-      if (verifiedUser?.role) {
-        localStorage.setItem("role", verifiedUser.role);
-      }
-
-      if (verifiedUser?.id) {
-        localStorage.setItem("userId", verifiedUser.id.toString());
-      }
-
-      const verifiedToken = res.data.token;
-      if (verifiedToken) {
-        localStorage.setItem("verifiedToken", verifiedToken);
-        localStorage.setItem("token", verifiedToken);
-      }
-
-      const isProfileComplete = Boolean(verifiedUser?.isProfileComplete);
-
-      localStorage.setItem(
-        "isProfileComplete",
-        isProfileComplete ? "true" : "false"
-      );
-
-      setStatus("success");
-      setMessage(res.data.message || "Account verified successfully!");
-
-      const target =
-        verifiedUser?.role === "ADMIN"
-          ? isProfileComplete
-            ? "/admin"
-            : "/admin/profile/complete"
-          : isProfileComplete
-          ? "/"
-          : "/profile/complete";
-
-      router.replace(target);
-      return;
-    } catch (err: any) {
-      const msg = err.response?.data?.message || "Verification failed!";
-      setMessage(msg);
-
-      if (msg.toLowerCase().includes("expired")) {
-        setStatus("expired");
-      } else if (msg.toLowerCase().includes("already verified")) {
-        setStatus("success");
-      } else {
-        setStatus("error");
-      }
-    } finally {
-      setIsLoading(false);
+  const onVerify = async () => {
+    if (token) {
+      await handleVerify(token);
     }
   };
 
-  const handleResend = async () => {
-    setResending(true);
-
-    try {
-      let email = user?.email;
-
-      if (!email) {
-        const pendingEmail = localStorage.getItem("pendingEmail");
-        if (pendingEmail) {
-          email = pendingEmail;
-        }
-      }
-
-      if (!email && token) {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        email = payload?.email;
-      }
-
-      if (!email) {
-        setMessage("User email not found. Please sign up again.");
-        setResending(false);
-        return;
-      }
-
-      const res = await apiCall.post("/auth/resend-verification", { email });
-
-      setMessage(res.data.message || "Verification email resent successfully!");
+  const onResend = async () => {
+    const result = await handleResend(token);
+    if (result.success) {
+      setMessage(result.message);
       setStatus("sent");
-    } catch (err: any) {
-      setMessage(
-        err.response?.data?.message || "Failed to resend verification email."
-      );
-    } finally {
-      setResending(false);
+    } else {
+      setMessage(result.message);
     }
-  };
-
-  const handleRedirect = () => {
-    let role = user?.role;
-
-    if (!role) {
-      try {
-        role =
-          (localStorage.getItem("role") as "ADMIN" | "USER" | null) ??
-          JSON.parse(localStorage.getItem("verifiedUser") || "{}")?.role;
-      } catch {
-        role = user?.role;
-      }
-    }
-
-    const profileCompleteFlag =
-      localStorage.getItem("isProfileComplete") === "true";
-
-    const target =
-      role === "ADMIN"
-        ? profileCompleteFlag
-          ? "/admin"
-          : "/admin/profile/complete"
-        : profileCompleteFlag
-        ? "/"
-        : "/profile/complete";
-
-    router.push(target);
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 flex items-center justify-center p-4 relative overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md relative z-10"
-      >
-        <motion.form
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-8 grid gap-4 text-center"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <h1 className="text-3xl font-bold text-[#467EC7] mb-2">
-              Verify Account
-            </h1>
-            <p className="text-muted-foreground">{message}</p>
-          </motion.div>
+    <VerifyContainer>
+      <VerifyHeader message={message} />
 
-          {status === "pending" && (
-            <motion.button
-              type="button"
-              onClick={handleVerify}
-              className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all ${
-                isLoading
-                  ? "cursor-not-allowed opacity-70"
-                  : "hover:shadow-xl cursor-pointer"
-              }`}
-              whileHover={isLoading ? {} : { scale: 1.02 }}
-              whileTap={isLoading ? {} : { scale: 0.98 }}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Verifying...
-                </span>
-              ) : (
-                "Verify"
-              )}
-            </motion.button>
-          )}
+      {status === "pending" && (
+        <VerifyButton isLoading={isLoading} onClick={onVerify} />
+      )}
 
-          {status === "success" && (
-            <motion.button
-              type="button"
-              onClick={handleRedirect}
-              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group cursor-pointer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Complete Profile
-            </motion.button>
-          )}
+      {status === "success" && (
+        <SuccessButton onClick={handleRedirect} />
+      )}
 
-          {status === "error" && (
-            <motion.button
-              type="button"
-              onClick={handleVerify}
-              className="w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all relative overflow-hidden group cursor-pointer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Retry
-            </motion.button>
-          )}
+      {status === "error" && (
+        <ErrorButton onClick={onVerify} />
+      )}
 
-          {status === "expired" && (
-            <motion.button
-              type="button"
-              onClick={handleResend}
-              className={`w-full px-6 py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg hover:shadow-xl transition-all ${
-                resending ? "cursor-not-allowed opacity-70" : "cursor-pointer"
-              }`}
-              whileHover={resending ? {} : { scale: 1.02 }}
-              whileTap={resending ? {} : { scale: 0.98 }}
-              disabled={resending}
-            >
-              {resending ? "Resending..." : "Resend Verification Email"}
-            </motion.button>
-          )}
-        </motion.form>
-      </motion.div>
-    </section>
+      {status === "expired" && (
+        <ExpiredButton resending={resending} onClick={onResend} />
+      )}
+    </VerifyContainer>
   );
 }
