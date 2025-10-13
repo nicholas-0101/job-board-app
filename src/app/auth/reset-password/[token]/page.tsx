@@ -1,197 +1,73 @@
 "use client";
-import { motion } from "framer-motion";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Lock, Eye, EyeOff } from "lucide-react";
+
+import { Formik, Form } from "formik";
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { apiCall } from "@/helper/axios";
 import { resetPasswordSchema } from "./resetPasswordSchema";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useResetPassword } from "@/lib/hooks/useResetPassword";
+import { useResetDialog } from "@/lib/hooks/useResetDialog";
+import ResetFormContainer from "@/components/auth/reset-password/ResetFormContainer";
+import PasswordField from "@/components/auth/reset-password/PasswordField";
+import ResetSubmitButton from "@/components/auth/reset-password/ResetSubmitButton";
+import ResetDialog from "@/components/auth/reset-password/ResetDialog";
 
 export default function ResetPasswordPage() {
-  const { token } = useParams<{ token: string }>();
-  const router = useRouter();
-
+  const { isLoading, handleReset } = useResetPassword();
+  const { dialogOpen, dialogTitle, dialogMessage, openDialog, closeDialog } =
+    useResetDialog();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogTitle, setDialogTitle] = useState("Notice");
-  const [dialogMessage, setDialogMessage] = useState("");
-  const [dialogAction, setDialogAction] = useState<(() => void) | null>(null);
 
-  const openDialog = (title: string, message: string, action?: () => void) => {
-    setDialogTitle(title);
-    setDialogMessage(message);
-    setDialogAction(() => action || null);
-    setDialogOpen(true);
-  };
-
-  const handleReset = async (values: {
+  const onSubmit = async (values: {
     password: string;
     confirmPassword: string;
   }) => {
-    try {
-      setIsLoading(true);
-      await apiCall.post(`/auth/reset-password/${token}`, {
-        newPassword: values.password,
-        confirmPassword: values.confirmPassword,
-      });
-      router.replace("/auth/signin");
-    } catch (err: any) {
-      openDialog("Error", err.response?.data?.message || "Reset failed");
-    } finally {
-      setIsLoading(false);
+    const result = await handleReset(values);
+    if (!result.success) {
+      openDialog("Error", result.message);
     }
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 p-2 sm:p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border p-4 sm:p-8 w-full max-w-md"
+    <ResetFormContainer>
+      <Formik
+        initialValues={{ password: "", confirmPassword: "" }}
+        validationSchema={resetPasswordSchema}
+        onSubmit={onSubmit}
       >
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-[#467EC7]">
-          Reset Password
-        </h2>
+        {({ errors, touched }) => (
+          <Form>
+            <PasswordField
+              name="password"
+              label="New Password"
+              placeholder="your password"
+              showPassword={showPassword}
+              onTogglePassword={() => setShowPassword(!showPassword)}
+              errors={errors}
+              touched={touched}
+            />
 
-        <Formik
-          initialValues={{ password: "", confirmPassword: "" }}
-          validationSchema={resetPasswordSchema}
-          onSubmit={handleReset}
-        >
-          {({ errors, touched }) => (
-            <Form>
-              {/* Password */}
-              <div className="mb-4 sm:mb-6">
-                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
-                  New Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                  <Field
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="your password"
-                    className={`w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background text-sm sm:text-base ${
-                      errors.password && touched.password
-                        ? "border-red-400 bg-red-50"
-                        : "border-input focus:border-primary bg-secondary"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                    ) : (
-                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                    )}
-                  </button>
-                </div>
-                <ErrorMessage
-                  name="password"
-                  component="div"
-                  className="text-red-400 text-xs mt-1"
-                />
-              </div>
+            <PasswordField
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="confirm password"
+              showPassword={showConfirmPassword}
+              onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+              errors={errors}
+              touched={touched}
+            />
 
-              {/* Confirm Password */}
-              <div className="mb-4 sm:mb-6">
-                <label className="block text-xs sm:text-sm font-medium text-foreground mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                  <Field
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="confirm password"
-                    className={`w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 rounded-xl border-2 focus:outline-none transition-all hover:bg-background text-sm sm:text-base ${
-                      errors.confirmPassword && touched.confirmPassword
-                        ? "border-red-400 bg-red-50"
-                        : "border-input focus:border-primary bg-secondary"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                    ) : (
-                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                    )}
-                  </button>
-                </div>
-                <ErrorMessage
-                  name="confirmPassword"
-                  component="div"
-                  className="text-red-400 text-xs mt-1"
-                />
-              </div>
+            <ResetSubmitButton isLoading={isLoading} />
+          </Form>
+        )}
+      </Formik>
 
-              {/* Submit */}
-              <motion.button
-                type="submit"
-                className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#24cfa7] text-white font-semibold shadow-lg relative overflow-hidden group transition-all text-sm sm:text-base ${
-                  isLoading
-                    ? "cursor-not-allowed opacity-70"
-                    : "hover:shadow-xl cursor-pointer"
-                }`}
-                whileHover={isLoading ? {} : { scale: 1.02 }}
-                whileTap={isLoading ? {} : { scale: 0.98 }}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <motion.div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Resetting...
-                  </span>
-                ) : (
-                  "Reset Password"
-                )}
-              </motion.button>
-            </Form>
-          )}
-        </Formik>
-      </motion.div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md !rounded-3xl mx-2 sm:mx-0">
-          <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl text-[#467EC7]">
-              {dialogTitle}
-            </DialogTitle>
-            <DialogDescription className="text-base sm:text-lg text-muted-foreground">
-              {dialogMessage}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setDialogOpen(false);
-                dialogAction?.();
-              }}
-              className="bg-[#24CFA7] hover:bg-bg-[#24CFA7]/80 text-white rounded-lg text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-2"
-            >
-              OK
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </section>
+      <ResetDialog
+        open={dialogOpen}
+        onOpenChange={closeDialog}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={closeDialog}
+      />
+    </ResetFormContainer>
   );
 }

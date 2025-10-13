@@ -1,57 +1,102 @@
-export const formatDateForInput = (dateStr: string | null | undefined) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${(
-    "0" + date.getDate()
-  ).slice(-2)}`;
-};
+"use client";
 
-export const mapPayloadToInitialValues = (payload: any) => {
-  if (!payload) return null;
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/lib/store/userStore";
 
-  console.log("=== Profile Payload ===", payload);
-  
-  // Check if this is a company profile (has ownerAdminId or slug field)
-  const isCompanyProfile = payload?.ownerAdminId !== undefined || payload?.slug !== undefined;
-  
-  if (isCompanyProfile) {
-    const mapped = {
-      name: payload?.name ?? "",
-      email: payload?.email ?? "",
-      phone: payload?.phone ?? "",
-      address: payload?.address ?? "",
-      locationCity: payload?.locationCity ?? "",
-      locationProvince: payload?.locationProvince ?? "",
-      description: payload?.description ?? "",
-      website: payload?.website ?? "",
-      logoUrl: payload?.logoUrl ?? null,
-      bannerUrl: payload?.bannerUrl ?? null,
-      socials: typeof payload?.socials === 'object' ? {
-        facebook: payload?.socials?.facebook ?? "",
-        twitter: payload?.socials?.twitter ?? "",
-        linkedin: payload?.socials?.linkedin ?? "",
-        instagram: payload?.socials?.instagram ?? "",
-      } : {
-        facebook: "",
-        twitter: "",
-        linkedin: "",
-        instagram: "",
-      },
+export function useProfileAccess() {
+  const { user, setUser } = useUserStore();
+  const router = useRouter();
+  const [checkingAccess, setCheckingAccess] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      const savedUser =
+        localStorage.getItem("user") || localStorage.getItem("verifiedUser");
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch {
+          // ignore invalid cached data
+        }
+      }
+    }
+  }, [user, setUser]);
+
+  useEffect(() => {
+    const evaluateAccess = () => {
+      const storedCompletion = localStorage.getItem("isProfileComplete") === "true";
+      const resolvedRole =
+        user?.role ||
+        (localStorage.getItem("role") as "ADMIN" | "USER" | null) ||
+        null;
+
+      if (storedCompletion || user?.isProfileComplete) {
+        const target =
+          resolvedRole === "ADMIN"
+            ? "/admin"
+            : resolvedRole === "USER"
+            ? "/"
+            : "/";
+        router.replace(target);
+        return;
+      }
+
+      setCheckingAccess(false);
     };
-    console.log("=== Mapped Company Profile ===", mapped);
-    return mapped;
-  }
 
-  // User profile
-  const mapped = {
-    phone: payload?.phone ?? "",
-    gender: payload?.gender ?? "",
-    dob: payload?.dob ? formatDateForInput(payload.dob) : "",
-    education: payload?.education ?? "",
-    address: payload?.address ?? "",
-    city: payload?.city ?? "",
-    profilePicture: payload?.profilePicture ?? null,
+    evaluateAccess();
+  }, [user, router]);
+
+  return { checkingAccess };
+}
+
+export function getInitialValues(user: any) {
+  return user?.role === "ADMIN"
+    ? {
+        phone: "",
+        location: "",
+        city: "",
+        description: "",
+        website: "",
+        logoUrl: null,
+      }
+    : {
+        phone: "",
+        gender: "",
+        dob: "",
+        education: "",
+        address: "",
+        city: "",
+        profilePicture: null,
+      };
+}
+
+export function mapPayloadToInitialValues(payload: any) {
+  if (!payload) return null;
+  
+  // Handle admin profile data
+  if (payload.role === "ADMIN" || payload.user?.role === "ADMIN") {
+    const adminData = payload.user || payload;
+    return {
+      phone: adminData.phone || "",
+      location: adminData.location || "",
+      city: adminData.city || "",
+      description: adminData.description || "",
+      website: adminData.website || "",
+      logoUrl: adminData.logoUrl || null,
+    };
+  }
+  
+  // Handle user profile data
+  const userData = payload.user || payload;
+  return {
+    phone: userData.phone || "",
+    gender: userData.gender || "",
+    dob: userData.dob ? new Date(userData.dob).toISOString().split('T')[0] : "",
+    education: userData.education || "",
+    address: userData.address || "",
+    city: userData.city || "",
+    profilePicture: userData.profilePicture || null,
   };
-  console.log("=== Mapped User Profile ===", mapped);
-  return mapped;
-};
+}

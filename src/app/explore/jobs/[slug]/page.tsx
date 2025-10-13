@@ -6,9 +6,9 @@ import { ExternalLink, Loader, SearchX } from "lucide-react";
 
 import { apiCall } from "@/helper/axios";
 import Container from "@/components/common/Container";
-import { JobCard } from "../components/JobCard";
-import JobDetailCard from "../components/JobDetailCard";
-import CompanyInfoCard from "../components/CompanyInfoCard";
+import { JobCard } from "../../../../components/explore/job/JobCard";
+import JobDetailCard from "../../../../components/explore/job/JobDetailCard";
+import CompanyInfoCard from "../../../../components/explore/job/CompanyInfoCard";
 
 export default function JobDetailPage() {
   const params = useParams();

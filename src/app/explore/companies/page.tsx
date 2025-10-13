@@ -1,387 +1,65 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Grid3x3,
-  List,
-  Loader,
-  SearchX,
-  ArrowUpDown,
-  ArrowDownUp,
-  ArrowUpAZ,
-  ArrowDownAz,
-} from "lucide-react";
-import { apiCall } from "@/helper/axios";
-import SearchBar from "@/components/site/SearchBar";
-import { CompanyCard } from "./components/CompanyCard";
-import { useRouter } from "next/navigation";
-import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
-type Filters = {
-  keyword?: string;
-  location?: string;
-  sort?: "name" | "jobsCount";
-  order?: "asc" | "desc";
-};
+import { useCompaniesPage } from "@/lib/hooks/useCompaniesPage";
+import CompaniesHero from "@/components/explore/companies/CompaniesHero";
+import CompaniesControls from "@/components/explore/companies/CompaniesControls";
+import CompaniesList from "@/components/explore/companies/CompaniesList";
+import CompaniesPagination from "@/components/explore/companies/CompaniesPagination";
 
 export default function CompaniesPage() {
-  const router = useRouter();
-
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [filters, setFilters] = useState<Filters>({
-    sort: "name",
-    order: "asc",
-  });
-  const [page, setPage] = useState(1);
-  const [limit] = useState(9);
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [searchInputs, setSearchInputs] = useState({
-    keyword: "",
-    location: "",
-  });
-
-  // Parse query params on mount
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const keyword = params.get("keyword") || "";
-    const city = params.get("city") || "";
-    const pageParam = parseInt(params.get("page") || "1", 10);
-    const order = (params.get("order") as "asc" | "desc") || "asc";
-    const sort = (params.get("sort") as "name" | "jobsCount") || "name";
-
-    setSearchInputs({ keyword, location: city });
-    setFilters((prev) => ({ ...prev, keyword, location: city, sort, order }));
-    setPage(pageParam);
-  }, []);
-
-  useEffect(() => {
-    const fetchLocationAndSetCity = async () => {
-      try {
-        const pos = await getUserLocation();
-        const { latitude, longitude } = pos.coords;
-        const { city } = await getCityFromCoords(latitude, longitude);
-
-        if (city && !filters.location) {
-          setSearchInputs((prev) => ({ ...prev, location: city }));
-          setFilters((prev) => ({ ...prev, location: city }));
-        }
-      } catch (err) {
-        console.warn("Geolocation failed or denied:", err);
-      }
-    };
-
-    if (!filters.location) {
-      fetchLocationAndSetCity();
-    }
-  }, []);
-
-  const fetchCompanies = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiCall.get("/company/all", {
-        params: {
-          keyword: filters.keyword || undefined,
-          city: filters.location || undefined,
-          limit,
-          page,
-          sort: filters.sort,
-          order: filters.order,
-        },
-      });
-
-      const companiesData = res.data.data.map((c: any) => ({
-        id: c.id,
-        slug: c.slug,
-        name: c.name,
-        locationCity: c.locationCity,
-        jobs: c._count?.jobs || 0,
-        logo: c.logo || "",
-        rating: Math.floor(Math.random() * 2) + 4,
-      }));
-
-      setCompanies(companiesData);
-      setTotal(res.data.total ?? 0);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to load companies");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCompanies();
-
-    const params = new URLSearchParams();
-    if (filters.keyword) params.set("keyword", filters.keyword);
-    if (filters.location) params.set("city", filters.location);
-    if (filters.sort) params.set("sort", filters.sort);
-    if (filters.order) params.set("order", filters.order);
-    if (page > 1) params.set("page", page.toString());
-
-    const newUrl = `/explore/companies${
-      params.toString() ? "?" + params.toString() : ""
-    }`;
-    if (window.location.pathname + window.location.search !== newUrl) {
-      router.replace(newUrl);
-    }
-  }, [filters, page]);
-
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-
-  const handleSearch = () => {
-    setFilters((prev) => {
-      if (
-        prev.keyword === searchInputs.keyword &&
-        prev.location === searchInputs.location
-      ) {
-        return prev;
-      }
-      return {
-        ...prev,
-        keyword: searchInputs.keyword,
-        location: searchInputs.location,
-      };
-    });
-  };
-
-  const getVisiblePages = (current: number, total: number, maxVisible = 5) => {
-    const pages: (number | string)[] = [];
-
-    if (total <= maxVisible + 2) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      let start = Math.max(current - 1, 2);
-      let end = Math.min(current + 1, total - 1);
-      if (start > 2) pages.push("…");
-      for (let i = start; i <= end; i++) pages.push(i);
-      if (end < total - 1) pages.push("…");
-      pages.push(total);
-    }
-
-    return pages;
-  };
+  const {
+    loading,
+    viewMode,
+    filters,
+    page,
+    companies,
+    total,
+    error,
+    searchInputs,
+    setSearchInputs,
+    handleSearch,
+    handleSortChange,
+    handleViewModeChange,
+    handlePageChange,
+    totalPages,
+  } = useCompaniesPage();
 
   return (
     <section className="min-h-screen">
-      <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25 py-12 sm:py-16 md:py-20">
-        <div className="absolute inset-0" />
-        <div className="relative container mx-auto px-4 text-center max-w-5xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col justify-center items-center"
-          >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-[#467EC7]">
-              Choose Your{" "}
-              <span className="text-[#24CFA7]">Perfect Company</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl opacity-90 mb-6 sm:mb-8 text-muted-foreground max-w-3xl px-4">
-              Find the companies that share your values, match your skills, and
-              offer growth opportunities
-            </p>
-
-            <div className="w-full lg:max-w-5xl z-1 px-2 sm:px-4">
-              <SearchBar
-                keyword={searchInputs.keyword}
-                setKeyword={(v) =>
-                  setSearchInputs((prev) => ({ ...prev, keyword: v }))
-                }
-                city={searchInputs.location}
-                setCity={(v) =>
-                  setSearchInputs((prev) => ({ ...prev, location: v }))
-                }
-                onSearch={handleSearch}
-              />
-            </div>
-          </motion.div>
-        </div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-      </section>
+      <CompaniesHero
+        searchInputs={searchInputs}
+        onKeywordChange={(value) =>
+          setSearchInputs((prev) => ({ ...prev, keyword: value }))
+        }
+        onLocationChange={(value) =>
+          setSearchInputs((prev) => ({ ...prev, location: value }))
+        }
+        onSearch={handleSearch}
+      />
 
       <section className="pb-8 sm:pb-12 lg:max-w-6xl mx-auto px-4">
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Showing{" "}
-            <span className="font-semibold text-foreground">
-              {companies.length}
-            </span>{" "}
-            of {total} companies
-          </p>
+        <CompaniesControls
+          companiesCount={companies.length}
+          totalCount={total}
+          filters={filters}
+          viewMode={viewMode}
+          onSortChange={handleSortChange}
+          onViewModeChange={handleViewModeChange}
+        />
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-card text-card-foreground rounded-xl p-1 shadow-sm border border-border">
-              {/* Sort by Name */}
-              <button
-                onClick={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    sort: "name",
-                    order:
-                      prev.sort === "name" && prev.order === "asc"
-                        ? "desc"
-                        : "asc",
-                  }))
-                }
-                className={`flex items-center justify-center sm:justify-start gap-1 px-3 py-2 text-xs sm:text-sm rounded-lg transition-all ${
-                  filters.sort === "name"
-                    ? "bg-[#467EC7] text-white font-semibold shadow-sm"
-                    : "text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                {filters.sort === "name" &&
-                  (filters.order === "asc" ? (
-                    <ArrowDownAz className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <ArrowUpAZ className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ))}
-                Name
-              </button>
+        <CompaniesList
+          loading={loading}
+          companies={companies}
+          viewMode={viewMode}
+          page={page}
+          filters={filters}
+        />
 
-              {/* Sort by Jobs Count */}
-              <button
-                onClick={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    sort: "jobsCount",
-                    order:
-                      prev.sort === "jobsCount" && prev.order === "asc"
-                        ? "desc"
-                        : "asc",
-                  }))
-                }
-                className={`flex items-center justify-center sm:justify-start gap-1 px-3 py-2 text-xs sm:text-sm rounded-lg transition-all ${
-                  filters.sort === "jobsCount"
-                    ? "bg-[#467EC7] text-white font-semibold shadow-sm"
-                    : "text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                {filters.sort === "jobsCount" &&
-                  (filters.order === "asc" ? (
-                    <ArrowUpDown className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <ArrowDownUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ))}
-                Jobs Count
-              </button>
-
-              {/* Divider */}
-              <div className="hidden sm:block w-px bg-border h-6 mx-2" />
-
-              {/* View mode buttons */}
-              <div className="hidden sm:flex items-center gap-1">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "grid"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <Grid3x3 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === "list"
-                      ? "bg-[#467EC7] text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Company List */}
-        {loading ? (
-          <div className="flex items-center justify-center py-16 sm:py-20">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            >
-              <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-[#24CFA7]" />
-            </motion.div>
-          </div>
-        ) : companies.length === 0 ? (
-          <div className="text-center py-16 sm:py-20">
-            <h3 className="text-lg sm:text-xl font-semibold text-[#467EC7] flex flex-col gap-2 items-center justify-center">
-              <SearchX size={40} className="sm:w-12 sm:h-12" color="#24CFA7" /> 
-              <span className="px-4">No companies found</span>
-            </h3>
-            <p className="text-sm sm:text-base text-muted-foreground px-4">
-              Try adjusting filters or searching a different keyword.
-            </p>
-          </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${page}-${filters.order}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className={`grid gap-3 sm:gap-4 ${
-                viewMode === "grid"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1"
-              }`}
-            >
-              {companies.map((c) => (
-                <CompanyCard key={c.id} {...c} />
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        )}
-
-        {/* Pagination */}
-        <div className="mt-4 sm:mt-6 flex items-center justify-center gap-1 sm:gap-2">
-          <button
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="p-1.5 sm:p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
-          >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-
-          {getVisiblePages(page, totalPages).map((p, i) =>
-            typeof p === "string" ? (
-              <span key={i} className="px-2 sm:px-3 py-1 sm:py-2 text-sm">
-                {p}
-              </span>
-            ) : (
-              <button
-                key={i}
-                onClick={() => setPage(p)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-medium text-sm sm:text-base ${
-                  page === p
-                    ? "bg-[#467EC7] text-primary-foreground"
-                    : "border border-border bg-[#A3B6CE] text-primary-foreground hover:bg-[#467EC7] transition-colors"
-                }`}
-              >
-                {p}
-              </button>
-            )
-          )}
-
-          <button
-            onClick={() => setPage(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages}
-            className="p-1.5 sm:p-2 rounded-xl bg-card text-foreground hover:text-foreground/60 disabled:opacity-30 transition-all"
-          >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        </div>
+        <CompaniesPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </section>
     </section>
   );
