@@ -31,17 +31,17 @@ export default function QuestionDisplay({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
-          <CardTitle className="text-lg">
+          <CardTitle className="text-base sm:text-lg">
             Question {questionIndex + 1} of {totalQuestions}
           </CardTitle>
-          <span className="text-sm text-gray-500">{Math.round(progress)}% Complete</span>
+          <span className="text-xs sm:text-sm text-gray-500">{Math.round(progress)}% Complete</span>
         </div>
         <Progress value={progress} className="h-2" />
       </CardHeader>
       
       <CardContent>
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900 leading-relaxed">
+        <div className="space-y-4 sm:space-y-6">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 leading-relaxed">
             {question.question}
           </h3>
           
@@ -59,7 +59,7 @@ export default function QuestionDisplay({
                 />
                 <Label 
                   htmlFor={`option-${optionIndex}`} 
-                  className="flex-1 text-sm font-medium cursor-pointer"
+                  className="flex-1 text-sm sm:text-base font-medium cursor-pointer"
                 >
                   {option}
                 </Label>

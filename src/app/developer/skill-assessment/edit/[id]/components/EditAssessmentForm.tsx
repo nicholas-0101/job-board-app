@@ -52,39 +52,49 @@ export default function EditAssessmentForm({
   unsavedQuestionsCount,
 }: EditAssessmentFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6">
       <Card className="bg-white shadow-lg" style={{ borderColor: "#E1F1F3" }}>
         <CardHeader
           className="text-white"
           style={{ backgroundColor: "#467EC7" }}
         >
-          <CardTitle>Assessment Details</CardTitle>
+          <CardTitle className="text-base sm:text-lg">
+            Assessment Details
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
           <div>
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title" className="text-sm sm:text-base">
+              Title
+            </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Assessment title"
               required
+              className="text-sm sm:text-base"
             />
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="text-sm sm:text-base">
+              Description
+            </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Assessment description"
               rows={3}
+              className="text-sm sm:text-base"
             />
           </div>
 
           <div>
-            <Label htmlFor="passScore">Minimum Pass Score (%)</Label>
+            <Label htmlFor="passScore" className="text-sm sm:text-base">
+              Minimum Pass Score (%)
+            </Label>
             <Input
               id="passScore"
               type="number"
@@ -94,9 +104,9 @@ export default function EditAssessmentForm({
               onChange={(e) => setPassScore(Number(e.target.value))}
               placeholder="75"
               required
-              className="w-32"
+              className="w-24 sm:w-32 text-sm sm:text-base"
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               Students need to score at least {passScore}% to pass this
               assessment
             </p>
@@ -111,34 +121,26 @@ export default function EditAssessmentForm({
 
       <Card className="bg-white shadow-lg" style={{ borderColor: "#E1F1F3" }}>
         <CardHeader
-          className="flex flex-row items-center justify-between text-white"
+          className="text-white"
           style={{ backgroundColor: "#467EC7" }}
         >
           <div>
-            <CardTitle>Questions ({questions.length})</CardTitle>
-            <p className="text-sm mt-1" style={{ color: "#E1F1F3" }}>
+            <CardTitle className="text-base sm:text-lg">
+              Questions ({questions.length})
+            </CardTitle>
+            <p className="text-xs sm:text-sm mt-1" style={{ color: "#E1F1F3" }}>
               Questions saved to draft: {savedQuestions.size} of{" "}
               {questions.length}
             </p>
           </div>
-          <Button
-            type="button"
-            onClick={onAddQuestion}
-            disabled={unsavedQuestionsCount > 0}
-            className="flex items-center gap-2 text-white"
-            style={{ backgroundColor: "#24CFA7" }}
-          >
-            <Plus className="w-4 h-4" />
-            Add Question
-          </Button>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
           {unsavedQuestionsCount > 0 && (
             <div
               className="rounded-lg p-3"
               style={{ backgroundColor: "#E1F1F3", borderColor: "#A3B6CE" }}
             >
-              <p className="text-sm" style={{ color: "#467EC7" }}>
+              <p className="text-xs sm:text-sm" style={{ color: "#467EC7" }}>
                 Please save all questions before adding new ones or updating the
                 assessment.
               </p>
@@ -146,12 +148,14 @@ export default function EditAssessmentForm({
           )}
 
           {questions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No questions added yet</p>
+            <div className="text-center py-6 sm:py-8">
+              <p className="text-sm sm:text-base text-gray-500 mb-4">
+                No questions added yet
+              </p>
               <Button
                 type="button"
                 onClick={onAddQuestion}
-                className="flex items-center gap-2 mx-auto text-white"
+                className="flex items-center gap-2 mx-auto text-white text-sm sm:text-base"
                 style={{ backgroundColor: "#24CFA7" }}
               >
                 <Plus className="w-4 h-4" />
@@ -162,16 +166,18 @@ export default function EditAssessmentForm({
             questions.map((question, index) => (
               <div
                 key={index}
-                className="border rounded-lg p-4 space-y-4 bg-white"
+                className="border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4 bg-white"
                 style={{ borderColor: "#E1F1F3" }}
               >
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Question {index + 1}</h4>
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h4 className="font-medium text-sm sm:text-base">
+                    Question {index + 1}
+                  </h4>
+                  <div className="flex items-center gap-2 flex-wrap">
                     {savedQuestions.has(index) ? (
                       <Badge
                         variant="default"
-                        className="text-white"
+                        className="text-white text-xs"
                         style={{ backgroundColor: "#24CFA7" }}
                       >
                         <Check className="w-3 h-3 mr-1" />
@@ -180,6 +186,7 @@ export default function EditAssessmentForm({
                     ) : (
                       <Badge
                         variant="secondary"
+                        className="text-xs"
                         style={{ backgroundColor: "#A3B6CE", color: "white" }}
                       >
                         Unsaved
@@ -192,11 +199,18 @@ export default function EditAssessmentForm({
                         savingQuestion === index || savedQuestions.has(index)
                       }
                       size="sm"
-                      className="flex items-center gap-1 text-white"
+                      className="flex items-center gap-1 text-white text-xs sm:text-sm"
                       style={{ backgroundColor: "#467EC7" }}
                     >
                       <Save className="w-3 h-3" />
-                      {savingQuestion === index ? "Saving..." : "Save Question"}
+                      <span className="hidden sm:inline">
+                        {savingQuestion === index
+                          ? "Saving..."
+                          : "Save Question"}
+                      </span>
+                      <span className="sm:hidden">
+                        {savingQuestion === index ? "Saving..." : "Save"}
+                      </span>
                     </Button>
                     {index === questions.length - 1 && (
                       <Button
@@ -204,14 +218,16 @@ export default function EditAssessmentForm({
                         onClick={onAddQuestion}
                         variant="outline"
                         size="sm"
-                        className="flex items-center gap-1 text-white"
+                        disabled={!savedQuestions.has(index)}
+                        className="flex items-center gap-1 text-white text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{
                           backgroundColor: "#24CFA7",
                           borderColor: "#24CFA7",
                         }}
                       >
                         <Plus className="w-3 h-3" />
-                        Add Question
+                        <span className="hidden sm:inline">Add Question</span>
+                        <span className="sm:hidden">Add</span>
                       </Button>
                     )}
                     <Button
@@ -219,6 +235,7 @@ export default function EditAssessmentForm({
                       onClick={() => onRemoveQuestion(index)}
                       variant="destructive"
                       size="sm"
+                      className="text-xs sm:text-sm"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -241,7 +258,7 @@ export default function EditAssessmentForm({
         <Button
           type="submit"
           disabled={loading || unsavedQuestionsCount > 0}
-          className="flex items-center gap-2 text-white"
+          className="flex items-center gap-2 text-white text-sm sm:text-base w-full sm:w-auto"
           style={{ backgroundColor: "#467EC7" }}
         >
           {loading ? "Updating..." : "Update Assessment"}

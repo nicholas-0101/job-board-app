@@ -34,21 +34,21 @@ export default function AssessmentHeader({
 
   return (
     <div className="mb-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+        <Button variant="ghost" onClick={onBack} className="flex items-center gap-2 px-2 sm:px-3">
           <ArrowLeft className="w-4 h-4" />
           Back to Assessments
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="flex items-start justify-between mb-4">
+      <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-3 sm:mb-4">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{title}</h1>
             {description && (
-              <p className="text-gray-600 mb-4">{description}</p>
+              <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{description}</p>
             )}
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
               <User className="w-4 h-4" />
               <span>Created by {creatorName}</span>
             </div>
@@ -65,12 +65,12 @@ export default function AssessmentHeader({
         </div>
 
         {started && (
-          <div className="flex items-center justify-between pt-4 border-t">
+          <div className="flex items-center justify-between pt-3 sm:pt-4 border-t">
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-gray-500" />
-              <span className="text-sm text-gray-600">Time Remaining:</span>
+              <span className="text-xs sm:text-sm text-gray-600">Time Remaining:</span>
             </div>
-            <div className={`flex items-center gap-2 font-mono text-lg font-bold ${
+            <div className={`flex items-center gap-2 font-mono text-base sm:text-lg font-bold ${
               timeWarning === "danger" ? "text-red-600" : 
               timeWarning === "warning" ? "text-orange-600" : "text-gray-900"
             }`}>

@@ -40,7 +40,7 @@ export default function ResultsDetails({
       {/* Assessment Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Target className="w-5 h-5" />
             Assessment Details
           </CardTitle>
@@ -49,27 +49,27 @@ export default function ResultsDetails({
           <div className="flex items-center gap-3">
             <Calendar className="w-4 h-4 text-gray-500" />
             <div>
-              <p className="text-sm text-gray-600">Completed On</p>
-              <p className="font-medium">{formatDate(result.finishedAt)}</p>
+              <p className="text-xs sm:text-sm text-gray-600">Completed On</p>
+              <p className="font-medium text-sm sm:text-base">{formatDate(result.finishedAt)}</p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-gray-500" />
             <div>
-              <p className="text-sm text-gray-600">Duration</p>
-              <p className="font-medium">{calculateDuration(result.startedAt, result.finishedAt)}</p>
+              <p className="text-xs sm:text-sm text-gray-600">Duration</p>
+              <p className="font-medium text-sm sm:text-base">{calculateDuration(result.startedAt, result.finishedAt)}</p>
             </div>
           </div>
           
-          <div className="pt-4 border-t">
+          <div className="pt-3 sm:pt-4 border-t">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Score Breakdown</span>
+              <span className="text-xs sm:text-sm font-medium text-gray-700">Score Breakdown</span>
               <span className={`text-sm font-bold ${getScoreColor(result.score, result.assessment.passScore)}`}>
                 {result.score}%
               </span>
             </div>
-            <Progress value={result.score} className="h-3" />
+            <Progress value={result.score} className="h-2 sm:h-3" />
           </div>
         </CardContent>
       </Card>

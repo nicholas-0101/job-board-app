@@ -56,47 +56,63 @@ export default function CreateAssessmentForm({
   unsavedQuestionsCount,
 }: CreateAssessmentFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <Card className="bg-white shadow-lg" style={{ borderColor: '#E1F1F3' }}>
-        <CardHeader className="text-white" style={{ backgroundColor: '#467EC7' }}>
-          <CardTitle>Assessment Details</CardTitle>
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6">
+      <Card className="bg-white shadow-lg" style={{ borderColor: "#E1F1F3" }}>
+        <CardHeader
+          className="text-white"
+          style={{ backgroundColor: "#467EC7" }}
+        >
+          <CardTitle className="text-base sm:text-lg">
+            Assessment Details
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
           <div>
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title" className="text-sm sm:text-base">
+              Title
+            </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Assessment title"
               required
+              className="text-sm sm:text-base"
             />
           </div>
-          
+
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="text-sm sm:text-base">
+              Description
+            </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Assessment description"
               rows={3}
+              className="text-sm sm:text-base"
             />
           </div>
-          
+
           <div>
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className="text-sm sm:text-base">
+              Category
+            </Label>
             <Input
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., JavaScript, React, Node.js"
               required
+              className="text-sm sm:text-base"
             />
           </div>
-          
+
           <div>
-            <Label htmlFor="passScore">Minimum Pass Score (%)</Label>
+            <Label htmlFor="passScore" className="text-sm sm:text-base">
+              Minimum Pass Score (%)
+            </Label>
             <Input
               id="passScore"
               type="number"
@@ -106,13 +122,14 @@ export default function CreateAssessmentForm({
               onChange={(e) => setPassScore(Number(e.target.value))}
               placeholder="75"
               required
-              className="w-32"
+              className="w-24 sm:w-32 text-sm sm:text-base"
             />
-            <p className="text-sm text-gray-500 mt-1">
-              Students need to score at least {passScore}% to pass this assessment
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
+              Students need to score at least {passScore}% to pass this
+              assessment
             </p>
           </div>
-          
+
           <BadgeSelector
             selectedBadgeId={badgeTemplateId}
             onSelect={setBadgeTemplateId}
@@ -120,42 +137,44 @@ export default function CreateAssessmentForm({
         </CardContent>
       </Card>
 
-      <Card className="bg-white shadow-lg" style={{ borderColor: '#E1F1F3' }}>
-        <CardHeader className="flex flex-row items-center justify-between text-white" style={{ backgroundColor: '#467EC7' }}>
+      <Card className="bg-white shadow-lg" style={{ borderColor: "#E1F1F3" }}>
+        <CardHeader
+          className="text-white"
+          style={{ backgroundColor: "#467EC7" }}
+        >
           <div>
-            <CardTitle>Questions ({questions.length})</CardTitle>
-            <p className="text-sm mt-1" style={{ color: '#E1F1F3' }}>
-              Questions saved to draft: {savedQuestions.size} of {questions.length}
+            <CardTitle className="text-base sm:text-lg">
+              Questions ({questions.length})
+            </CardTitle>
+            <p className="text-xs sm:text-sm mt-1" style={{ color: "#E1F1F3" }}>
+              Questions saved to draft: {savedQuestions.size} of{" "}
+              {questions.length}
             </p>
           </div>
-          <Button
-            type="button"
-            onClick={onAddQuestion}
-            disabled={unsavedQuestionsCount > 0}
-            className="flex items-center gap-2 text-white"
-            style={{ backgroundColor: '#24CFA7' }}
-          >
-            <Plus className="w-4 h-4" />
-            Add Question
-          </Button>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
           {unsavedQuestionsCount > 0 && (
-            <div className="rounded-lg p-3" style={{ backgroundColor: '#E1F1F3', borderColor: '#A3B6CE' }}>
-              <p className="text-sm" style={{ color: '#467EC7' }}>
-                Please save all questions before adding new ones or creating the assessment.
+            <div
+              className="rounded-lg p-3"
+              style={{ backgroundColor: "#E1F1F3", borderColor: "#A3B6CE" }}
+            >
+              <p className="text-xs sm:text-sm" style={{ color: "#467EC7" }}>
+                Please save all questions before adding new ones or creating the
+                assessment.
               </p>
             </div>
           )}
-          
+
           {questions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No questions added yet</p>
+            <div className="text-center py-6 sm:py-8">
+              <p className="text-sm sm:text-base text-gray-500 mb-4">
+                No questions added yet
+              </p>
               <Button
                 type="button"
                 onClick={onAddQuestion}
-                className="flex items-center gap-2 mx-auto text-white"
-                style={{ backgroundColor: '#24CFA7' }}
+                className="flex items-center gap-2 mx-auto text-white text-sm sm:text-base"
+                style={{ backgroundColor: "#24CFA7" }}
               >
                 <Plus className="w-4 h-4" />
                 Add First Question
@@ -163,61 +182,92 @@ export default function CreateAssessmentForm({
             </div>
           ) : (
             questions.map((question, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-4 bg-white" style={{ borderColor: '#E1F1F3' }}>
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Question {index + 1}</h4>
-                <div className="flex items-center gap-2">
-                  {savedQuestions.has(index) ? (
-                    <Badge variant="default" className="text-white" style={{ backgroundColor: '#24CFA7' }}>
-                      <Check className="w-3 h-3 mr-1" />
-                      Saved
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" style={{ backgroundColor: '#A3B6CE', color: 'white' }}>Unsaved</Badge>
-                  )}
-                  <Button
-                    type="button"
-                    onClick={() => onSaveQuestion(index)}
-                    disabled={savingQuestion === index || savedQuestions.has(index)}
-                    size="sm"
-                    className="flex items-center gap-1 text-white"
-                    style={{ backgroundColor: '#467EC7' }}
-                  >
-                    <Save className="w-3 h-3" />
-                    {savingQuestion === index ? "Saving..." : "Save Question"}
-                  </Button>
-                  {index === questions.length - 1 && (
+              <div
+                key={index}
+                className="border rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4 bg-white"
+                style={{ borderColor: "#E1F1F3" }}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h4 className="font-medium text-sm sm:text-base">
+                    Question {index + 1}
+                  </h4>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {savedQuestions.has(index) ? (
+                      <Badge
+                        variant="default"
+                        className="text-white text-xs"
+                        style={{ backgroundColor: "#24CFA7" }}
+                      >
+                        <Check className="w-3 h-3 mr-1" />
+                        Saved
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs"
+                        style={{ backgroundColor: "#A3B6CE", color: "white" }}
+                      >
+                        Unsaved
+                      </Badge>
+                    )}
                     <Button
                       type="button"
-                      onClick={onAddQuestion}
-                      variant="outline"
+                      onClick={() => onSaveQuestion(index)}
+                      disabled={
+                        savingQuestion === index || savedQuestions.has(index)
+                      }
                       size="sm"
-                      className="flex items-center gap-1 text-white"
-                      style={{ backgroundColor: '#24CFA7', borderColor: '#24CFA7' }}
+                      className="flex items-center gap-1 text-white text-xs sm:text-sm"
+                      style={{ backgroundColor: "#467EC7" }}
                     >
-                      <Plus className="w-3 h-3" />
-                      Add Question
+                      <Save className="w-3 h-3" />
+                      <span className="hidden sm:inline">
+                        {savingQuestion === index
+                          ? "Saving..."
+                          : "Save Question"}
+                      </span>
+                      <span className="sm:hidden">
+                        {savingQuestion === index ? "Saving..." : "Save"}
+                      </span>
                     </Button>
-                  )}
-                  <Button
-                    type="button"
-                    onClick={() => onRemoveQuestion(index)}
-                    variant="destructive"
-                    size="sm"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                    {index === questions.length - 1 && (
+                      <Button
+                        type="button"
+                        onClick={onAddQuestion}
+                        variant="outline"
+                        size="sm"
+                        disabled={!savedQuestions.has(index)}
+                        className="flex items-center gap-1 text-white text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          backgroundColor: "#24CFA7",
+                          borderColor: "#24CFA7",
+                        }}
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span className="hidden sm:inline">Add Question</span>
+                        <span className="sm:hidden">Add</span>
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      onClick={() => onRemoveQuestion(index)}
+                      variant="destructive"
+                      size="sm"
+                      className="text-xs sm:text-sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
+                <QuestionForm
+                  index={index}
+                  question={question}
+                  onChange={onQuestionChange}
+                  onRemove={onRemoveQuestion}
+                  canRemove={true}
+                />
               </div>
-              <QuestionForm
-                index={index}
-                question={question}
-                onChange={onQuestionChange}
-                onRemove={onRemoveQuestion}
-                canRemove={true}
-              />
-            </div>
-          ))
+            ))
           )}
         </CardContent>
       </Card>
@@ -226,8 +276,8 @@ export default function CreateAssessmentForm({
         <Button
           type="submit"
           disabled={loading || unsavedQuestionsCount > 0}
-          className="flex items-center gap-2 text-white"
-          style={{ backgroundColor: '#467EC7' }}
+          className="flex items-center gap-2 text-white text-sm sm:text-base w-full sm:w-auto"
+          style={{ backgroundColor: "#467EC7" }}
         >
           {loading ? "Creating..." : "Create Assessment"}
         </Button>

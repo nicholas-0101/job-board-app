@@ -83,16 +83,16 @@ export default function ResultsList({
       {results.map((result) => (
         <Card key={result.id} className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
               <div className="flex-1">
-                <CardTitle className="text-lg mb-2">
+                <CardTitle className="text-base sm:text-lg mb-2">
                   {result.assessment?.title || "Unknown Assessment"}
                 </CardTitle>
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-2">
                   <Calendar className="w-4 h-4" />
                   <span>Completed on {formatDate(result.finishedAt)}</span>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   Created by{" "}
                   {result.assessment?.creator?.name || "Unknown Creator"}
                 </p>
@@ -132,7 +132,7 @@ export default function ResultsList({
               {/* Score Progress */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">
                     Score
                   </span>
                   <span
@@ -171,12 +171,12 @@ export default function ResultsList({
               )}
 
               {/* Actions */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onViewResult(result.id)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full sm:w-auto"
                 >
                   <Eye className="w-4 h-4" />
                   View Details
@@ -189,7 +189,7 @@ export default function ResultsList({
                     onClick={() =>
                       onDownloadCertificate(result.certificateUrl!)
                     }
-                    className="flex items-center gap-2 bg-[#467EC7] hover:bg-[#467EC7]/90"
+                    className="flex items-center gap-2 bg-[#467EC7] hover:bg-[#467EC7]/90 w-full sm:w-auto"
                   >
                     <Download className="w-4 h-4" />
                     Download Certificate

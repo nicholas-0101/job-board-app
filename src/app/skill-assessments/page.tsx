@@ -64,11 +64,11 @@ export default function SkillAssessmentsPage() {
       <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-6xl mx-auto px-4">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
               Skill Assessments
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Test your skills with our comprehensive assessments. Each
               assessment has its own passing score to earn certificates and
               badges for your profile.
@@ -89,14 +89,14 @@ export default function SkillAssessmentsPage() {
           {/* Assessments Grid */}
           {sortedAssessments.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
+              <p className="text-gray-500 text-base sm:text-lg px-3">
                 {searchQuery || filters.category !== "all"
                   ? "No assessments found matching your criteria."
                   : "No assessments available at the moment."}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr">
               {sortedAssessments.map((assessment) => (
                 <AssessmentCard
                   key={assessment.id}

@@ -29,16 +29,16 @@ const StatCard = ({
   color?: string;
 }) => (
   <Card className="bg-white border border-gray-200">
-    <CardContent className="p-6">
+    <CardContent className="p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-xs sm:text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{value}</p>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-1">{subtitle}</p>
           )}
         </div>
-        <Icon className={`w-8 h-8 ${color}`} />
+        <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${color}`} />
       </div>
     </CardContent>
   </Card>
@@ -46,7 +46,7 @@ const StatCard = ({
 
 export default function AssessmentStats({ stats }: AssessmentStatsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <StatCard
         icon={BookOpen}
         title="Total Assessments"
