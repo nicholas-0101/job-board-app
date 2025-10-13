@@ -82,14 +82,14 @@ export default function SubscriptionHistoryPage() {
     <DeveloperAuthGuard>
       <DeveloperLayout>
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/50 rounded-lg mt-4 mb-8">
-          <div className="px-6 py-8">
+        <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/50 rounded-lg mt-4 mb-6 sm:mb-8">
+          <div className="px-4 sm:px-6 py-6 sm:py-8">
             <div className="flex items-start sm:items-center justify-between gap-3 flex-col sm:flex-row">
               <div className="w-full sm:w-auto text-center sm:text-left">
-                <h1 className="text-3xl font-bold text-[#467EC7]">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#467EC7]">
                   Subscription History
                 </h1>
-                <p className="text-lg text-gray-600 mt-2">
+                <p className="text-base sm:text-lg text-gray-600 mt-2">
                   Complete history of all subscription payments and transactions
                 </p>
               </div>
@@ -101,7 +101,7 @@ export default function SubscriptionHistoryPage() {
         <HistoryStats payments={filteredPayments} />
 
         {/* Filters */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-8 shadow-lg">
+        <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 shadow-lg">
           <PaymentFilters
             searchTerm={searchTerm}
             statusFilter={statusFilter}
@@ -112,8 +112,8 @@ export default function SubscriptionHistoryPage() {
 
         {/* Payment History Table */}
         <div className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-lg">
-          <div className="p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="p-4 sm:p-6">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
               Payment History ({filteredPayments.length} records)
             </h3>
             <PaymentHistoryTable

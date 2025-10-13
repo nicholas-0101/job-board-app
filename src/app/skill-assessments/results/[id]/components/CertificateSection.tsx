@@ -35,23 +35,23 @@ export default function CertificateSection({
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
           <Trophy className="w-5 h-5 text-[#467EC7]" />
           Certificate & Badge
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="bg-[#E1F1F3]/50 border border-[#A3B6CE]/30 rounded-lg p-6">
-          <div className="flex items-start gap-4">
+        <div className="bg-[#E1F1F3]/50 border border-[#A3B6CE]/30 rounded-lg p-4 sm:p-6">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div className="p-3 bg-[#467EC7]/10 rounded-full">
               <Award className="w-8 h-8 text-[#467EC7]" />
             </div>
             
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                 Congratulations! 🎉
               </h3>
-              <p className="text-gray-700 mb-4">
+              <p className="text-sm sm:text-base text-gray-700 mb-4">
                 You have successfully earned the <strong>{result.assessment.badgeTemplate?.name || 'Completion'}</strong> certificate 
                 for completing the <strong>{result.assessment.title}</strong> assessment.
               </p>
@@ -64,18 +64,18 @@ export default function CertificateSection({
               
               {result.certificateCode && (
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600">Certificate Code:</p>
-                  <p className="font-mono text-sm bg-white px-3 py-2 rounded border inline-block">
+                  <p className="text-xs sm:text-sm text-gray-600">Certificate Code:</p>
+                  <p className="font-mono text-xs sm:text-sm bg-white px-3 py-2 rounded border inline-block">
                     {result.certificateCode}
                   </p>
                 </div>
               )}
               
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 {result.certificateUrl ? (
                   <Button
                     onClick={() => onDownloadCertificate(result.certificateUrl!)}
-                    className="flex items-center gap-2 bg-[#467EC7] hover:bg-[#467EC7]/90 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                    className="flex items-center gap-2 bg-[#467EC7] hover:bg-[#467EC7]/90 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 w-full sm:w-auto"
                   >
                     <Download className="w-5 h-5" />
                     Download Certificate
@@ -83,7 +83,7 @@ export default function CertificateSection({
                 ) : (
                   <Button
                     disabled
-                    className="flex items-center gap-2 bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-3 rounded-lg"
+                    className="flex items-center gap-2 bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-3 rounded-lg w-full sm:w-auto"
                   >
                     <Download className="w-5 h-5" />
                     Certificate Processing...

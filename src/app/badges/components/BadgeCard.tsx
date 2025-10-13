@@ -50,7 +50,7 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
       className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
         badge.earned
           ? "border-[#24CFA7]/30 bg-gradient-to-br from-[#24CFA7]/5 to-white"
-          : "border-gray-200 bg-gray-50/50 opacity-75"
+          : "border-[#467EC7]/30 bg-gradient-to-br from-[#467EC7]/5 to-white hover:shadow-md"
       }`}
     >
       <CardContent className="p-6">
@@ -60,7 +60,7 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
         {/* Badge Name */}
         <h3
           className={`text-lg font-semibold text-center mb-2 ${
-            badge.earned ? "text-gray-900" : "text-gray-500"
+            badge.earned ? "text-gray-900" : "text-[#467EC7]"
           }`}
         >
           {badge.name}
@@ -69,7 +69,7 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
         {/* Assessment Title */}
         <p
           className={`text-sm text-center mb-3 ${
-            badge.earned ? "text-gray-600" : "text-gray-400"
+            badge.earned ? "text-gray-600" : "text-[#467EC7]/70"
           }`}
         >
           {badge.assessmentTitle}
@@ -82,7 +82,7 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
               className={`px-2 py-1 text-xs rounded-full ${
                 badge.earned
                   ? "bg-[#467EC7]/10 text-[#467EC7]"
-                  : "bg-gray-200 text-gray-500"
+                  : "bg-[#467EC7]/20 text-[#467EC7]"
               }`}
             >
               {badge.category}
@@ -137,7 +137,7 @@ export default function BadgeCard({ badge }: BadgeCardProps) {
           <div className="mt-4">
             <a
               href={`/skill-assessments/${badge.assessmentId}`}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-400 hover:text-white transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#467EC7] text-white text-sm rounded-lg hover:bg-[#467EC7]/90 transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               Take Assessment

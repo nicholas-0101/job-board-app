@@ -9,24 +9,24 @@ interface BadgeIconProps {
 export default function BadgeIcon({ icon, name, earned }: BadgeIconProps) {
   const [imageError, setImageError] = useState(false);
 
-  const isImageUrl = icon && icon.startsWith('http');
+  const isImageUrl = icon && icon.startsWith("http");
   const shouldShowImage = isImageUrl && !imageError;
 
   return (
-    <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl ${
-      earned ? "bg-[#24CFA7]/20" : "bg-gray-200"
-    }`}>
+    <div
+      className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl ${
+        earned ? "bg-[#24CFA7]/20" : "bg-[#467EC7]/20"
+      }`}
+    >
       {shouldShowImage ? (
-        <img 
-          src={icon} 
+        <img
+          src={icon}
           alt={name}
           className="w-12 h-12 rounded-full object-cover"
           onError={() => setImageError(true)}
         />
       ) : (
-        <span className="text-2xl">
-          {icon && !isImageUrl ? icon : "🏆"}
-        </span>
+        <span className="text-2xl">{icon && !isImageUrl ? icon : "🏆"}</span>
       )}
     </div>
   );

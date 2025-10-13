@@ -36,7 +36,7 @@ const FilterSelect = ({
 );
 
 const SearchInput = ({ onSearch }: { onSearch: (query: string) => void }) => (
-  <div className="relative flex-1 max-w-md">
+  <div className="relative flex-1 w-full max-w-full sm:max-w-md">
     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
     <input
       type="text"
@@ -58,11 +58,11 @@ export default function AssessmentFilters({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+    <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between w-full">
         <SearchInput onSearch={onSearch} />
 
-        <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-700">Filters:</span>
