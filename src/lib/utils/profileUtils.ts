@@ -55,11 +55,17 @@ export function getInitialValues(user: any) {
   return user?.role === "ADMIN"
     ? {
         phone: "",
-        location: "",
-        city: "",
+        address: "",
+        locationCity: "",
         description: "",
         website: "",
         logoUrl: null,
+        socials: {
+          facebook: "",
+          twitter: "",
+          linkedin: "",
+          instagram: "",
+        },
       }
     : {
         phone: "",
@@ -75,21 +81,60 @@ export function getInitialValues(user: any) {
 export function mapPayloadToInitialValues(payload: any) {
   if (!payload) return null;
   
-  // Handle admin profile data
-  if (payload.role === "ADMIN" || payload.user?.role === "ADMIN") {
+  // Handle admin profile data - check for admin-specific fields
+  // The /company/admin endpoint returns company data directly
+  if (payload.role === "ADMIN" || payload.user?.role === "ADMIN" || 
+      (payload.adminId !== undefined || payload.ownerAdminId !== undefined ||
+       payload.name !== undefined || payload.email !== undefined) &&
+      !payload.gender && !payload.dob && !payload.education) {
     const adminData = payload.user || payload;
+    
+    // Try multiple possible field names for each field
+    const address = adminData.location || adminData.address || adminData.fullAddress || "";
+    const city = adminData.locationCity || adminData.city || "";
+    const logo = adminData.logoUrl || adminData.logo || null;
+    
+    console.log("🔍 Admin data fields:", {
+      location: adminData.location,
+      address: adminData.address,
+      fullAddress: adminData.fullAddress,
+      locationCity: adminData.locationCity,
+      city: adminData.city,
+      logoUrl: adminData.logoUrl,
+      logo: adminData.logo,
+      allKeys: Object.keys(adminData)
+    });
+    
     return {
       phone: adminData.phone || "",
-      location: adminData.location || "",
-      city: adminData.city || "",
+      address: address,
+      locationCity: city,
       description: adminData.description || "",
       website: adminData.website || "",
-      logoUrl: adminData.logoUrl || null,
+      logoUrl: logo,
+      socials: {
+        facebook: adminData.socials?.facebook || "",
+        twitter: adminData.socials?.twitter || "",
+        linkedin: adminData.socials?.linkedin || "",
+        instagram: adminData.socials?.instagram || "",
+      },
     };
   }
   
   // Handle user profile data
   const userData = payload.user || payload;
+  
+  console.log("🔍 User data fields:", {
+    phone: userData.phone,
+    gender: userData.gender,
+    dob: userData.dob,
+    education: userData.education,
+    address: userData.address,
+    city: userData.city,
+    profilePicture: userData.profilePicture,
+    allKeys: Object.keys(userData)
+  });
+  
   return {
     phone: userData.phone || "",
     gender: userData.gender || "",

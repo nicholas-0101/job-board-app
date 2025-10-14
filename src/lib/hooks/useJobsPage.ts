@@ -23,7 +23,7 @@ export function useJobsPage() {
     order: "desc",
   });
   const [page, setPage] = useState(1);
-  const [limit] = useState(9);
+  const [limit] = useState(3);
   const [jobs, setJobs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
