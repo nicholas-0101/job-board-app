@@ -45,8 +45,8 @@ export const useAssessmentData = () => {
     }
   };
 
-  const handleTakeAssessment = (assessmentId: number) => {
-    router.push(`/skill-assessments/${assessmentId}`);
+  const handleTakeAssessment = (slug: string) => {
+    router.push(`/skill-assessments/${slug}`);
   };
 
   const handleSearch = (query: string) => {

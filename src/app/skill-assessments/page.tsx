@@ -99,7 +99,7 @@ export default function SkillAssessmentsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr">
               {sortedAssessments.map((assessment) => (
                 <AssessmentCard
-                  key={assessment.id}
+                  key={assessment.slug}
                   assessment={assessment}
                   onTakeAssessment={handleTakeAssessment}
                 />

@@ -122,14 +122,18 @@ export const deleteAssessment = async (assessmentId: number) => {
 // Get assessment for user to take (without answers)
 export const getAssessmentForUser = async (assessmentId: number) => {
   try {
-    console.log(
-      "🎯 Frontend: Calling /take endpoint for assessment:",
-      assessmentId
-    );
+    if (process.env.NODE_ENV !== "production") {
+      console.log(
+        "🎯 Frontend: Calling /take endpoint for assessment:",
+        assessmentId
+      );
+    }
     const response = await apiCall.get(
       `/skill-assessment/assessments/${assessmentId}/take`
     );
-    console.log("✅ Frontend: /take endpoint success:", response.data);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("✅ Frontend: /take endpoint success:", response.data);
+    }
     return response.data;
   } catch (error: any) {
     console.error("❌ Frontend: Error fetching assessment for user:", {
@@ -294,6 +298,21 @@ export const saveQuestion = async (data: {
   const response = await apiCall.post(
     "/skill-assessment/assessments/questions",
     data
+  );
+  return response.data;
+};
+
+export const getAssessmentBySlug = async (slug: string) => {
+  const response = await apiCall.get(
+    `/skill-assessment/developer/assessments/slug/${slug}`
+  );
+  return response.data;
+};
+
+// Get assessment for user to take by slug (without answers)
+export const getAssessmentForUserBySlug = async (slug: string) => {
+  const response = await apiCall.get(
+    `/skill-assessment/assessments/slug/${slug}/take`
   );
   return response.data;
 };

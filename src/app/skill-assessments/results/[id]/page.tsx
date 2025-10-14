@@ -10,8 +10,8 @@ import toast from "react-hot-toast";
 export default function AssessmentResultPage() {
   const router = useRouter();
   const params = useParams();
-  const resultId = parseInt(params.id as string);
-  
+  const idOrSlug = params.id as string;
+
   const {
     result,
     loading,
@@ -19,7 +19,7 @@ export default function AssessmentResultPage() {
     getScoreColor,
     getPerformanceLevel,
     calculateDuration,
-  } = useResultsState(resultId);
+  } = useResultsState(idOrSlug);
 
   useEffect(() => {
     fetchResult();
@@ -34,31 +34,33 @@ export default function AssessmentResultPage() {
       // Fetch the PDF file
       const response = await fetch(certificateUrl);
       const blob = await response.blob();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      
+
       // Set filename with proper extension
-      const assessmentTitle = result?.assessment?.title || 'Assessment';
-      const fileName = `Certificate-${assessmentTitle.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+      const assessmentTitle = result?.assessment?.title || "Assessment";
+      const fileName = `Certificate-${assessmentTitle.replace(
+        /[^a-zA-Z0-9]/g,
+        "-"
+      )}.pdf`;
       link.download = fileName;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading certificate:', error);
+      console.error("Error downloading certificate:", error);
       // Fallback to opening in new tab
-      window.open(certificateUrl, '_blank');
+      window.open(certificateUrl, "_blank");
     }
   };
-
 
   if (loading) {
     return (
@@ -82,7 +84,9 @@ export default function AssessmentResultPage() {
       <div className="min-h-screen bg-[#F0F5F9] py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Result not found</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Result not found
+            </h1>
           </div>
         </div>
       </div>
@@ -98,13 +102,13 @@ export default function AssessmentResultPage() {
           getPerformanceLevel={getPerformanceLevel}
           onBack={handleBack}
         />
-        
+
         <ResultsDetails
           result={result}
           getScoreColor={getScoreColor}
           calculateDuration={calculateDuration}
         />
-        
+
         <CertificateSection
           result={result}
           onDownloadCertificate={handleDownloadCertificate}
