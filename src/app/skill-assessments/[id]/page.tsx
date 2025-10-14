@@ -30,8 +30,8 @@ export default function TakeAssessmentPage() {
       <SubscriptionGuard
         hasSubscription={controller.hasSubscription}
         isAuthenticated={controller.isAuthenticated}
-        onUpgrade={() => controller.handlers.onBack() && null}
-        onSignIn={() => controller.handlers.onBack() && null}
+        onUpgrade={() => controller.handlers.onBack()}
+        onSignIn={() => controller.handlers.onBack()}
       />
     );
   }
