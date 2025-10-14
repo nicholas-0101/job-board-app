@@ -5,7 +5,7 @@ export interface SubscriptionPlan {
   name: string;
   price: number;
   period: string;
-  color: string;
+  color: string; // solid background color to match subscription cards
   icon: any;
   features: string[];
 }
@@ -16,7 +16,7 @@ export const subscriptionPlans = {
     name: "Standard",
     price: 25000,
     period: "month",
-    color: "from-blue-500 to-blue-600",
+    color: "#467EC7",
     icon: Briefcase,
     features: ["CV Generator", "Skill Assessment 2x"],
   },
@@ -25,7 +25,7 @@ export const subscriptionPlans = {
     name: "Professional",
     price: 100000,
     period: "month",
-    color: "from-purple-500 to-purple-600",
+    color: "#24CFA7",
     icon: Crown,
     features: ["CV Generator", "Skill Assessment unlimited", "Priority review when apply job"],
   },
