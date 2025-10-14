@@ -43,7 +43,7 @@ export function useMyApplications() {
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(2);
   const [total, setTotal] = useState(0);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));

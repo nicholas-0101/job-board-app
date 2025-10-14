@@ -8,9 +8,13 @@ import ConditionalLayout from "../components/layout/ConditionalLayout";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Workoo - Seek your next move",
-  description: "Find jobs, manage applications, and streamline hiring.",
-  icons: { icon: "/favicon.ico" },
+  title: "workoo",
+  description: "Seek your next move",
+  icons: { 
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico"
+  },
 };
 
 export default function RootLayout({

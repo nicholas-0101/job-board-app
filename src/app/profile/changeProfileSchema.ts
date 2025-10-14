@@ -1,27 +1,35 @@
 import * as Yup from "yup";
 
 export const userProfileSchema = Yup.object().shape({
-  phone: Yup.string().optional(),
-  gender: Yup.string().optional(),
-  dob: Yup.date().optional().max(new Date(), "Date of birth must be in the past").nullable(),
-  education: Yup.string().optional(),
-  address: Yup.string().optional(),
-  city: Yup.string().optional(),
+  phone: Yup.string()
+    .matches(/^\+?\d{10,15}$/, "Invalid phone number")
+    .required("Phone is required"),
+  gender: Yup.string().required("Gender is required").oneOf(["Male", "Female"], "Invalid gender"),
+  dob: Yup.date().required("Date of birth is required").max(new Date(), "Date of birth must be in the past"),
+  education: Yup.string().required("Education is required").max(100, "Education must be less than 100 characters"),
+  address: Yup.string().required("Address is required").max(200, "Address too long"),
+  city: Yup.string().required("City is required"), 
 });
 
 export const adminProfileSchema = Yup.object().shape({
   phone: Yup.string()
     .matches(/^\+?\d{10,15}$/, "Invalid phone number")
     .required("Phone is required"),
-  location: Yup.string().required("Location is required"),
-  city: Yup.string().required("City is required"), 
+  location: Yup.string().required("Address is required"),
+  city: Yup.string().required("City is required"),
   website: Yup.string().required("Website URL is required").url("Invalid website URL"),
   description: Yup.string().required("Description is required")
-  .test("not-empty", "Description is required", (val) => {
-    if (!val) return false;
-    const stripped = val.replace(/<(.|\n)*?>/g, "").trim();
-    return stripped.length > 0;
-  }),
+    .test("not-empty", "Description is required", (val) => {
+      if (!val) return false;
+      const stripped = val.replace(/<(.|\n)*?>/g, "").trim();
+      return stripped.length > 0;
+    }),
+  socials: Yup.object().shape({
+    facebook: Yup.string().optional(),
+    twitter: Yup.string().optional(),
+    linkedin: Yup.string().optional(),
+    instagram: Yup.string().optional(),
+  }).optional(),
 });
 
 export const changeEmailSchema = Yup.object().shape({

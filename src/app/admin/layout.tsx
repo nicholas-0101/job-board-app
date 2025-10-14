@@ -84,7 +84,7 @@ export default function AdminLayout({
         <div
           className={
             isProfileCompletionPage
-              ? "container mx-auto px-4 py-6 md:py-8"
+              ? ""
               : "container mx-auto px-4 py-6 md:py-8 grid gap-4 md:gap-6 md:grid-cols-[260px_1fr]"
           }
         >

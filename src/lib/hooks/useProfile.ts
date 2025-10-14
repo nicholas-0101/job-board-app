@@ -62,6 +62,15 @@ export const useProfile = () => {
         if (mounted) {
           const mappedValues = mapPayloadToInitialValues(payload);
           console.log("🎯 Mapped initial values:", mappedValues);
+          console.log("🔍 Payload structure:", {
+            hasRole: !!payload.role,
+            hasUser: !!payload.user,
+            hasAdminId: !!payload.adminId,
+            hasOwnerAdminId: !!payload.ownerAdminId,
+            hasName: !!payload.name,
+            hasEmail: !!payload.email,
+            payloadKeys: Object.keys(payload)
+          });
           
           if (mappedValues) {
             setInitialValues(mappedValues);
