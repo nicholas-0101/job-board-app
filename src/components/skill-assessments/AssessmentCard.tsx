@@ -6,7 +6,7 @@ import { Assessment } from "@/types/skillAssessment";
 
 interface AssessmentCardProps {
   assessment: Assessment;
-  onTakeAssessment: (id: number) => void;
+  onTakeAssessment: (slug: string) => void;
 }
 
 // Helper functions (max 15 lines each)
@@ -84,7 +84,7 @@ const AssessmentFooter = ({
   onTakeAssessment,
 }: {
   assessment: Assessment;
-  onTakeAssessment: (id: number) => void;
+  onTakeAssessment: (slug: string) => void;
 }) => (
   <div className="pt-4 border-t border-gray-200">
     <div className="flex items-center justify-between gap-3">
@@ -93,7 +93,7 @@ const AssessmentFooter = ({
         <span className="block">{formatDate(assessment.createdAt)}</span>
       </div>
       <Button
-        onClick={() => onTakeAssessment(assessment.id)}
+        onClick={() => onTakeAssessment(assessment.slug)}
         className="bg-[#467EC7] hover:bg-[#467EC7]/90 text-white shrink-0"
         size="sm"
       >

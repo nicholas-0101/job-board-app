@@ -7,6 +7,7 @@ interface AssessmentResult {
   id: number;
   userId: number;
   assessmentId: number;
+  assessmentSlug?: string;
   score: number;
   isPassed: boolean;
   certificateUrl?: string;
@@ -32,7 +33,7 @@ interface AssessmentResult {
   };
 }
 
-export function useResultsState(resultId: number) {
+export function useResultsState(idOrSlug: string) {
   const router = useRouter();
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,7 @@ export function useResultsState(resultId: number) {
       setLoading(true);
       const response = await getUserResults();
 
-      let resultsData = [];
+      let resultsData: any[] = [];
       if (response.data?.results && Array.isArray(response.data.results)) {
         resultsData = response.data.results;
       } else if (Array.isArray(response.data)) {
@@ -51,9 +52,10 @@ export function useResultsState(resultId: number) {
         resultsData = response;
       }
 
-      const foundResult = resultsData.find(
-        (r: AssessmentResult) => r.id === resultId
-      );
+      const foundResult = resultsData.find((r: any) => {
+        if (/^\d+$/.test(idOrSlug)) return r.id === parseInt(idOrSlug);
+        return r.slug === idOrSlug || r.certificateCode === idOrSlug;
+      });
       if (!foundResult) {
         toast.error("Assessment result not found");
         router.push("/skill-assessments/dashboard");
@@ -67,7 +69,7 @@ export function useResultsState(resultId: number) {
     } finally {
       setLoading(false);
     }
-  }, [resultId, router]);
+  }, [idOrSlug, router]);
 
   const getScoreColor = useCallback((score: number, passScore?: number) => {
     const threshold = passScore || 75;

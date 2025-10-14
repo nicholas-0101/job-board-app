@@ -1,5 +1,6 @@
 export interface Assessment {
   id: number;
+  slug: string;
   title: string;
   description?: string;
   passScore: number;
