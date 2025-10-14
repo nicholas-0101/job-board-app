@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { RenewalInfo } from "../types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4400';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BE_URL || 'http://localhost:4400';
 
 export const useRenewalApi = () => {
   const [loading, setLoading] = useState(false);
