@@ -10,7 +10,7 @@ interface Props {
   assessment: any;
   timeLeft: number;
   formatTime: (n: number) => string;
-  getTimeWarning: () => string | null;
+  getTimeWarning: () => string;
   started: boolean;
   currentQuestion: number;
   currentQuestionData: any;
