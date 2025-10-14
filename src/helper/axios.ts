@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const DEFAULT_BASE_URL = "http://localhost:4400";
+const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:4400";
 const resolvedBaseURL =
   process.env.NEXT_PUBLIC_BE_URL || DEFAULT_BASE_URL;
 
