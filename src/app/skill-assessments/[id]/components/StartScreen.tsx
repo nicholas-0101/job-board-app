@@ -82,7 +82,7 @@ export default function StartScreen({
                   <div>
                     <h4 className="font-semibold text-gray-900">Duration</h4>
                     <p className="text-2xl font-bold text-[#467EC7]">
-                      2 minutes (Testing)
+                      30 minutes
                     </p>
                   </div>
                 </div>
@@ -125,9 +125,9 @@ export default function StartScreen({
                       <p className="text-sm text-gray-700 leading-relaxed">
                         You have{" "}
                         <span className="font-semibold text-[#467EC7]">
-                          2 minutes
+                          30 minutes
                         </span>{" "}
-                        to complete this assessment (Testing Mode)
+                        to complete this assessment
                       </p>
                     </div>
                     <div className="flex items-start gap-3">

@@ -17,7 +17,7 @@ export default function OrderSummary({ selectedPlan }: OrderSummaryProps) {
         <div className="space-y-4">
           {/* Plan Details */}
           <div className="flex items-center gap-4 p-4 bg-[#E1F1F3]/30 rounded-lg">
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${selectedPlan.color}`}>
+            <div className="p-3 rounded-2xl" style={{ backgroundColor: selectedPlan.color }}>
               <IconComponent className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">

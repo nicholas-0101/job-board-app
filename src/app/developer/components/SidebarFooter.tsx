@@ -17,15 +17,19 @@ export default function SidebarFooter({
     <div className="border-t border-gray-200 p-4">
       <div className="lg:hidden">
         <div className="space-y-3">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-[#467EC7] to-[#24CFA7] rounded-full flex items-center justify-center mr-3">
-              <span className="text-white font-medium text-sm">
-                {user?.email?.charAt(0).toUpperCase() || "D"}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#467EC7] to-[#24CFA7] rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold">
+                {(user?.name?.charAt(0) || user?.email?.charAt(0) || "D").toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">Developer</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email || "developer@workoo.com"}</p>
+              <p className="text-base font-semibold text-gray-900 leading-tight break-words">
+                {user?.name || "Developer"}
+              </p>
+              <p className="text-sm text-gray-500 leading-tight break-words">
+                {user?.email || "developer@workoo.com"}
+              </p>
             </div>
           </div>
           <Button
@@ -54,15 +58,19 @@ export default function SidebarFooter({
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#467EC7] to-[#24CFA7] rounded-full flex items-center justify-center mr-3">
-                <span className="text-white font-medium text-sm">
-                  {user?.email?.charAt(0).toUpperCase() || "D"}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#467EC7] to-[#24CFA7] rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold">
+                  {(user?.name?.charAt(0) || user?.email?.charAt(0) || "D").toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">Developer</p>
-                <p className="text-xs text-gray-500 truncate">{user?.email || "developer@workoo.com"}</p>
+                <p className="text-base font-semibold text-gray-900 leading-tight break-words">
+                  {user?.name || "Developer"}
+                </p>
+                <p className="text-sm text-gray-500 leading-tight break-words">
+                  {user?.email || "developer@workoo.com"}
+                </p>
               </div>
             </div>
             <Button

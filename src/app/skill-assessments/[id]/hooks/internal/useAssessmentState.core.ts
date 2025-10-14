@@ -110,7 +110,7 @@ export default function useAssessmentStateCore(
   );
 
   const startAssessment = useCallback(() => {
-    const totalDuration = 3 * 60; // 3 minutes
+    const totalDuration = 30 * 60; // 30 minutes
     const result = initializeAssessment(totalDuration);
 
     setStarted(true);

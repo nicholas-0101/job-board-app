@@ -6,8 +6,12 @@ interface UseAssessmentTimerProps {
   initialTime?: number; // Allow setting initial time for resume
 }
 
-export function useAssessmentTimer({ onTimeUp, started, initialTime }: UseAssessmentTimerProps) {
-  const [timeLeft, setTimeLeft] = useState(initialTime || 3 * 60); // 3 minutes default
+export function useAssessmentTimer({
+  onTimeUp,
+  started,
+  initialTime,
+}: UseAssessmentTimerProps) {
+  const [timeLeft, setTimeLeft] = useState(initialTime || 30 * 60); // 30 minutes default
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeUpCalledRef = useRef<boolean>(false);
 
@@ -53,12 +57,14 @@ export function useAssessmentTimer({ onTimeUp, started, initialTime }: UseAssess
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const getTimeWarning = () => {
-    if (timeLeft <= 30) return "danger"; // 30 seconds
-    if (timeLeft <= 60) return "warning"; // 1 minute
+    if (timeLeft <= 60) return "danger"; // last 60 seconds
+    if (timeLeft <= 5 * 60) return "warning"; // last 5 minutes
     return "normal";
   };
 

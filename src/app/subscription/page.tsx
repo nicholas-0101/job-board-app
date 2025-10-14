@@ -1,11 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { RefreshCw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { subscriptionPlans } from "@/components/subscription/subscriptionPlans";
 import PlanCard from "@/components/subscription/PlanCard";
-import { Button } from "@/components/ui/button";
+// removed unused Button import after deleting renew button
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import DeveloperBlockGuard from "@/components/auth/DeveloperBlockGuard";
 import UserSubscriptionStatus from "../../components/subscription/UserSubscriptionStatus";
@@ -14,6 +13,7 @@ import UserTransactionStatus from "../../components/subscription/UserTransaction
 export default function SubscriptionPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("choose");
 
   useEffect(() => {
     // Check if user is authenticated
@@ -34,52 +34,76 @@ export default function SubscriptionPage() {
   return (
     <DeveloperBlockGuard>
       <div className="min-h-screen container mx-auto px-4 py-8 sm:py-12">
-        <Tabs defaultValue="choose" className="w-full">
-          <TabsList className="mb-6 sm:mb-8">
-            <TabsTrigger value="choose">Choose Plan</TabsTrigger>
-            <TabsTrigger value="status">Subscription Status</TabsTrigger>
-            <TabsTrigger value="transactions">Transaction Status</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="choose">
-            {/* Hero Section */}
-            <section className="relative py-8 sm:py-12 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 rounded-xl">
-              <div className="relative container mx-auto px-4 text-center max-w-3xl">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                >
+        {/* Dynamic Banner Section */}
+        <section className="relative py-8 sm:py-12 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 rounded-xl mb-6 sm:mb-8">
+          <div className="relative container mx-auto px-4 text-center max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {activeTab === "choose" && (
+                <>
                   <h1 className="text-3xl sm:text-5xl font-bold mb-4 sm:mb-6 text-[#467EC7]">
                     Choose Your{" "}
                     <span className="text-[#24CFA7]">Perfect Plan</span>
                   </h1>
-                  <p className="text-base sm:text-xl mb-6 sm:mb-8 text-gray-600 px-4">
+                  <p className="text-base sm:text-xl mb-0 sm:mb-0 text-gray-600 px-4">
                     Unlock premium features and accelerate your career journey
                     with our subscription plans.
                   </p>
+                </>
+              )}
+              {activeTab === "status" && (
+                <>
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#467EC7]">
+                    Subscription Status
+                  </h2>
+                  <p className="text-base sm:text-lg text-gray-600 px-4">
+                    View your active subscription status and history
+                  </p>
+                </>
+              )}
+              {activeTab === "transactions" && (
+                <>
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#467EC7]">
+                    Transaction Status
+                  </h2>
+                  <p className="text-base sm:text-lg text-gray-600 px-4">
+                    Monitor your latest payments and their status
+                  </p>
+                </>
+              )}
+            </motion.div>
+          </div>
+        </section>
 
-                  {isAuthenticated && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                      className="mb-4 sm:mb-6"
-                    >
-                      <Button
-                        onClick={() => router.push("/subscription/renew")}
-                        variant="outline"
-                        className="border-[#24CFA7] text-[#24CFA7] hover:bg-[#24CFA7] hover:text-white text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2"
-                      >
-                        <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        Renew Existing Subscription
-                      </Button>
-                    </motion.div>
-                  )}
-                </motion.div>
-              </div>
-            </section>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-6 sm:mb-8 h-8 sm:h-9 w-full sm:w-fit">
+            <TabsTrigger
+              value="choose"
+              className="text-xs sm:text-sm px-2 sm:px-3"
+            >
+              <span className="hidden sm:inline">Choose Plan</span>
+              <span className="sm:hidden">Plan</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="status"
+              className="text-xs sm:text-sm px-2 sm:px-3"
+            >
+              <span className="hidden sm:inline">Subscription Status</span>
+              <span className="sm:hidden">Status</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="transactions"
+              className="text-xs sm:text-sm px-2 sm:px-3"
+            >
+              <span className="hidden sm:inline">Transaction Status</span>
+              <span className="sm:hidden">Transaction</span>
+            </TabsTrigger>
+          </TabsList>
 
+          <TabsContent value="choose">
             {/* Pricing Section */}
             <div className="pb-12 sm:pb-20 pt-6 sm:pt-10">
               <div className="text-center mb-8 sm:mb-12">
@@ -103,47 +127,37 @@ export default function SubscriptionPage() {
           </TabsContent>
 
           <TabsContent value="status">
-            <section className="relative py-8 sm:py-12 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 rounded-xl mb-6">
-              <div className="relative container mx-auto px-4 text-center max-w-3xl">
+            <AnimatePresence mode="wait">
+              {activeTab === "status" && (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  key="status-content"
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="pb-12 sm:pb-16"
                 >
-                  <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#467EC7]">
-                    Subscription Status
-                  </h2>
-                  <p className="text-base sm:text-lg text-gray-600 px-4">
-                    Lihat status langganan aktif dan riwayat Anda
-                  </p>
+                  <UserSubscriptionStatus />
                 </motion.div>
-              </div>
-            </section>
-            <div className="pb-12 sm:pb-16">
-              <UserSubscriptionStatus />
-            </div>
+              )}
+            </AnimatePresence>
           </TabsContent>
 
           <TabsContent value="transactions">
-            <section className="relative py-8 sm:py-12 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 rounded-xl mb-6">
-              <div className="relative container mx-auto px-4 text-center max-w-3xl">
+            <AnimatePresence mode="wait">
+              {activeTab === "transactions" && (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  key="transactions-content"
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="pb-12 sm:pb-16"
                 >
-                  <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#467EC7]">
-                    Transaction Status
-                  </h2>
-                  <p className="text-base sm:text-lg text-gray-600 px-4">
-                    Pantau pembayaran terbaru dan statusnya
-                  </p>
+                  <UserTransactionStatus />
                 </motion.div>
-              </div>
-            </section>
-            <div className="pb-12 sm:pb-16">
-              <UserTransactionStatus />
-            </div>
+              )}
+            </AnimatePresence>
           </TabsContent>
         </Tabs>
       </div>
