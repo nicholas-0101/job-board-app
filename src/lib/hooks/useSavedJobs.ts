@@ -37,7 +37,7 @@ export function useSavedJobs() {
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
-  const [limit] = useState(3);
+  const [limit] = useState(9);
   const [total, setTotal] = useState(0);
   const router = useRouter();
 
