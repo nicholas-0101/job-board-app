@@ -122,7 +122,7 @@ export default function BadgesPage() {
           {/* Statistics Cards */}
           <BadgeStats badges={badges} certificates={certificates} />
 
-          {/* Tab Navigation */}
+          {/* Tab Navigation (Certificates tab removed) */}
           <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
             <button
               onClick={() => setActiveTab("badges")}
@@ -134,20 +134,10 @@ export default function BadgesPage() {
             >
               Badge Templates ({badges.length})
             </button>
-            <button
-              onClick={() => setActiveTab("certificates")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "certificates"
-                  ? "bg-white text-[#467EC7] shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Issued Certificates ({certificates.length})
-            </button>
           </div>
 
-          {/* Content */}
-          {activeTab === "badges" ? (
+          {/* Content (Only badges list shown) */}
+          {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -193,41 +183,7 @@ export default function BadgesPage() {
                 )}
               </CardContent>
             </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Award className="h-5 w-5" />
-                  <span>Issued Certificates</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {certificates.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      No Certificates Yet
-                    </h3>
-                    <p className="text-gray-500">
-                      Certificates will appear here when users complete
-                      assessments.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {certificates.map((certificate) => (
-                      <CertificateCard
-                        key={certificate.id}
-                        certificate={certificate}
-                        onDownload={handleDownloadCertificate}
-                        onViewQR={handleViewQR}
-                      />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+          }
         </div>
       </DeveloperLayout>
     </DeveloperAuthGuard>
