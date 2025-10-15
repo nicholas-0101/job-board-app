@@ -4,11 +4,17 @@ import { useParams, useRouter } from "next/navigation";
 import {
   fetchPreselectionTest,
   submitPreselectionAnswers,
+  getMyPreselectionStatus,
   PreselectionTestDTO,
 } from "@/lib/preselection";
 import { apiCall } from "@/helper/axios";
-import { Loader } from "lucide-react";
-import { motion } from "framer-motion";
+import { LoadingSpinner } from "@/components/preselection/LoadingSpinner";
+import { ErrorDisplay } from "@/components/preselection/ErrorDisplay";
+import { NoTestAvailable } from "@/components/preselection/NoTestAvailable";
+import { TestHeader } from "@/components/preselection/TestHeader";
+import { TestInfo } from "@/components/preselection/TestInfo";
+import { QuestionsList } from "@/components/preselection/QuestionsList";
+import { SubmitSection } from "@/components/preselection/SubmitSection";
 
 export default function JobPretestPage() {
   const params = useParams<{ slug: string }>();
@@ -21,6 +27,12 @@ export default function JobPretestPage() {
   const [jobId, setJobId] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [testAlreadyCompleted, setTestAlreadyCompleted] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    score: number | null;
+    passingScore: number | null;
+    isPassed: boolean;
+  } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -30,6 +42,24 @@ export default function JobPretestPage() {
         const jobResponse = await apiCall.get(`/job/${slug}`);
         const fetchedJobId = jobResponse.data.data.id;
         if (mounted) setJobId(fetchedJobId);
+
+        // Check if user has already completed the test
+        try {
+          const status = await getMyPreselectionStatus(fetchedJobId);
+          if (status.submitted) {
+            setTestAlreadyCompleted(true);
+            setTestResult({
+              score: status.score ?? null,
+              passingScore: status.passingScore ?? null,
+              isPassed: status.isPassed || false,
+            });
+            if (mounted) setLoading(false);
+            return;
+          }
+        } catch (statusError: any) {
+          // If status check fails (e.g., not authenticated), continue with normal flow
+          console.log("Status check failed, continuing with test:", statusError);
+        }
 
         // Then fetch the test using the job ID
         const t = await fetchPreselectionTest(fetchedJobId);
@@ -82,13 +112,6 @@ export default function JobPretestPage() {
     };
   }, [slug]);
 
-  const canSubmit = useMemo(() => {
-    if (!test) return false;
-    return test.questions.every(
-      (q) => typeof answers[q.id] === "string" && answers[q.id]!.length > 0
-    );
-  }, [test, answers]);
-
   const onSelect = (questionId: number, option: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: option }));
   };
@@ -122,169 +145,48 @@ export default function JobPretestPage() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center py-20">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
-          <Loader className="w-8 h-8 text-[#24CFA7]" />
-        </motion.div>
-      </div>
-    );
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorDisplay error={error} />;
+  if (!test) return <NoTestAvailable />;
 
-  if (error)
+  // Show test completion message if user has already completed the test
+  if (testAlreadyCompleted && testResult) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-400 text-lg mb-4">Error</div>
-          <p className="text-gray-600">{error}</p>
-          <button
-            onClick={() => router.back()}
-            className="mt-4 px-4 py-2 bg-[#467EC7] text-white rounded-lg hover:bg-[#467EC7]/80"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-
-  if (!test)
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-gray-600 text-lg mb-4">No Test Available</div>
-          <p className="text-gray-500">
-            This job doesn't have a pre-selection test.
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className={`inline-flex items-center px-6 py-3 rounded-lg text-lg font-medium mb-4 ${
+            testResult.isPassed 
+              ? 'bg-green-100 text-green-700' 
+              : 'bg-red-100 text-red-700'
+          }`}>
+            {testResult.isPassed ? '✓ Passed' : '✗ Failed'} {testResult.score}/{testResult.passingScore}
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Test Already Completed
+          </h2>
+          <p className="text-gray-600 mb-6">
+            You have already completed this pre-selection test. You cannot retake it.
           </p>
           <button
-            onClick={() => router.back()}
-            className="mt-4 px-4 py-2 bg-[#467EC7] text-white rounded-lg hover:bg-[#467EC7]/80"
+            onClick={() => router.push(`/explore/jobs/${slug}`)}
+            className="px-6 py-2 bg-[#467EC7] text-white rounded-lg hover:bg-[#467EC7]/80 transition-colors"
           >
-            Go Back
+            Back to Job Details
           </button>
         </div>
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-background/80 backdrop-blur border-b border-gray-200 sticky top-16">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-[#467EC7]">
-                Pre-Selection Test
-              </h1>
-              <p className="text-gray-600">
-                Complete this test to proceed with your job application
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">Progress</div>
-              <div className="text-lg font-bold text-[#467EC7]">
-                {Object.keys(answers).length} / {test.questions.length}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <TestHeader test={test} answers={answers} />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Test Info */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Test Information
-              </h2>
-              {typeof test.passingScore === "number" && (
-                <div className="text-sm text-gray-600">
-                  Passing Score:{" "}
-                  <span className="font-semibold text-[#467EC7]">
-                    {test.passingScore}
-                  </span>{" "}
-                  / {test.questions.length}
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-              <div>
-                <span className="font-medium">Total Questions:</span>{" "}
-                {test.questions.length}
-              </div>
-              <div>
-                <span className="font-medium">Answered:</span>{" "}
-                {Object.keys(answers).length}
-              </div>
-              <div>
-                <span className="font-medium">Remaining:</span>{" "}
-                {test.questions.length - Object.keys(answers).length}
-              </div>
-            </div>
-          </div>
-
-          {/* Questions */}
-          <div className="space-y-6">
-            {test.questions.map((q, idx) => (
-              <div
-                key={q.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-              >
-                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
-                  {idx + 1}. {q.question}
-                </h3>
-                <div className="space-y-3">
-                  {q.options.map((opt) => (
-                    <label
-                      key={opt}
-                      className="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-[#24CFA7]/60 hover:bg-[#24CFA7]/5 transition-colors"
-                    >
-                      <input
-                        type="radio"
-                        name={`q-${q.id}`}
-                        value={opt}
-                        checked={answers[q.id] === opt}
-                        onChange={() => onSelect(q.id, opt)}
-                        className="text-[#24CFA7] focus:ring-[#24CFA7]"
-                      />
-                      <span className="text-gray-700">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Submit Button */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                {canSubmit ? (
-                  <span className="text-muted-foreground">
-                    All questions answered
-                  </span>
-                ) : (
-                  <span className="text-red-400">
-                    Please answer all questions
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={onSubmit}
-                disabled={!canSubmit || submitting}
-                className="px-8 py-3 bg-[#24CFA7] text-white rounded-lg hover:bg-[#24CFA7]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {submitting ? (
-                  <div className="flex items-center gap-2">Submitting...</div>
-                ) : (
-                  "Submit Test"
-                )}
-              </button>
-            </div>
-          </div>
+          <TestInfo test={test} answers={answers} />
+          <QuestionsList test={test} answers={answers} onSelect={onSelect} />
+          <SubmitSection test={test} answers={answers} submitting={submitting} onSubmit={onSubmit} />
         </div>
       </div>
     </div>

@@ -8,6 +8,9 @@ interface JobDetailHeaderProps {
   preselectionStatus: {
     required: boolean;
     submitted?: boolean;
+    score?: number | null;
+    passingScore?: number | null;
+    isPassed?: boolean;
   } | null;
   saved: boolean;
   onPretestClick: () => void;
@@ -32,12 +35,22 @@ export default function JobDetailHeader({
       {/* Desktop Actions */}
       <div className="hidden sm:flex items-center gap-2">
         {preselectionStatus?.required && (
-          <button
-            onClick={onPretestClick}
-            className="px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-sm font-medium transition-colors cursor-pointer"
-          >
-            {preselectionStatus.submitted ? "View Test Result" : "Take Pretest"}
-          </button>
+          preselectionStatus.submitted ? (
+            <div className={`px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed ${
+              preselectionStatus.isPassed 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {preselectionStatus.isPassed ? 'Passed' : 'Failed'} {preselectionStatus.score}/{preselectionStatus.passingScore}
+            </div>
+          ) : (
+            <button
+              onClick={onPretestClick}
+              className="px-4 py-2 rounded-lg bg-[#467EC7] text-white hover:bg-[#467EC7]/80 text-sm font-medium transition-colors cursor-pointer"
+            >
+              Take Pretest
+            </button>
+          )
         )}
         <button
           onClick={onApplyClick}
