@@ -340,35 +340,43 @@ export default function CreateReviewDialog({
                   <h3 className="font-semibold text-gray-900">
                     Rate Your Experience
                   </h3>
-                  <div className="space-y-3">
-                    <InteractiveStarRating
-                      rating={formData.ratingCulture}
-                      onRatingClick={(rating) =>
-                        handleRatingClick("ratingCulture", rating)
-                      }
-                      label="Company Culture"
-                    />
-                    <InteractiveStarRating
-                      rating={formData.ratingFacilities}
-                      onRatingClick={(rating) =>
-                        handleRatingClick("ratingFacilities", rating)
-                      }
-                      label="Facilities & Benefits"
-                    />
-                    <InteractiveStarRating
-                      rating={formData.ratingWorkLife}
-                      onRatingClick={(rating) =>
-                        handleRatingClick("ratingWorkLife", rating)
-                      }
-                      label="Work-Life Balance"
-                    />
-                    <InteractiveStarRating
-                      rating={formData.ratingCareer}
-                      onRatingClick={(rating) =>
-                        handleRatingClick("ratingCareer", rating)
-                      }
-                      label="Career Growth"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <InteractiveStarRating
+                        rating={formData.ratingCulture}
+                        onRatingClick={(rating) =>
+                          handleRatingClick("ratingCulture", rating)
+                        }
+                        label="Company Culture"
+                      />
+                    </div>
+                    <div>
+                      <InteractiveStarRating
+                        rating={formData.ratingFacilities}
+                        onRatingClick={(rating) =>
+                          handleRatingClick("ratingFacilities", rating)
+                        }
+                        label="Facilities & Benefits"
+                      />
+                    </div>
+                    <div>
+                      <InteractiveStarRating
+                        rating={formData.ratingWorkLife}
+                        onRatingClick={(rating) =>
+                          handleRatingClick("ratingWorkLife", rating)
+                        }
+                        label="Work-Life Balance"
+                      />
+                    </div>
+                    <div>
+                      <InteractiveStarRating
+                        rating={formData.ratingCareer}
+                        onRatingClick={(rating) =>
+                          handleRatingClick("ratingCareer", rating)
+                        }
+                        label="Career Growth"
+                      />
+                    </div>
                   </div>
                 </div>
 
