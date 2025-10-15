@@ -13,68 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-const analyticsDataFallback = {
-  overview: {
-    totalUsers: 15420,
-    activeJobs: 1240,
-    applications: 8950,
-    companies: 480,
-    growth: {
-      users: 12.5,
-      jobs: 8.3,
-      applications: 15.7,
-      companies: 5.2
-    }
-  },
-  demographics: {
-    ageGroups: [
-      { range: "18-24", count: 3850, percentage: 25 },
-      { range: "25-30", count: 5390, percentage: 35 },
-      { range: "31-35", count: 3080, percentage: 20 },
-      { range: "36-40", count: 1850, percentage: 12 },
-      { range: "40+", count: 1250, percentage: 8 }
-    ],
-    gender: [
-      { type: "Male", count: 8750, percentage: 57 },
-      { type: "Female", count: 6200, percentage: 40 },
-      { type: "Other", count: 470, percentage: 3 }
-    ],
-    locations: [
-      { city: "Jakarta", count: 6200, percentage: 40 },
-      { city: "Bandung", count: 2310, percentage: 15 },
-      { city: "Surabaya", count: 1850, percentage: 12 },
-      { city: "Yogyakarta", count: 1540, percentage: 10 },
-      { city: "Medan", count: 1230, percentage: 8 },
-      { city: "Others", count: 2290, percentage: 15 }
-    ]
-  },
-  salaryTrends: {
-    byPosition: [
-      { position: "Software Engineer", min: 8000000, max: 25000000, avg: 15000000, count: 450 },
-      { position: "Product Manager", min: 12000000, max: 35000000, avg: 22000000, count: 180 },
-      { position: "UI/UX Designer", min: 6000000, max: 20000000, avg: 12000000, count: 320 },
-      { position: "Data Scientist", min: 10000000, max: 30000000, avg: 18000000, count: 150 },
-      { position: "DevOps Engineer", min: 9000000, max: 28000000, avg: 17000000, count: 120 }
-    ],
-    byLocation: [
-      { city: "Jakarta", avg: 18500000, growth: 8.5 },
-      { city: "Bandung", avg: 14200000, growth: 12.3 },
-      { city: "Surabaya", avg: 13800000, growth: 6.7 },
-      { city: "Yogyakarta", avg: 11500000, growth: 15.2 },
-      { city: "Medan", avg: 12800000, growth: 9.8 }
-    ]
-  },
-  applicantInterests: [
-    { category: "Technology", applications: 3200, percentage: 36 },
-    { category: "Finance", applications: 1800, percentage: 20 },
-    { category: "Healthcare", applications: 1200, percentage: 13 },
-    { category: "Education", applications: 980, percentage: 11 },
-    { category: "E-commerce", applications: 850, percentage: 10 },
-    { category: "Others", applications: 920, percentage: 10 }
-  ]
-};
-
-import { getOverview, getDemographics, getSalaryTrends, getInterests, getEngagement, getConversionFunnel, getRetention, getPerformance } from "@/lib/analytics";
+import { getOverview, getDemographics, getSalaryTrends, getInterests } from "@/lib/analytics";
 import { apiCall } from "@/helper/axios";
 
 export default function AnalyticsPage() {
@@ -90,10 +29,6 @@ export default function AnalyticsPage() {
   const [demographics, setDemographics] = useState<any>(null);
   const [salaryTrends, setSalaryTrends] = useState<any>(null);
   const [interests, setInterests] = useState<any>(null);
-  const [engagement, setEngagement] = useState<any>(null);
-  const [conversionFunnel, setConversionFunnel] = useState<any>(null);
-  const [retention, setRetention] = useState<any>(null);
-  const [performance, setPerformance] = useState<any>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -118,25 +53,17 @@ export default function AnalyticsPage() {
 
         if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
 
-        const [ov, dm, st, it, eng, cf, ret, perf] = await Promise.all([
+        const [ov, dm, st, it] = await Promise.all([
           getOverview(cid),
           getDemographics(cid),
           getSalaryTrends(cid),
           getInterests(cid),
-          getEngagement(cid),
-          getConversionFunnel(cid),
-          getRetention(cid),
-          getPerformance(cid),
         ]);
         if (mounted) {
           setOverview(ov);
           setDemographics(dm);
           setSalaryTrends(st);
           setInterests(it);
-          setEngagement(eng);
-          setConversionFunnel(cf);
-          setRetention(ret);
-          setPerformance(perf);
         }
       } catch (e: any) {
         setError(e?.response?.data?.message || "Failed to load analytics");
@@ -153,10 +80,6 @@ export default function AnalyticsPage() {
       demographics,
       salaryTrends,
       interests,
-      engagement,
-      conversionFunnel,
-      retention,
-      performance,
       exportedAt: new Date().toISOString(),
       timeRange,
     };
@@ -292,30 +215,33 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {demographics?.ageBuckets && Object.keys(demographics.ageBuckets).length > 0 ? (
-                Object.entries(demographics.ageBuckets).map(([range, count], index: number) => {
-                  const group = { range, count: count as number, percentage: 0 };
-                  return (
-                <div key={group.range} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-blue-500" style={{ 
-                      backgroundColor: `hsl(${220 + index * 20}, 70%, 50%)` 
-                    }} />
-                    <span className="text-gray-700">{group.range} years</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${group.percentage ?? 0}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900 w-8">{group.percentage ?? 0}%</span>
-                  </div>
-                </div>
-                  );
-                })
-              ) : (
+              {demographics?.ageBuckets && Object.keys(demographics.ageBuckets).length > 0 ? (() => {
+                const total = Object.values(demographics.ageBuckets).reduce((sum: number, count) => sum + (count as number), 0) || 1;
+                return Object.entries(demographics.ageBuckets)
+                  .filter(([range]) => range !== 'unknown')
+                  .map(([range, count], index: number) => {
+                    const percentage = Math.round(((count as number) * 100) / total);
+                    return (
+                      <div key={range} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-blue-500" style={{ 
+                            backgroundColor: `hsl(${220 + index * 20}, 70%, 50%)` 
+                          }} />
+                          <span className="text-gray-700">{range} years</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 w-8">{percentage}%</span>
+                        </div>
+                      </div>
+                    );
+                  });
+              })() : (
                 <div className="text-center text-muted-foreground py-4">No age data available</div>
               )}
             </CardContent>
@@ -330,33 +256,36 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {demographics?.gender && Object.keys(demographics.gender).length > 0 ? (
-                Object.entries(demographics.gender).map(([type, count], index: number) => {
-                  const item = { type, count: count as number, percentage: 0 };
+              {demographics?.gender && Array.isArray(demographics.gender) && demographics.gender.length > 0 ? (() => {
+                const total = demographics.gender.reduce((sum: number, item: any) => sum + (item.count || 0), 0) || 1;
+                return demographics.gender.map((item: any, index: number) => {
+                  const percentage = Math.round((item.count * 100) / total);
                   return (
-                <div key={item.type} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full" style={{ 
-                      backgroundColor: index === 0 ? '#3B82F6' : index === 1 ? '#EC4899' : '#6B7280'
-                    }} />
-                    <span className="text-gray-700">{item.type}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="h-2 rounded-full transition-all duration-1000"
-                        style={{ 
-                          width: `${item.percentage ?? 0}%`,
-                          backgroundColor: index === 0 ? '#3B82F6' : index === 1 ? '#EC4899' : '#6B7280'
-                        }}
-                      />
+                    <div key={item.gender} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full" style={{ 
+                          backgroundColor: item.gender.toLowerCase() === 'male' ? '#3B82F6' : 
+                                         item.gender.toLowerCase() === 'female' ? '#EC4899' : '#6B7280'
+                        }} />
+                        <span className="text-gray-700">{item.gender}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="h-2 rounded-full transition-all duration-1000"
+                            style={{ 
+                              width: `${percentage}%`,
+                              backgroundColor: item.gender.toLowerCase() === 'male' ? '#3B82F6' : 
+                                             item.gender.toLowerCase() === 'female' ? '#EC4899' : '#6B7280'
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 w-8">{percentage}%</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-8">{item.percentage ?? 0}%</span>
-                  </div>
-                </div>
                   );
-                })
-              ) : (
+                });
+              })() : (
                 <div className="text-center text-muted-foreground py-4">No gender data available</div>
               )}
             </CardContent>
@@ -371,27 +300,31 @@ export default function AnalyticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {demographics?.locations && Array.isArray(demographics.locations) && demographics.locations.length > 0 ? (
-                demographics.locations.map((location: any, index: number) => (
-                <div key={location.city} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-green-500" style={{ 
-                      backgroundColor: `hsl(${120 + index * 15}, 60%, 50%)` 
-                    }} />
-                    <span className="text-gray-700">{location.city}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${location.percentage ?? 0}%` }}
-                      />
+              {demographics?.locations && Array.isArray(demographics.locations) && demographics.locations.length > 0 ? (() => {
+                const total = demographics.locations.reduce((sum: number, loc: any) => sum + (loc.count || 0), 0) || 1;
+                return demographics.locations.slice(0, 6).map((location: any, index: number) => {
+                  const percentage = Math.round((location.count * 100) / total);
+                  return (
+                    <div key={location.city} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-green-500" style={{ 
+                          backgroundColor: `hsl(${120 + index * 15}, 60%, 50%)` 
+                        }} />
+                        <span className="text-gray-700">{location.city}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 w-8">{percentage}%</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-8">{location.percentage ?? 0}%</span>
-                  </div>
-                </div>
-                ))
-              ) : (
+                  );
+                });
+              })() : (
                 <div className="text-center text-muted-foreground py-4">No location data available</div>
               )}
             </CardContent>
@@ -520,238 +453,6 @@ export default function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
-
-            {/* Engagement Metrics */}
-            <div className="grid lg:grid-cols-2 gap-6 mb-8">
-              {/* User Engagement */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <Users className="w-5 h-5 text-blue-600" />
-                    User Engagement
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {engagement ? (
-                    <>
-                      <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
-                        <div>
-                          <div className="text-2xl font-bold text-blue-900">
-                            <AnimatedCounter end={engagement.dau?.count || 0} />
-                          </div>
-                          <div className="text-sm text-blue-600">Daily Active Users</div>
-                        </div>
-                        <Users className="w-8 h-8 text-blue-500" />
-                      </div>
-                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
-                        <div>
-                          <div className="text-2xl font-bold text-green-900">
-                            <AnimatedCounter end={engagement.mau?.count || 0} />
-                          </div>
-                          <div className="text-sm text-green-600">Monthly Active Users</div>
-                        </div>
-                        <Calendar className="w-8 h-8 text-green-500" />
-                      </div>
-                      <div className="flex items-center justify-between p-4 bg-purple-50 rounded-xl">
-                        <div>
-                          <div className="text-2xl font-bold text-purple-900">
-                            {engagement.sessionMetrics?.sessionsPerUser?.toFixed(1) || '0.0'}
-                          </div>
-                          <div className="text-sm text-purple-600">Sessions per User</div>
-                        </div>
-                        <MousePointer className="w-8 h-8 text-purple-500" />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center text-muted-foreground py-4">No engagement data available</div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Performance Metrics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <Zap className="w-5 h-5 text-yellow-600" />
-                    Performance Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {performance ? (
-                    <>
-                      <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl">
-                        <div>
-                          <div className="text-2xl font-bold text-yellow-900">
-                            {performance.averageLoadTime?.toFixed(1) || '0.0'}s
-                          </div>
-                          <div className="text-sm text-yellow-600">Average Load Time</div>
-                        </div>
-                        <Clock className="w-8 h-8 text-yellow-500" />
-                      </div>
-                      <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
-                        <div>
-                          <div className="text-2xl font-bold text-red-900">
-                            {(performance.errorRate * 100)?.toFixed(1) || '0.0'}%
-                          </div>
-                          <div className="text-sm text-red-600">Error Rate</div>
-                        </div>
-                        <Activity className="w-8 h-8 text-red-500" />
-                      </div>
-                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
-                        <div>
-                          <div className="text-2xl font-bold text-green-900">
-                            {performance.uptime?.toFixed(1) || '0.0'}%
-                          </div>
-                          <div className="text-sm text-green-600">Uptime</div>
-                        </div>
-                        <Target className="w-8 h-8 text-green-500" />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center text-muted-foreground py-4">No performance data available</div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Conversion Funnel */}
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <BarChart3 className="w-5 h-5 text-indigo-600" />
-                  Conversion Funnel
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {conversionFunnel?.steps && Array.isArray(conversionFunnel.steps) && conversionFunnel.steps.length > 0 ? (
-                  <div className="space-y-4">
-                    {conversionFunnel.steps.map((step: any, index: number) => (
-                      <motion.div
-                        key={step.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-semibold">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900">{step.name}</div>
-                            <div className="text-sm text-gray-500">{step.count} users</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-1000"
-                              style={{ width: `${step.percentage}%` }}
-                            />
-                          </div>
-                          <div className="text-sm font-medium text-gray-900 w-12 text-right">
-                            {step.percentage}%
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">No conversion funnel data available</div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Platform Usage */}
-            <div className="grid lg:grid-cols-2 gap-6 mb-8">
-              {/* Device Usage */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <Monitor className="w-5 h-5 text-blue-600" />
-                    Device Usage
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {performance?.mobileVsDesktop ? (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Smartphone className="w-5 h-5 text-blue-500" />
-                          <span className="text-gray-700">Mobile</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-20 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
-                              style={{ width: `${performance.mobileVsDesktop.mobile * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium text-gray-900 w-8">
-                            {Math.round(performance.mobileVsDesktop.mobile * 100)}%
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Monitor className="w-5 h-5 text-green-500" />
-                          <span className="text-gray-700">Desktop</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-20 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-green-500 h-2 rounded-full transition-all duration-1000"
-                              style={{ width: `${performance.mobileVsDesktop.desktop * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium text-gray-900 w-8">
-                            {Math.round(performance.mobileVsDesktop.desktop * 100)}%
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center text-muted-foreground py-4">No device usage data available</div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Retention Rates */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <Target className="w-5 h-5 text-purple-600" />
-                    User Retention
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {retention ? (
-                    <>
-                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                        <span className="text-gray-700">Day 1</span>
-                        <span className="font-semibold text-green-600">
-                          {Math.round(retention.day1 * 100)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                        <span className="text-gray-700">Day 7</span>
-                        <span className="font-semibold text-blue-600">
-                          {Math.round(retention.day7 * 100)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                        <span className="text-gray-700">Day 30</span>
-                        <span className="font-semibold text-purple-600">
-                          {Math.round(retention.day30 * 100)}%
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center text-muted-foreground py-4">No retention data available</div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
           </>
         )}
       </div>
