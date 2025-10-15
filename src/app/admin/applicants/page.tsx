@@ -1,26 +1,10 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  Users,
-  Eye,
-  CheckCircle,
-  XCircle,
-  Clock,
-  FileText,
-  Search,
-  Calendar,
-  MapPin,
-  GraduationCap,
-  DollarSign,
-  RefreshCw,
-  Filter,
-  Star,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Users, RefreshCw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { listCompanyJobs, JobItemDTO } from "@/lib/jobs";
 import {
   listJobApplicants,
@@ -28,6 +12,11 @@ import {
   ApplicantDTO,
 } from "@/lib/applicants";
 import { apiCall } from "@/helper/axios";
+import ApplicantFilters from "./components/ApplicantFilters";
+import JobSelector from "./components/JobSelector";
+import SortControls from "./components/SortControls";
+import { ApplicantsHeader } from "./components/ApplicantsHeader";
+import { ApplicantsContent } from "./components/ApplicantsContent";
 
 export default function ApplicantsPage() {
   const [companyId, setCompanyId] = useState<number>(() => {
@@ -165,58 +154,13 @@ export default function ApplicantsPage() {
     }
   };
 
-  const stats = useMemo(
-    () => [
-      {
-        label: "Total Applicants",
-        value: total,
-        icon: Users,
-        color: "from-blue-500 to-blue-600",
-      },
-      {
-        label: "Priority Applications",
-        value: applicants.filter((a) => a.isPriority).length,
-        icon: Star,
-        color: "from-amber-500 to-yellow-600",
-      },
-      {
-        label: "Pending Review",
-        value: applicants.filter((a) => a.status === "SUBMITTED").length,
-        icon: Clock,
-        color: "from-yellow-500 to-yellow-600",
-      },
-      {
-        label: "Interview Stage",
-        value: applicants.filter((a) => a.status === "INTERVIEW").length,
-        icon: Calendar,
-        color: "from-purple-500 to-purple-600",
-      },
-      {
-        label: "Accepted",
-        value: applicants.filter((a) => a.status === "ACCEPTED").length,
-        icon: CheckCircle,
-        color: "from-green-500 to-green-600",
-      },
-    ],
-    [applicants, total]
-  );
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "SUBMITTED":
-        return "bg-yellow-100 text-yellow-700";
-      case "IN_REVIEW":
-        return "bg-blue-100 text-blue-700";
-      case "INTERVIEW":
-        return "bg-purple-100 text-purple-700";
-      case "ACCEPTED":
-        return "bg-green-100 text-green-700";
-      case "REJECTED":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
+  const stats = [
+    { label: "Total Applicants", value: total, icon: Users, color: "from-blue-500 to-blue-600" },
+    { label: "Priority Applications", value: applicants.filter((a) => a.isPriority).length, icon: Users, color: "from-amber-500 to-yellow-600" },
+    { label: "Pending Review", value: applicants.filter((a) => a.status === "SUBMITTED").length, icon: Users, color: "from-yellow-500 to-yellow-600" },
+    { label: "Interview Stage", value: applicants.filter((a) => a.status === "INTERVIEW").length, icon: Users, color: "from-purple-500 to-purple-600" },
+    { label: "Accepted", value: applicants.filter((a) => a.status === "ACCEPTED").length, icon: Users, color: "from-green-500 to-green-600" },
+  ];
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
@@ -288,344 +232,54 @@ export default function ApplicantsPage() {
           })}
         </div>
 
-        {/* Filters */}
-        <Card className="shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Filter className="w-5 h-5 text-[#467EC7]" />
-              Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 md:grid-cols-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Job Position
-                </label>
-                <select
-                  value={selectedJobId || ""}
-                  onChange={(e) => setSelectedJobId(Number(e.target.value))}
-                  className="w-full px-3 py-2 border rounded-xl bg-background hover:border-primary transition-colors"
-                >
-                  {jobs.map((job) => (
-                    <option key={job.id} value={job.id}>
-                      {job.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Search Name
-                </label>
-                <Input
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                  placeholder="Search by name..."
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Education
-                </label>
-                <Input
-                  value={education}
-                  onChange={(e) => setEducation(e.target.value)}
-                  placeholder="e.g., S1, S2..."
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Sort By
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full px-3 py-2 border rounded-xl bg-background hover:border-primary transition-colors"
-                >
-                  <option value="appliedAt">Applied Date</option>
-                  <option value="expectedSalary">Expected Salary</option>
-                  <option value="age">Age</option>
-                </select>
-              </div>
-            </div>
-            <div className="grid gap-3 md:grid-cols-5">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Min Age
-                </label>
-                <Input
-                  type="number"
-                  value={ageMin}
-                  onChange={(e) => setAgeMin(e.target.value)}
-                  placeholder="Min"
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Max Age
-                </label>
-                <Input
-                  type="number"
-                  value={ageMax}
-                  onChange={(e) => setAgeMax(e.target.value)}
-                  placeholder="Max"
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Min Salary
-                </label>
-                <Input
-                  type="number"
-                  value={salaryMin}
-                  onChange={(e) => setSalaryMin(e.target.value)}
-                  placeholder="Min"
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Max Salary
-                </label>
-                <Input
-                  type="number"
-                  value={salaryMax}
-                  onChange={(e) => setSalaryMax(e.target.value)}
-                  placeholder="Max"
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button
-                  onClick={handleApplyFilters}
-                  className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Apply Filters
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1">
+            <JobSelector
+              jobs={jobs}
+              selectedJobId={selectedJobId}
+              onJobSelect={setSelectedJobId}
+            />
+          </div>
+          <div className="lg:col-span-3">
+            <ApplicantFilters
+              searchName={searchName}
+              setSearchName={setSearchName}
+              education={education}
+              setEducation={setEducation}
+              ageMin={ageMin}
+              setAgeMin={setAgeMin}
+              ageMax={ageMax}
+              setAgeMax={setAgeMax}
+              salaryMin={salaryMin}
+              setSalaryMin={setSalaryMin}
+              salaryMax={salaryMax}
+              setSalaryMax={setSalaryMax}
+              onApplyFilters={handleApplyFilters}
+            />
+          </div>
+        </div>
+
+        <SortControls
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+        />
 
         {/* Applicants List */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading applicants...</p>
-            </div>
-          </div>
-        ) : applicants.length === 0 ? (
-          <Card className="border-dashed shadow-md">
-            <CardContent className="p-12 text-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="p-4 bg-primary-100 rounded-full">
-                  <Users className="w-10 h-10 text-[#467EC7]" />
-                </div>
-                <div>
-                  <p className="text-lg font-medium text-foreground mb-1">
-                    No applicants yet
-                  </p>
-                  <p className="text-muted-foreground">
-                    Applications will appear here when candidates apply
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {applicants.map((applicant, index) => (
-              <motion.div
-                key={applicant.applicationId}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Card className="hover:shadow-lg transition-all duration-300 shadow-md">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
-                      <img
-                        src={
-                          applicant.profilePicture || "/fallback_pfp_image.jpg"
-                        }
-                        alt={applicant.userName}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-lg font-semibold text-foreground truncate">
-                            {applicant.userName}
-                          </h4>
-                          {applicant.isPriority && (
-                            <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 rounded-full">
-                              <Star className="w-3 h-3 text-amber-600 fill-amber-400" />
-                              <span className="text-xs font-medium text-amber-700">Priority</span>
-                            </div>
-                          )}
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              applicant.status
-                            )}`}
-                          >
-                            {applicant.status}
-                          </span>
-                          {applicant.score !== null && (
-                            <span
-                              className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                applicant.preselectionPassed
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              Test: {applicant.score}/25{" "}
-                              {applicant.preselectionPassed ? "✓" : "✗"}
-                            </span>
-                          )}
-                        </div>
-                        <div className="grid md:grid-cols-3 gap-3 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            <span className="truncate">
-                              {applicant.userEmail}
-                            </span>
-                          </div>
-                          {applicant.expectedSalary && (
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="w-4 h-4" />
-                              <span>
-                                Rp {applicant.expectedSalary.toLocaleString()}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            <span>
-                              {new Date(
-                                applicant.appliedAt
-                              ).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {applicant.cvFile && (
-                          <a
-                            href={applicant.cvFile}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition border border-blue-200"
-                          >
-                            <Eye className="w-5 h-5" />
-                          </a>
-                        )}
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            handleUpdateStatus(
-                              applicant.applicationId,
-                              "INTERVIEW"
-                            )
-                          }
-                          className="bg-purple-100 text-purple-700 hover:bg-purple-200"
-                          disabled={applicant.status === "INTERVIEW"}
-                        >
-                          Interview
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            handleUpdateStatus(
-                              applicant.applicationId,
-                              "ACCEPTED"
-                            )
-                          }
-                          className="bg-green-100 text-green-700 hover:bg-green-200"
-                          disabled={applicant.status === "ACCEPTED"}
-                        >
-                          Accept
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            handleUpdateStatus(
-                              applicant.applicationId,
-                              "REJECTED"
-                            )
-                          }
-                          className="bg-red-100 text-red-700 hover:bg-red-200"
-                          disabled={applicant.status === "REJECTED"}
-                        >
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {applicants.length > 0 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <Button
-              variant="outline"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="hover:bg-[#467EC7] hover:text-white transition-colors rounded-xl"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-1"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-              Prev
-            </Button>
-            <div className="px-4 py-2 bg-secondary rounded-xl">
-              <span className="font-medium">Page {page}</span>
-              <span className="text-muted-foreground"> of {totalPages}</span>
-            </div>
-            <Button
-              variant="outline"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="hover:bg-[#467EC7] hover:text-white transition-colors rounded-xl"
-            >
-              Next
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="ml-1"
-              >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </Button>
-          </div>
-        )}
+        <ApplicantsContent
+          applicants={applicants}
+          loading={loading}
+          total={total}
+          page={page}
+          limit={limit}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={setSortBy}
+          onSortOrderChange={setSortOrder}
+          onPageChange={setPage}
+          onStatusUpdate={handleUpdateStatus}
+        />
       </div>
     </div>
   );
