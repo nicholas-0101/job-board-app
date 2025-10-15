@@ -18,9 +18,10 @@ export default function EditJobPage() {
     const raw = localStorage.getItem("companyId");
     return raw ? Number(raw) : NaN;
   });
-  const [form, setForm] = useState<any>({ title: "", category: "", description: "", city: "", salaryMin: null, salaryMax: null, tags: [], deadline: null });
+  const [form, setForm] = useState<any>({ title: "", category: "", description: "", city: "", employmentType: "", experienceLevel: "", salaryMin: null, salaryMax: null, tags: [], deadline: null });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("job");
   const [testQuestions, setTestQuestions] = useState<Array<{
     question: string;
@@ -57,6 +58,8 @@ export default function EditJobPage() {
           category: detail.category || "",
           description: (detail as any).description || "",
           city: detail.city || "",
+          employmentType: (detail as any).employmentType || "",
+          experienceLevel: (detail as any).experienceLevel || "",
           salaryMin: detail.salaryMin ?? null,
           salaryMax: detail.salaryMax ?? null,
           tags: detail.tags ?? [],
@@ -96,11 +99,21 @@ export default function EditJobPage() {
   const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null); // Clear previous errors
     try {
-      await updateJob({ companyId, jobId, ...form });
+      // Clean up form data: convert empty strings to null for optional fields
+      const cleanedForm = {
+        ...form,
+        employmentType: form.employmentType || null,
+        experienceLevel: form.experienceLevel || null,
+        salaryMin: form.salaryMin || null,
+        salaryMax: form.salaryMax || null,
+        deadline: form.deadline || null,
+      };
+      await updateJob({ companyId, jobId, ...cleanedForm });
       router.push("/admin/jobs");
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Failed to update job");
+      setSaveError(e?.response?.data?.message || "Failed to update job");
     } finally {
       setSaving(false);
     }
@@ -227,6 +240,13 @@ export default function EditJobPage() {
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
           >
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Job Information</h2>
+            
+            {saveError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 font-medium">{saveError}</p>
+              </div>
+            )}
+            
             <form onSubmit={onSave} className="grid gap-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -271,6 +291,38 @@ export default function EditJobPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Employment Type</label>
+                  <select
+                    value={form.employmentType || ""}
+                    onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+                  <select
+                    value={form.experienceLevel || ""}
+                    onChange={(e) => setForm({ ...form, experienceLevel: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select Level</option>
+                    <option value="Entry Level">Entry Level</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Mid-Level">Mid-Level</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Lead/Manager">Lead/Manager</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Min Salary (IDR)</label>
                   <input
                     type="number"
@@ -290,18 +342,6 @@ export default function EditJobPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma separated)</label>
-                  <input
-                    placeholder="e.g. React, TypeScript, Node.js"
-                    value={(form.tags || []).join(', ')}
-                    onChange={(e) => setForm({ ...form, tags: e.target.value.split(',').map((t: string) => t.trim()).filter(Boolean) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
                   <input
@@ -311,6 +351,16 @@ export default function EditJobPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma separated)</label>
+                <input
+                  placeholder="e.g. React, TypeScript, Node.js"
+                  value={(form.tags || []).join(', ')}
+                  onChange={(e) => setForm({ ...form, tags: e.target.value.split(',').map((t: string) => t.trim()).filter(Boolean) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
 
               <div className="flex gap-3 pt-4">

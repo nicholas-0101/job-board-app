@@ -69,4 +69,33 @@ export async function deleteInterview(params: { companyId: number; id: number })
   return res.data;
 }
 
+export interface JobWithApplicantCountDTO {
+  id: number;
+  title: string;
+  category: string;
+  city: string;
+  acceptedApplicantsCount: number;
+}
+
+export interface EligibleApplicantDTO {
+  userId: number;
+  userName: string;
+  userEmail: string;
+  applicationId: number;
+}
+
+export async function getJobsWithApplicantCounts(companyId: number): Promise<JobWithApplicantCountDTO[]> {
+  const res = await apiCall.get<{ success: boolean; data: JobWithApplicantCountDTO[] }>(
+    `/interview/companies/${companyId}/jobs-with-applicants`
+  );
+  return res.data.data;
+}
+
+export async function getEligibleApplicants(companyId: number, jobId: number): Promise<EligibleApplicantDTO[]> {
+  const res = await apiCall.get<{ success: boolean; data: EligibleApplicantDTO[] }>(
+    `/interview/companies/${companyId}/jobs/${jobId}/eligible-applicants`
+  );
+  return res.data.data;
+}
+
 
