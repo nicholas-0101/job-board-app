@@ -16,10 +16,16 @@ export function useProfileCompletion() {
       if (values.dob) values.dob = new Date(values.dob).toISOString();
       const formData = new FormData();
       
-      const fieldMapping: Record<string, string> = {
-        address: 'location',        
-        locationCity: 'city',      
-      };
+      const isAdmin = user?.role === "ADMIN";
+      const fieldMapping: Record<string, string> = isAdmin 
+        ? {
+            address: 'location',        
+            locationCity: 'city',      
+          }
+        : {
+            address: 'address',         
+            city: 'city',              
+          };
       
       for (const key in values) {
         if (values[key]) {
