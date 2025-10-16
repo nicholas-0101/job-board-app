@@ -29,6 +29,7 @@ export function useJobsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [showPostedDropdown, setShowPostedDropdown] = useState(false);
+  const [geolocationComplete, setGeolocationComplete] = useState(false);
   const [searchInputs, setSearchInputs] = useState({
     keyword: "",
     location: "",
@@ -104,6 +105,33 @@ export function useJobsPage() {
   };
 
   useEffect(() => {
+    const fetchLocationAndSetFilter = async () => {
+      try {
+        const pos = await getUserLocation();
+        const { latitude, longitude } = pos.coords;
+        const { city } = await getCityFromCoords(latitude, longitude);
+
+        if (city && !filters.location) {
+          setSearchInputs((prev) => ({ ...prev, location: city }));
+          setFilters((prev) => ({ ...prev, location: city }));
+        }
+      } catch (err) {
+        console.warn("User denied location or geolocation failed:", err);
+      } finally {
+        setGeolocationComplete(true);
+      }
+    };
+
+    if (!selectedLocation) {
+      fetchLocationAndSetFilter();
+    } else {
+      setGeolocationComplete(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!geolocationComplete) return;
+    
     fetchJobs();
 
     const params = new URLSearchParams();
@@ -119,28 +147,7 @@ export function useJobsPage() {
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, page]);
-
-  useEffect(() => {
-    const fetchLocationAndSetFilter = async () => {
-      try {
-        const pos = await getUserLocation();
-        const { latitude, longitude } = pos.coords;
-        const { city } = await getCityFromCoords(latitude, longitude);
-
-        if (city && !filters.location) {
-          setSearchInputs((prev) => ({ ...prev, location: city }));
-          setFilters((prev) => ({ ...prev, location: city }));
-        }
-      } catch (err) {
-        console.warn("User denied location or geolocation failed:", err);
-      }
-    };
-
-    if (!selectedLocation) {
-      fetchLocationAndSetFilter();
-    }
-  }, []);
+  }, [filters, page, geolocationComplete]);
 
   const handleSearch = () => {
     setFilters((prev) => {
