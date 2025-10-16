@@ -26,6 +26,7 @@ export function useCompaniesPage() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [geolocationComplete, setGeolocationComplete] = useState(false);
   const [searchInputs, setSearchInputs] = useState({
     keyword: "",
     location: "",
@@ -58,11 +59,15 @@ export function useCompaniesPage() {
         }
       } catch (err) {
         console.warn("Geolocation failed or denied:", err);
+      } finally {
+        setGeolocationComplete(true);
       }
     };
 
     if (!filters.location) {
       fetchLocationAndSetCity();
+    } else {
+      setGeolocationComplete(true);
     }
   }, []);
 
@@ -101,6 +106,8 @@ export function useCompaniesPage() {
   };
 
   useEffect(() => {
+    if (!geolocationComplete) return;
+    
     fetchCompanies();
 
     const params = new URLSearchParams();
@@ -116,7 +123,7 @@ export function useCompaniesPage() {
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, page]);
+  }, [filters, page, geolocationComplete]);
 
   const handleSearch = () => {
     setFilters((prev) => {
