@@ -1,9 +1,0 @@
-{
-  "name": "lodash-isequal-modern",
-  "version": "1.0.0",
-  "description": "Modern replacement for lodash.isequal using Node.js built-in util.isDeepStrictEqual",
-  "main": "index.js",
-  "keywords": ["lodash", "isequal", "deep-equal", "util"],
-  "author": "",
-  "license": "MIT"
-}
