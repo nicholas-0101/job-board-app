@@ -24,6 +24,7 @@ export function useHomePage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [mounted, setMounted] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
+  const [geolocationComplete, setGeolocationComplete] = useState(false);
 
   const exploreRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +62,7 @@ export function useHomePage() {
   }, [hasAccess]);
 
   useEffect(() => {
-    if (!hasAccess) return;
+    if (!hasAccess || !geolocationComplete) return;
 
     const fetchJobs = async () => {
       try {
@@ -93,7 +94,7 @@ export function useHomePage() {
     };
 
     fetchJobs();
-  }, [keyword, selectedLocation, hasAccess, router]);
+  }, [keyword, selectedLocation, hasAccess, geolocationComplete, router]);
 
   const handleSearch = useCallback(
     async (shouldScroll: boolean = true) => {
@@ -159,6 +160,8 @@ export function useHomePage() {
         }
       } catch (err) {
         console.warn("User denied location or geolocation failed:", err);
+      } finally {
+        setGeolocationComplete(true);
       }
     };
 
