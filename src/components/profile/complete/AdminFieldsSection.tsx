@@ -20,12 +20,12 @@ export default function AdminFieldsSection({ setFieldValue }: AdminFieldsSection
         icon={Phone}
       />
       <InputField
-        name="location"
+        name="address"
         label="Full Address"
         placeholder="Company full address"
         icon={MapPin}
       />
-      <CityField name="city" label="City" placeholder="Search your city..." />
+      <CityField name="locationCity" label="City" placeholder="Search your city..." />
       <InputField
         name="website"
         label="Website"
