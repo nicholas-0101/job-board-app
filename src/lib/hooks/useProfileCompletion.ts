@@ -15,9 +15,16 @@ export function useProfileCompletion() {
     try {
       if (values.dob) values.dob = new Date(values.dob).toISOString();
       const formData = new FormData();
+      
+      const fieldMapping: Record<string, string> = {
+        address: 'location',        
+        locationCity: 'city',      
+      };
+      
       for (const key in values) {
         if (values[key]) {
-          formData.append(key, values[key]);
+          const backendKey = fieldMapping[key] || key;
+          formData.append(backendKey, values[key]);
         }
       }
 
