@@ -263,15 +263,13 @@ export default function AdminLayout({
   const renderMobileNotice = () => <MobileNotice />;
 
   const renderDesktopLayout = () => (
-    <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-secondary-50 to-background">
-      <div
-        className={
-          isProfileCompletionPage
-            ? "mx-auto max-w-7xl px-4 py-6 sm:py-8"
-            : "mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:py-8 md:grid-cols-[260px_1fr] md:gap-6"
-        }
-      >
-        {!isProfileCompletionPage && (
+    isProfileCompletionPage ? (
+      <div className="min-h-screen">
+        {children}
+      </div>
+    ) : (
+      <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-secondary-50 to-background">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:py-8 md:grid-cols-[260px_1fr] md:gap-6">
           <aside className="h-fit min-w-0 md:sticky md:top-24">
             <Card className="border-t-4 border-t-[#24CFA7] shadow-lg">
               <CardHeader className="pb-4">
@@ -283,11 +281,11 @@ export default function AdminLayout({
               </CardContent>
             </Card>
           </aside>
-        )}
 
-        <section className="min-w-0">{children}</section>
+          <section className="min-w-0">{children}</section>
+        </div>
       </div>
-    </div>
+    )
   );
 
   return (
