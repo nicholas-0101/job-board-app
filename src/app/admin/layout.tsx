@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { apiCall } from "@/helper/axios";
 import { useUserStore } from "@/lib/store/userStore";
 import { Building2, Edit, MonitorSmartphone, User } from "lucide-react";
+import { SidebarHeader } from "./components/SidebarHeader";
+import { SidebarNav } from "./components/SidebarNav";
+import { SidebarActions } from "./components/SidebarActions";
+import { MobileNotice } from "./components/MobileNotice";
 
 type NavItem = {
   href: string;
@@ -256,37 +260,7 @@ export default function AdminLayout({
     [pathname]
   );
 
-  const renderMobileNotice = () => (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1d2b53] via-[#233b6d] to-[#0f172a] px-6 py-16 text-white">
-      <div className="mx-auto max-w-md space-y-6 text-center">
-        <div className="flex justify-center">
-          <div className="relative h-24 w-24 rounded-full bg-white/10 backdrop-blur">
-            <div className="absolute inset-0 flex items-center justify-center text-[#24CFA7]">
-              <MonitorSmartphone className="h-10 w-10" aria-hidden />
-            </div>
-          </div>
-        </div>
-        <div className="space-y-3">
-          <h1 className="text-2xl font-semibold">Dashboard Khusus Desktop</h1>
-          <p className="text-sm text-white/80">
-            Area admin hanya dapat diakses menggunakan desktop, laptop, atau
-            tablet. Silakan lanjutkan melalui perangkat dengan layar lebih
-            besar untuk pengalaman terbaik.
-          </p>
-        </div>
-        <div className="rounded-2xl bg-white/10 p-5 text-left text-sm text-white/80 backdrop-blur">
-          <p className="font-medium text-white">Tips</p>
-          <ul className="mt-3 space-y-2 list-disc list-inside">
-            <li>Gunakan browser terbaru untuk akses penuh fitur.</li>
-            <li>
-              Jika memakai tablet, aktifkan mode landscape agar tata letak
-              optimal.
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
+  const renderMobileNotice = () => <MobileNotice />;
 
   const renderDesktopLayout = () => (
     <div className="min-h-screen overflow-x-hidden bg-gradient-to-b from-secondary-50 to-background">
@@ -301,116 +275,11 @@ export default function AdminLayout({
           <aside className="h-fit min-w-0 md:sticky md:top-24">
             <Card className="border-t-4 border-t-[#24CFA7] shadow-lg">
               <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-lg bg-gradient-to-br from-[#24CFA7] to-[#467EC7] p-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-white"
-                      aria-hidden
-                    >
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                      <polyline points="9 22 9 12 15 12 15 22" />
-                    </svg>
-                  </div>
-                  <CardTitle className="text-base font-semibold">
-                    Admin Dashboard
-                  </CardTitle>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Halo,{" "}
-                  <span className="font-medium text-foreground">
-                    {user?.name || "Admin"}
-                  </span>
-                </p>
+                <SidebarHeader userName={user?.name} />
               </CardHeader>
-
               <CardContent className="space-y-4">
-                <div className="rounded-xl bg-gradient-to-r from-[#467EC7]/10 to-[#24CFA7]/10 p-4">
-                  <h3 className="text-sm font-semibold text-foreground">
-                    Company Snapshot
-                  </h3>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {loadingCompany
-                      ? "Memuat informasi perusahaan..."
-                      : companyInfo
-                      ? companyInfo.name || "Perusahaan terdaftar"
-                      : "Lengkapi profil perusahaan Anda untuk membuka semua fitur."}
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[#467EC7]">
-                      <Building2 className="h-3 w-3" aria-hidden />
-                      {companyInfo?.industry || "Industry belum terisi"}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[#24CFA7]">
-                      <User className="h-3 w-3" aria-hidden />
-                      {companyInfo?.companySize || "Size belum terisi"}
-                    </span>
-                  </div>
-                </div>
-
-                <nav className="space-y-1">
-                  {navigationItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`group flex items-center gap-3 rounded-xl px-4 py-3 transition-all hover:bg-gradient-to-r hover:from-[#467EC7]/10 hover:to-[#24CFA7]/10 ${
-                        item.isActive
-                          ? "bg-gradient-to-r from-[#467EC7]/10 to-[#24CFA7]/10 font-semibold"
-                          : ""
-                      }`}
-                    >
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#467EC7] shadow-sm group-hover:scale-105 group-hover:shadow transition-transform">
-                        {item.icon}
-                      </span>
-                      <span className="font-medium text-foreground">
-                        {item.label}
-                      </span>
-                    </Link>
-                  ))}
-                </nav>
-
-                <div className="space-y-2 border-t pt-3">
-                  <Link
-                    href="/admin/profile/edit"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#467EC7] shadow-sm transition hover:shadow-md"
-                  >
-                    <Edit className="h-4 w-4" aria-hidden />
-                    Update Profile
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={onLogout}
-                    className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="mr-2"
-                      aria-hidden
-                    >
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" x2="9" y1="12" y2="12" />
-                    </svg>
-                    Logout
-                  </Button>
-                </div>
+                <SidebarNav items={navigationItems as any} />
+                <SidebarActions onLogout={onLogout} />
               </CardContent>
             </Card>
           </aside>
