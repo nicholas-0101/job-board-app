@@ -8,17 +8,17 @@ import {
   Clock, Zap, Smartphone, Monitor, Eye, MousePointer
 } from "lucide-react";
 import { AnimatedCounter } from "../../../components/ui/AnimatedCounter";
-import { GlowCard } from "../../../components/ui/GlowCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 
 import { getOverview, getDemographics, getSalaryTrends, getInterests } from "@/lib/analytics";
 import { apiCall } from "@/helper/axios";
 
+
+const clampPercentage = (value: number) =>
+  Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("30d");
-  const [selectedMetric, setSelectedMetric] = useState("users");
   const [companyId, setCompanyId] = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
     return raw ? Number(raw) : NaN;
@@ -95,27 +95,27 @@ export default function AnalyticsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const StatCard = ({ title, value, change, icon: Icon, color }: any) => (
+  const StatCard = ({
+    title,
+    value,
+    icon: Icon,
+    color,
+  }: {
+    title: string;
+    value: number;
+    icon: any;
+    color: string;
+  }) => (
     <Card className="shadow-md">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">{title}</p>
-            <div className="text-2xl font-semibold">
-              {value !== undefined && value !== null ? <AnimatedCounter end={value} /> : <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>}
-            </div>
-            {change !== undefined && change !== null && (
-              <div className={`flex items-center gap-1 mt-2 text-sm ${
-                change >= 0 ? "text-green-600" : "text-red-600"
-              }`}>
-                {change >= 0 ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-                <span>{Math.abs(change)}% vs last month</span>
-              </div>
-            )}
-          </div>
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
-            <Icon className="w-6 h-6 text-white" />
-          </div>
+      <CardContent className="flex flex-col items-center gap-3 p-5 text-center sm:p-6">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}
+        >
+          <Icon className="h-6 w-6 text-white" aria-hidden />
+        </div>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <div className="text-3xl font-semibold text-foreground">
+          <AnimatedCounter end={typeof value === "number" ? value : Number(value ?? 0)} />
         </div>
       </CardContent>
     </Card>
@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="border-b">
+      <div className="relative z-10 border-b bg-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="min-w-0">
@@ -132,16 +132,6 @@ export default function AnalyticsPage() {
               <p className="text-sm text-muted-foreground mt-1">Comprehensive insights into platform performance</p>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-                className="px-3 py-2 border rounded-md bg-background"
-              >
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="90d">Last 90 days</option>
-                <option value="1y">Last year</option>
-              </select>
               <Button 
                 className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
                 onClick={() => window.location.reload()}
@@ -162,7 +152,26 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="relative z-0 container mx-auto px-4 py-8">
+        {/* Time Range Filter (moved below header) */}
+        <div className="mt-2 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <label htmlFor="timeRange" className="text-sm text-muted-foreground">
+              Time range
+            </label>
+            <select
+              id="timeRange"
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+              className="w-full sm:w-auto px-3 py-2 border rounded-md bg-background"
+            >
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+              <option value="1y">Last year</option>
+            </select>
+          </div>
+        </div>
         {/* Overview Stats */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -177,28 +186,24 @@ export default function AnalyticsPage() {
               <StatCard
                 title="Total Users"
                 value={overview?.totalUsers}
-                change={overview?.growth?.users}
                 icon={Users}
                 color="from-blue-500 to-blue-600"
               />
               <StatCard
                 title="Active Jobs"
                 value={overview?.activeJobs}
-                change={overview?.growth?.jobs}
                 icon={Briefcase}
                 color="from-green-500 to-green-600"
               />
               <StatCard
                 title="Applications"
                 value={overview?.applications}
-                change={overview?.growth?.applications}
                 icon={TrendingUp}
                 color="from-purple-500 to-purple-600"
               />
               <StatCard
                 title="Companies"
                 value={overview?.companies}
-                change={overview?.growth?.companies}
                 icon={Target}
                 color="from-orange-500 to-orange-600"
               />
@@ -258,29 +263,36 @@ export default function AnalyticsPage() {
             <CardContent className="space-y-4">
               {demographics?.gender && Array.isArray(demographics.gender) && demographics.gender.length > 0 ? (() => {
                 const total = demographics.gender.reduce((sum: number, item: any) => sum + (item.count || 0), 0) || 1;
-                return demographics.gender.map((item: any, index: number) => {
-                  const percentage = Math.round((item.count * 100) / total);
+                return demographics.gender.map((item: any) => {
+                  const percentage = clampPercentage((item.count * 100) / total);
+                  const color =
+                    item.gender.toLowerCase() === "male"
+                      ? "#3B82F6"
+                      : item.gender.toLowerCase() === "female"
+                      ? "#EC4899"
+                      : "#6B7280";
                   return (
-                    <div key={item.gender} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-full" style={{ 
-                          backgroundColor: item.gender.toLowerCase() === 'male' ? '#3B82F6' : 
-                                         item.gender.toLowerCase() === 'female' ? '#EC4899' : '#6B7280'
-                        }} />
-                        <span className="text-gray-700">{item.gender}</span>
+                    <div
+                      key={item.gender}
+                      className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center"
+                    >
+                      <div className="flex items-center gap-3 text-sm font-medium text-gray-700">
+                        <span
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className="truncate capitalize">{item.gender}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full transition-all duration-1000"
-                            style={{ 
-                              width: `${percentage}%`,
-                              backgroundColor: item.gender.toLowerCase() === 'male' ? '#3B82F6' : 
-                                             item.gender.toLowerCase() === 'female' ? '#EC4899' : '#6B7280'
-                            }}
+                        <div className="h-2 flex-1 rounded-full bg-gray-200">
+                          <div
+                            className="h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${percentage}%`, backgroundColor: color }}
                           />
                         </div>
-                        <span className="text-sm font-medium text-gray-900 w-8">{percentage}%</span>
+                        <span className="w-10 text-right text-xs font-semibold text-gray-900">
+                          {Math.round(percentage)}%
+                        </span>
                       </div>
                     </div>
                   );
@@ -303,23 +315,24 @@ export default function AnalyticsPage() {
               {demographics?.locations && Array.isArray(demographics.locations) && demographics.locations.length > 0 ? (() => {
                 const total = demographics.locations.reduce((sum: number, loc: any) => sum + (loc.count || 0), 0) || 1;
                 return demographics.locations.slice(0, 6).map((location: any, index: number) => {
-                  const percentage = Math.round((location.count * 100) / total);
+                  const percentage = clampPercentage((location.count * 100) / total);
                   return (
-                    <div key={location.city} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-full bg-green-500" style={{ 
-                          backgroundColor: `hsl(${120 + index * 15}, 60%, 50%)` 
-                        }} />
-                        <span className="text-gray-700">{location.city}</span>
+                    <div key={location.city} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
+                      <div className="flex items-center gap-3 text-sm font-medium text-gray-700">
+                        <span
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: `hsl(${120 + index * 15}, 60%, 50%)` }}
+                        />
+                        <span className="truncate">{location.city}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                        <div className="h-2 flex-1 rounded-full bg-gray-200">
+                          <div
+                            className="h-2 rounded-full bg-green-500 transition-all duration-500"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        <span className="text-sm font-medium text-gray-900 w-8">{percentage}%</span>
+                        <span className="w-10 text-right text-xs font-semibold text-gray-900">{Math.round(percentage)}%</span>
                       </div>
                     </div>
                   );
@@ -398,11 +411,16 @@ export default function AnalyticsPage() {
                       </span>
                       <span className="text-sm text-gray-500">Average</span>
                     </div>
-                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${(location.avg / 25000000) * 100}%` }}
-                      />
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-gray-200">
+                        <div
+                          className="h-2 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-600 transition-all duration-500"
+                          style={{ width: `${clampPercentage((location.avg / 25000000) * 100)}%` }}
+                        />
+                      </div>
+                      <span className="w-12 text-right text-xs font-semibold text-gray-900">
+                        {Math.round(clampPercentage((location.avg / 25000000) * 100))}%
+                      </span>
                     </div>
                   </div>
                 ))

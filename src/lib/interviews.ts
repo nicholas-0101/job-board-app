@@ -29,11 +29,32 @@ export async function listCompanyInterviews(params: {
   offset?: number;
 }) {
   const { companyId, ...query } = params;
-  const res = await apiCall.get<{ success: boolean; data: InterviewListDTO }>(
-    `/interview/companies/${companyId}/interviews`,
-    { params: query }
-  );
-  return res.data.data;
+  
+  if (!companyId || Number.isNaN(companyId)) {
+    throw new Error("Invalid company ID provided");
+  }
+  
+  try {
+    const res = await apiCall.get<{ success: boolean; data: InterviewListDTO }>(
+      `/interview/companies/${companyId}/interviews`,
+      { params: query }
+    );
+    return res.data.data;
+  } catch (error: any) {
+    console.error(`Error fetching interviews for company ${companyId}:`, error);
+    
+    // Handle specific error cases
+    if (error?.response?.status === 401) {
+      throw new Error("Unauthorized access to company interviews. Please check your permissions.");
+    } else if (error?.response?.status === 404) {
+      throw new Error("Company not found. Please check if the company exists.");
+    } else if (error?.response?.status === 500) {
+      throw new Error("Server error while fetching interviews. Please try again later.");
+    }
+    
+    // Re-throw the original error for other cases
+    throw error;
+  }
 }
 
 export async function createSchedules(params: {

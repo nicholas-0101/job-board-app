@@ -232,11 +232,11 @@ export default function ApplicantsPage() {
                 Review and manage job applicants
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-2 sm:gap-3">
               <Button
                 onClick={fetchApplicants}
                 disabled={loading}
-                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
+                className="w-full sm:w-auto gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
               >
                 <RefreshCw
                   className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
@@ -244,7 +244,7 @@ export default function ApplicantsPage() {
                 Refresh
               </Button>
               <Link href="/admin/jobs">
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="w-full sm:w-auto gap-2">
                   <FileText className="w-4 h-4" />
                   Manage Jobs
                 </Button>
@@ -256,7 +256,7 @@ export default function ApplicantsPage() {
 
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Stats Overview */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
@@ -266,21 +266,13 @@ export default function ApplicantsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="shadow-md">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-2xl font-semibold">{stat.value}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {stat.label}
-                        </p>
-                      </div>
-                      <div
-                        className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}
-                      >
-                        <IconComponent className="w-5 h-5 text-white" />
-                      </div>
+                <Card className="shadow-md h-full">
+                  <CardContent className="pt-6 flex flex-col items-center text-center gap-2">
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
+                      <IconComponent className="w-5 h-5 text-white" />
                     </div>
+                    <p className="text-2xl font-semibold">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -297,15 +289,15 @@ export default function ApplicantsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 md:grid-cols-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
+            <div className="grid grid-cols-12 gap-3 mb-4">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Job Position
                 </label>
                 <select
                   value={selectedJobId || ""}
                   onChange={(e) => setSelectedJobId(Number(e.target.value))}
-                  className="w-full px-3 py-2 border rounded-xl bg-background hover:border-primary transition-colors"
+                  className="w-full h-10 px-3 border rounded-xl bg-background hover:border-primary transition-colors"
                 >
                   {jobs.map((job) => (
                     <option key={job.id} value={job.id}>
@@ -314,36 +306,36 @@ export default function ApplicantsPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Search Name
                 </label>
                 <Input
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
-                  placeholder="Search by name..."
-                  className="rounded-xl"
+                  placeholder="Search name"
+                  className="rounded-xl h-10"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Education
                 </label>
                 <Input
                   value={education}
                   onChange={(e) => setEducation(e.target.value)}
                   placeholder="e.g., S1, S2..."
-                  className="rounded-xl"
+                  className="rounded-xl h-10"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Sort By
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full px-3 py-2 border rounded-xl bg-background hover:border-primary transition-colors"
+                  className="w-full h-10 px-3 border rounded-xl bg-background hover:border-primary transition-colors"
                 >
                   <option value="appliedAt">Applied Date</option>
                   <option value="expectedSalary">Expected Salary</option>
@@ -351,9 +343,9 @@ export default function ApplicantsPage() {
                 </select>
               </div>
             </div>
-            <div className="grid gap-3 md:grid-cols-5">
-              <div>
-                <label className="block text-sm font-medium mb-2">
+            <div className="grid grid-cols-12 gap-3 min-w-0">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Min Age
                 </label>
                 <Input
@@ -361,11 +353,11 @@ export default function ApplicantsPage() {
                   value={ageMin}
                   onChange={(e) => setAgeMin(e.target.value)}
                   placeholder="Min"
-                  className="rounded-xl"
+                  className="rounded-xl h-10"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Max Age
                 </label>
                 <Input
@@ -373,11 +365,11 @@ export default function ApplicantsPage() {
                   value={ageMax}
                   onChange={(e) => setAgeMax(e.target.value)}
                   placeholder="Max"
-                  className="rounded-xl"
+                  className="rounded-xl h-10"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Min Salary
                 </label>
                 <Input
@@ -385,11 +377,11 @@ export default function ApplicantsPage() {
                   value={salaryMin}
                   onChange={(e) => setSalaryMin(e.target.value)}
                   placeholder="Min"
-                  className="rounded-xl"
+                  className="rounded-xl h-10"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
+              <div className="col-span-12 sm:col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">
                   Max Salary
                 </label>
                 <Input
@@ -397,18 +389,18 @@ export default function ApplicantsPage() {
                   value={salaryMax}
                   onChange={(e) => setSalaryMax(e.target.value)}
                   placeholder="Max"
-                  className="rounded-xl"
+                  className="rounded-xl h-10"
                 />
               </div>
-              <div className="flex items-end">
-                <Button
-                  onClick={handleApplyFilters}
-                  className="w-full bg-[#24CFA7] hover:bg-[#1fc39c]"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Apply Filters
-                </Button>
-              </div>
+            </div>
+            <div className="mt-4 flex w-full justify-stretch md:justify-end">
+              <Button
+                onClick={handleApplyFilters}
+                className="w-full md:w-auto text-sm bg-[#24CFA7] hover:bg-[#1fc39c]"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Apply Filters
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -450,7 +442,7 @@ export default function ApplicantsPage() {
               >
                 <Card className="hover:shadow-lg transition-all duration-300 shadow-md">
                   <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                       <img
                         src={
                           applicant.profilePicture || "/fallback_pfp_image.jpg"
@@ -459,40 +451,43 @@ export default function ApplicantsPage() {
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-lg font-semibold text-foreground truncate">
-                            {applicant.userName}
-                          </h4>
-                          {applicant.isPriority && (
-                            <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 rounded-full">
-                              <Star className="w-3 h-3 text-amber-600 fill-amber-400" />
-                              <span className="text-xs font-medium text-amber-700">Priority</span>
-                            </div>
-                          )}
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              applicant.status
-                            )}`}
-                          >
-                            {applicant.status}
-                          </span>
-                          {applicant.score !== null && (
+                        <div className="flex flex-col gap-2 mb-2">
+                          <div className="min-w-0">
+                            <h4 className="text-lg font-semibold text-foreground sm:truncate">
+                              {applicant.userName}
+                            </h4>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {applicant.isPriority && (
+                              <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 rounded-full shrink-0">
+                                <Star className="w-3 h-3 text-amber-600 fill-amber-400" />
+                                <span className="text-xs font-medium text-amber-700">Priority</span>
+                              </div>
+                            )}
                             <span
-                              className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                applicant.preselectionPassed
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${getStatusColor(
+                                applicant.status
+                              )}`}
                             >
-                              Test: {applicant.score}/25{" "}
-                              {applicant.preselectionPassed ? "✓" : "✗"}
+                              {applicant.status}
                             </span>
-                          )}
+                            {applicant.score !== null && (
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${
+                                  applicant.preselectionPassed
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                Test: {applicant.score}/25 {applicant.preselectionPassed ? "✓" : "✗"}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="grid md:grid-cols-3 gap-3 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
+                        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2 min-w-0">
                             <FileText className="w-4 h-4" />
-                            <span className="truncate">
+                            <span className="truncate sm:truncate break-all">
                               {applicant.userEmail}
                             </span>
                           </div>
@@ -514,7 +509,7 @@ export default function ApplicantsPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex w-full sm:w-auto flex-wrap gap-2 justify-start mt-2 sm:mt-0">
                         {applicant.cvFile && (
                           <a
                             href={applicant.cvFile}

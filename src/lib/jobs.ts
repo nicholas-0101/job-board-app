@@ -36,11 +36,32 @@ export async function listCompanyJobs(params: {
   offset?: number;
 }): Promise<JobsListDTO> {
   const { companyId, ...query } = params;
-  const res = await apiCall.get<{ success: boolean; data: JobsListDTO }>(
-    `/job/companies/${companyId}/jobs`,
-    { params: query }
-  );
-  return res.data.data;
+  
+  if (!companyId || Number.isNaN(companyId)) {
+    throw new Error("Invalid company ID provided");
+  }
+  
+  try {
+    const res = await apiCall.get<{ success: boolean; data: JobsListDTO }>(
+      `/job/companies/${companyId}/jobs`,
+      { params: query }
+    );
+    return res.data.data;
+  } catch (error: any) {
+    console.error(`Error fetching jobs for company ${companyId}:`, error);
+    
+    // Handle specific error cases
+    if (error?.response?.status === 401) {
+      throw new Error("Unauthorized access to company jobs. Please check your permissions.");
+    } else if (error?.response?.status === 404) {
+      throw new Error("Company not found. Please check if the company exists.");
+    } else if (error?.response?.status === 500) {
+      throw new Error("Server error while fetching jobs. Please try again later.");
+    }
+    
+    // Re-throw the original error for other cases
+    throw error;
+  }
 }
 
 export async function getJobDetail(params: { companyId: number; jobId: number }): Promise<JobDetailDTO> {

@@ -18,17 +18,13 @@ export function StatsCard({ label, value, icon: Icon, color, index }: StatsCardP
       animate={{ opacity: 1, y: 0 }} 
       transition={{ delay: index * 0.1 }}
     >
-      <Card className="shadow-md">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-semibold">{value}</p>
-              <p className="text-sm text-muted-foreground">{label}</p>
-            </div>
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
-              <Icon className="w-5 h-5 text-white" />
-            </div>
+      <Card className="shadow-md h-full">
+        <CardContent className="flex flex-col items-center gap-3 p-5 text-center sm:p-6">
+          <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}>
+            <Icon className="h-6 w-6 text-white" />
           </div>
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="text-3xl font-semibold text-foreground">{value}</p>
         </CardContent>
       </Card>
     </motion.div>
@@ -56,7 +52,7 @@ export function StatsOverview({ tests }: StatsOverviewProps) {
   ];
 
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
         <StatsCard
           key={stat.label}

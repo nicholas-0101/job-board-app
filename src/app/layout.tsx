@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import ConditionalLayout from "../components/layout/ConditionalLayout";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "workoo",
@@ -27,12 +24,12 @@ export default function RootLayout({
       <head>
         <Script
           src="https://apis.google.com/js/platform.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </head>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} antialiased min-h-screen bg-background text-foreground flex flex-col`}
+        className="antialiased min-h-screen bg-background text-foreground flex flex-col font-sans"
       >
         <ConditionalLayout>{children}</ConditionalLayout>
         <Toaster 
