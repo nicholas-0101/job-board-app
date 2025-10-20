@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/helper/axios";
+import { mapJobsResponse, buildJobsQueryParams, buildJobsUrl } from "./useJobsPage.helpers";
 import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
 
 type Filters = {
@@ -70,33 +71,12 @@ export function useJobsPage() {
     setError(null);
     try {
       const res = await apiCall.get("/job/all", {
-        params: {
-          keyword: filters.keyword || undefined,
-          city: filters.location || undefined,
-          limit,
-          page,
-          sortBy: filters.sort,
-          sortOrder: filters.order,
-          postedWithin: filters.postedWithin,
-        },
+        params: buildJobsQueryParams(filters, page, limit),
       });
 
-      const jobsData = res.data.data.map((job: any) => ({
-        id: job.id,
-        slug: job.slug,
-        title: job.title,
-        company: job.companyName,
-        logo: job.companyLogo || "",
-        city: job.city,
-        salary: job.salary || "",
-        category: job.category || "",
-        tags: job.tags || [],
-        rating: Math.floor(Math.random() * 2) + 4,
-        createdAt: job.createdAt,
-      }));
-
+      const { jobsData, total } = mapJobsResponse(res);
       setJobs(jobsData);
-      setTotal(res.data.total ?? 0);
+      setTotal(total);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to load jobs");
     } finally {
@@ -134,16 +114,7 @@ export function useJobsPage() {
     
     fetchJobs();
 
-    const params = new URLSearchParams();
-    if (filters.keyword) params.set("keyword", filters.keyword);
-    if (filters.location) params.set("city", filters.location);
-    if (filters.sort) params.set("sort", filters.sort);
-    if (filters.order) params.set("order", filters.order);
-    if (page > 1) params.set("page", page.toString());
-
-    const newUrl = `/explore/jobs${
-      params.toString() ? "?" + params.toString() : ""
-    }`;
+    const newUrl = buildJobsUrl(filters, page);
     if (window.location.pathname + window.location.search !== newUrl) {
       router.replace(newUrl);
     }
