@@ -94,6 +94,7 @@ export default function AdminPage() {
 
       if (!cid || Number.isNaN(cid)) {
         // No company yet - show empty state
+        console.warn("No valid company ID found - showing empty dashboard");
         setLoading(false);
         return;
       }
@@ -105,6 +106,18 @@ export default function AdminPage() {
           listCompanyInterviews({ companyId: cid, limit: 100, offset: 0 }),
         ]);
       } catch (e: any) {
+        console.error("Error fetching jobs/interviews:", e);
+        
+        // Handle specific error cases
+        if (e?.response?.status === 401) {
+          console.warn("Unauthorized access to company jobs - company may not exist or admin may not have access");
+        } else if (e?.response?.status === 404) {
+          console.warn("Company not found - clearing stored company ID");
+          localStorage.removeItem("companyId");
+        } else {
+          console.warn("Network or other error fetching jobs/interviews:", e?.message);
+        }
+        
         // Fallback in case stale companyId (e.g., 16) is stored
         try {
           const resp = await apiCall.get("/company/admin");
@@ -180,59 +193,59 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="border-b bg-gradient-to-r from-primary-50 to-secondary-50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Manage your job board platform
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:py-8">
+        <header className="space-y-4 rounded-3xl border bg-white/70 px-4 py-6 shadow-sm backdrop-blur sm:px-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 space-y-1">
+              <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
+                Admin Dashboard
+              </h1>
+              <p className="text-sm text-muted-foreground sm:max-w-2xl">
+                Manage your job board platform with real-time stats, recent activity, and quick actions.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 onClick={fetchDashboardData}
                 disabled={loading}
-                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC] shadow-md"
+                className="h-10 gap-2 bg-[#467EC7] hover:bg-[#578BCC] shadow-md"
               >
                 <RefreshCw
-                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
                 />
                 Refresh
               </Button>
               {companyInfo && (
                 <Link href="/admin/jobs/new">
-                  <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
-                    <Plus className="w-5 h-5" />
+                  <Button className="h-10 gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
+                    <Plus className="h-4 w-4" />
                     Post New Job
                   </Button>
                 </Link>
               )}
             </div>
           </div>
-        </div>
-      </div>
+        </header>
 
-      {/* Company Info Banner */}
+        {/* Company Info Banner */}
       {companyInfo && (
-        <div className="container mx-auto px-4 py-6">
+        <div className="space-y-6">
           <Card className="shadow-lg border-l-4 border-l-[#24CFA7] bg-gradient-to-r from-white to-primary-50/30">
             <CardContent className="p-6">
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-start items-center gap-4 sm:gap-6">
                 {companyInfo.logoUrl ? (
                   <img
                     src={companyInfo.logoUrl}
                     alt={companyInfo.name}
-                    className="w-20 h-20 rounded-xl object-cover border-2 border-[#24CFA7] shadow-md"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-[#24CFA7] shadow-md"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#24CFA7] to-[#467EC7] flex items-center justify-center shadow-md">
-                    <Building2 className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#24CFA7] to-[#467EC7] flex items-center justify-center shadow-md">
+                    <Building2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
                 )}
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <h2 className="text-2xl font-bold mb-1">
                     {companyInfo.name}
                   </h2>
@@ -262,21 +275,23 @@ export default function AdminPage() {
                     </p>
                   )}
                 </div>
-                <Link href="/admin/profile/edit">
-                  <Button className="gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
-                    <Edit className="w-4 h-4" />
-                    Edit Company
-                  </Button>
-                </Link>
+                <div className="w-full sm:w-auto sm:self-start">
+                  <Link href="/admin/profile/edit">
+                    <Button className="w-full sm:w-auto gap-2 bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
+                      <Edit className="w-4 h-4" />
+                      Edit Company
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="space-y-6">
         {/* Stats Overview */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
@@ -286,10 +301,10 @@ export default function AdminPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="shadow-md">
+                <Card className="shadow-md h-full">
                   <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex flex-col items-center text-center gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between md:text-left">
+                      <div className="min-w-0">
                         <div className="text-2xl font-semibold">
                           {loading ? (
                             <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
@@ -302,7 +317,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                       <div
-                        className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}
+                        className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shrink-0`}
                       >
                         <IconComponent className="w-5 h-5 text-white" />
                       </div>
@@ -355,7 +370,7 @@ export default function AdminPage() {
                     >
                       <Link href={`/admin/jobs/${job.id}/edit`}>
                         <div className="p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#24CFA7]">
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                             <div className="flex-1 min-w-0">
                               <h4 className="font-semibold text-sm truncate">
                                 {job.title}
@@ -372,15 +387,17 @@ export default function AdminPage() {
                                 </span>
                               </div>
                             </div>
-                            {job.isPublished ? (
-                              <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
-                                Published
-                              </span>
-                            ) : (
-                              <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-medium">
-                                Draft
-                              </span>
-                            )}
+                            <div className="sm:self-start">
+                              {job.isPublished ? (
+                                <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+                                  Published
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-medium">
+                                  Draft
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </Link>
@@ -442,7 +459,7 @@ export default function AdminPage() {
                       transition={{ delay: index * 0.1 }}
                       className="p-3 bg-secondary/50 hover:bg-secondary rounded-xl transition-all border border-transparent hover:border-[#467EC7]"
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-sm truncate">
                             {interview.candidateName}
@@ -464,9 +481,11 @@ export default function AdminPage() {
                             </span>
                           </div>
                         </div>
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 font-medium">
-                          {interview.status}
-                        </span>
+                        <div className="sm:self-start">
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 font-medium">
+                            {interview.status}
+                          </span>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
@@ -490,5 +509,6 @@ export default function AdminPage() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

@@ -1,80 +1,167 @@
-import { apiCall } from "@/helper/axios";
+'use client';
+
+const cache = new Map<string, any>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+type QueryLike = Record<string, string | number | boolean | null | undefined>;
+
+const DEFAULT_BASE_URL = "http://localhost:4400";
+const BASE_URL = process.env.NEXT_PUBLIC_BE_URL || DEFAULT_BASE_URL;
+
+function getCacheKey(endpoint: string, companyId?: number, params?: any): string {
+  const companyKey = companyId ? `company:${companyId}` : "global";
+  return `${endpoint}_${companyKey}_${JSON.stringify(params || {})}`;
+}
+
+function getCachedData(key: string): any | null {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedData(key: string, data: any): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+async function fetchAnalytics<T>(endpoint: string, companyId?: number, params?: QueryLike): Promise<T> {
+  const url = new URL(endpoint, BASE_URL);
+
+  if (companyId && !Number.isNaN(companyId)) {
+    url.searchParams.set("companyId", String(companyId));
+  }
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+      url.searchParams.set(key, String(value));
+    });
+  }
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (typeof window !== "undefined") {
+    const token =
+      localStorage.getItem("token") || localStorage.getItem("verifiedToken");
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers,
+  });
+
+  let payload: any = null;
+  const text = await response.text();
+
+  if (text) {
+    try {
+      payload = JSON.parse(text);
+    } catch (error) {
+      if (!response.ok) {
+        throw new Error(
+          `Request to ${endpoint} failed with status ${response.status}`
+        );
+      }
+      throw error;
+    }
+  }
+
+  if (!response.ok) {
+    const message = payload?.message || payload?.error || response.statusText;
+    throw new Error(message);
+  }
+
+  return (payload ?? {}) as T;
+}
 
 export async function getDemographics(companyId: number, params?: { from?: string; to?: string }) {
-  const res = await apiCall.get<{ success: boolean; data: { ageBuckets: Record<string, number>; gender: Array<{ gender: string; count: number }>; locations: Array<{ city: string; count: number }>; totalApplicants: number } }>(
-    `/analytics/companies/${companyId}/analytics/demographics`,
-    { params }
+  const cacheKey = getCacheKey('/analytics/platform/demographics', companyId, params);
+  const cached = getCachedData(cacheKey);
+  
+  if (cached) {
+    return cached;
+  }
+
+  const res = await fetchAnalytics<{ success: boolean; data: { ageBuckets: Record<string, number>; gender: Array<{ gender: string; count: number }>; locations: Array<{ city: string; count: number }>; totalApplicants: number } }>(
+    `/analytics/platform/demographics`,
+    companyId,
+    params
   );
-  const data = res.data.data;
-  // Normalize gender to an object map to fit UI helper logic
-  const genderMap: Record<string, number> = {};
-  for (const g of data.gender || []) genderMap[g.gender] = g.count;
-  return { ...data, gender: genderMap } as any;
+  const data = res.data;
+  
+  setCachedData(cacheKey, data);
+  return data;
 }
 
 export async function getSalaryTrends(companyId: number, params?: { from?: string; to?: string }) {
-  const res = await apiCall.get<{ success: boolean; data: { expectedSalary: Array<{ city: string; title: string; avgExpectedSalary: number; samples: number }>; reviewSalary: { avgSalaryEstimate: number | null; samples: number } } }>(
-    `/analytics/companies/${companyId}/analytics/salary-trends`,
-    { params }
+  const cacheKey = getCacheKey('/analytics/platform/salary-trends', companyId, params);
+  const cached = getCachedData(cacheKey);
+  
+  if (cached) {
+    return cached;
+  }
+
+  const res = await fetchAnalytics<{ success: boolean; data: { byPosition: Array<{ position: string; min: number; max: number; avg: number; count: number }>; byLocation: Array<{ city: string; avg: number; growth: number }>; expectedSalary: Array<{ city: string; title: string; avgExpectedSalary: number; samples: number }>; reviewSalary: { avgSalaryEstimate: number | null; samples: number } } }>(
+    `/analytics/platform/salary-trends`,
+    companyId,
+    params
   );
-  const { expectedSalary } = res.data.data;
-  // Aggregate by position (title)
-  const byTitle = new Map<string, { sum: number; n: number; min: number; max: number }>();
-  for (const row of expectedSalary || []) {
-    const cur = byTitle.get(row.title) || { sum: 0, n: 0, min: Number.POSITIVE_INFINITY, max: 0 };
-    cur.sum += row.avgExpectedSalary * (row.samples || 1);
-    cur.n += (row.samples || 1);
-    cur.min = Math.min(cur.min, row.avgExpectedSalary);
-    cur.max = Math.max(cur.max, row.avgExpectedSalary);
-    byTitle.set(row.title, cur);
-  }
-  const byPosition = Array.from(byTitle.entries()).map(([position, v]) => ({
-    position,
-    min: v.min === Number.POSITIVE_INFINITY ? 0 : Math.round(v.min),
-    max: Math.round(v.max),
-    avg: v.n ? Math.round(v.sum / v.n) : 0,
-    count: v.n,
-  }));
-  // Aggregate by location (city)
-  const byCity = new Map<string, { sum: number; n: number }>();
-  for (const row of expectedSalary || []) {
-    const cur = byCity.get(row.city) || { sum: 0, n: 0 };
-    cur.sum += row.avgExpectedSalary * (row.samples || 1);
-    cur.n += (row.samples || 1);
-    byCity.set(row.city, cur);
-  }
-  const byLocation = Array.from(byCity.entries()).map(([city, v]) => ({
-    city,
-    avg: v.n ? Math.round(v.sum / v.n) : 0,
-    growth: 0,
-  }));
-  return { byPosition, byLocation } as any;
+  const data = res.data;
+  
+  setCachedData(cacheKey, data);
+  return data;
 }
 
 export async function getInterests(companyId: number, params?: { from?: string; to?: string }) {
-  const res = await apiCall.get<{ success: boolean; data: { byCategory: Array<{ category: string; count: number }> } }>(
-    `/analytics/companies/${companyId}/analytics/interests`,
-    { params }
+  const cacheKey = getCacheKey('/analytics/platform/interests', companyId, params);
+  const cached = getCachedData(cacheKey);
+  
+  if (cached) {
+    return cached;
+  }
+
+  const res = await fetchAnalytics<{ success: boolean; data: Array<{ category: string; applications: number; percentage: number }> }>(
+    `/analytics/platform/interests`,
+    companyId,
+    params
   );
-  const list = res.data.data.byCategory || [];
-  const total = list.reduce((s, x) => s + (x.count || 0), 0) || 1;
-  return list.map((x) => ({ category: x.category, applications: x.count, percentage: Math.round((x.count * 100) / total) }));
+  const data = res.data || [];
+  
+  setCachedData(cacheKey, data);
+  return data;
 }
 
 export async function getOverview(companyId: number, params?: { from?: string; to?: string }) {
-  const res = await apiCall.get<{ success: boolean; data: { totals: { usersTotal: number; jobsTotal: number; applicationsTotal: number }; applicationStatus: Array<{ status: string; count: number }>; topCities: Array<{ city: string; count: number }> } }>(
-    `/analytics/companies/${companyId}/analytics/overview`,
-    { params }
+  const cacheKey = getCacheKey('/analytics/platform/overview', companyId, params);
+  const cached = getCachedData(cacheKey);
+  
+  if (cached) {
+    return cached;
+  }
+
+  const res = await fetchAnalytics<{ success: boolean; data: { totals: { usersTotal: number; companiesTotal: number; jobsTotal: number; applicationsTotal: number }; applicationStatus: Array<{ status: string; count: number }>; topCities: Array<{ city: string; count: number }> } }>(
+    `/analytics/platform/overview`,
+    companyId,
+    params
   );
-  const data = res.data.data;
-  return {
+  const data = res.data;
+  const result = {
     totalUsers: data.totals.usersTotal,
     activeJobs: data.totals.jobsTotal,
     applications: data.totals.applicationsTotal,
-    companies: 1,
+    companies: data.totals.companiesTotal,
     growth: { users: 0, jobs: 0, applications: 0, companies: 0 },
     status: data.applicationStatus,
     topCities: data.topCities,
   } as any;
+  
+  setCachedData(cacheKey, result);
+  return result;
 }
 

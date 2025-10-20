@@ -57,8 +57,20 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         } else {
           router.replace("/auth/signin");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Auth verification failed:", error);
+        
+        // Handle specific error cases
+        if (error?.response?.status === 500) {
+          console.warn("Server error during auth verification - this might be a database connection issue");
+        } else if (error?.response?.status === 401) {
+          console.warn("Token expired or invalid - redirecting to signin");
+        } else if (error?.response?.status === 404) {
+          console.warn("User not found - redirecting to signin");
+        } else {
+          console.warn("Network or other error during auth verification:", error?.message);
+        }
+        
         if (mounted) {
           ["token", "role", "userId", "companyId", "isProfileComplete"].forEach(
             (key) => {
