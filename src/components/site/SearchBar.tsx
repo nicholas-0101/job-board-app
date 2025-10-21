@@ -9,6 +9,7 @@ interface SearchBarProps {
   city: string;
   setCity: (value: string) => void;
   onSearch: (shouldScroll: boolean) => void;
+  onLocationInteraction?: () => void;
 }
 
 export default function SearchBar({
@@ -17,6 +18,7 @@ export default function SearchBar({
   city,
   setCity,
   onSearch,
+  onLocationInteraction,
 }: SearchBarProps) {
   const firstRender = useRef(true);
 
@@ -58,7 +60,10 @@ export default function SearchBar({
             className="w-full h-12 pl-10 pr-4 rounded-xl border-2 border-input focus:border-primary focus:outline-none"
             placeholder="City"
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => {
+              setCity(e.target.value);
+              onLocationInteraction?.();
+            }}
             onKeyDown={(e) => e.key === "Enter" && onSearch(true)}
           />
         </div>

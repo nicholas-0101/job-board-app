@@ -27,6 +27,7 @@ export function useCompaniesPage() {
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [geolocationComplete, setGeolocationComplete] = useState(false);
+  const [userHasInteractedWithLocation, setUserHasInteractedWithLocation] = useState(false);
   const [searchInputs, setSearchInputs] = useState({
     keyword: "",
     location: "",
@@ -53,7 +54,7 @@ export function useCompaniesPage() {
         const { latitude, longitude } = pos.coords;
         const { city } = await getCityFromCoords(latitude, longitude);
 
-        if (city && !filters.location) {
+        if (city && !filters.location && !userHasInteractedWithLocation) {
           setSearchInputs((prev) => ({ ...prev, location: city }));
           setFilters((prev) => ({ ...prev, location: city }));
         }
@@ -64,12 +65,12 @@ export function useCompaniesPage() {
       }
     };
 
-    if (!filters.location) {
+    if (!filters.location && !userHasInteractedWithLocation) {
       fetchLocationAndSetCity();
     } else {
       setGeolocationComplete(true);
     }
-  }, []);
+  }, [userHasInteractedWithLocation]);
 
   const fetchCompanies = async () => {
     setLoading(true);
@@ -126,6 +127,7 @@ export function useCompaniesPage() {
   }, [filters, page, geolocationComplete]);
 
   const handleSearch = () => {
+    setUserHasInteractedWithLocation(true);
     setFilters((prev) => {
       if (
         prev.keyword === searchInputs.keyword &&
@@ -174,5 +176,6 @@ export function useCompaniesPage() {
     handleViewModeChange,
     handlePageChange,
     totalPages,
+    setUserHasInteractedWithLocation,
   };
 }

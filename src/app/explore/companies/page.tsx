@@ -22,6 +22,7 @@ export default function CompaniesPage() {
     handleViewModeChange,
     handlePageChange,
     totalPages,
+    setUserHasInteractedWithLocation,
   } = useCompaniesPage();
 
   return (
@@ -35,6 +36,7 @@ export default function CompaniesPage() {
           setSearchInputs((prev) => ({ ...prev, location: value }))
         }
         onSearch={handleSearch}
+        onLocationInteraction={() => setUserHasInteractedWithLocation(true)}
       />
 
       <section className="pb-8 sm:pb-12 lg:max-w-6xl mx-auto px-4">
