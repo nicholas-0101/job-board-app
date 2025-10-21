@@ -26,6 +26,7 @@ export default function JobsPage() {
     handleToggleDropdown,
     handleSelectPostedWithin,
     totalPages,
+    setUserHasInteractedWithLocation,
   } = useJobsPage();
 
   return (
@@ -39,6 +40,7 @@ export default function JobsPage() {
           setSearchInputs((prev) => ({ ...prev, location: value }))
         }
         onSearch={handleSearch}
+        onLocationInteraction={() => setUserHasInteractedWithLocation(true)}
       />
 
       <section className="lg:max-w-6xl mx-auto pb-8 sm:pb-12 px-4">

@@ -11,6 +11,7 @@ interface CompaniesHeroProps {
   onKeywordChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onSearch: () => void;
+  onLocationInteraction?: () => void;
 }
 
 export default function CompaniesHero({
@@ -18,6 +19,7 @@ export default function CompaniesHero({
   onKeywordChange,
   onLocationChange,
   onSearch,
+  onLocationInteraction,
 }: CompaniesHeroProps) {
   return (
     <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/25 py-12 sm:py-16 md:py-20">
@@ -45,6 +47,7 @@ export default function CompaniesHero({
               city={searchInputs.location}
               setCity={onLocationChange}
               onSearch={onSearch}
+              onLocationInteraction={onLocationInteraction}
             />
           </div>
         </motion.div>
