@@ -32,34 +32,23 @@ export default function SubscriptionRenewalPage() {
   } = useRenewalApi();
 
   const loadRenewalData = async () => {
-    console.log("Loading renewal data...");
     const data = await fetchRenewalInfo();
-    console.log("Renewal data loaded:", data);
     if (data) {
       setRenewalInfo(data);
-    } else {
-      console.error("No renewal data returned");
     }
   };
 
   const handleRenew = async () => {
-    if (!renewalInfo?.canRenew) {
-      console.warn("Cannot renew: canRenew is false");
-      return;
-    }
+    if (!renewalInfo?.canRenew) return;
 
-    console.log("Starting renewal process...");
     setIsRenewing(true);
     const success = await renewSubscription();
-
-    console.log("Renewal result:", success);
 
     if (success) {
       setToastMessage("Renewal request created successfully!");
       setShowToast(true);
       await loadRenewalData();
     } else {
-      // Show detailed error from useRenewalApi hook
       setToastMessage(error || "Failed to renew subscription");
       setShowToast(true);
     }

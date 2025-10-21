@@ -20,13 +20,6 @@ export const useRenewalApi = () => {
     setError(null);
 
     try {
-      console.log("=== FETCH RENEWAL INFO ===");
-      console.log("API URL:", `${API_BASE_URL}/subscription/renewal-info`);
-      console.log(
-        "Token:",
-        localStorage.getItem("token") ? "Present" : "Missing"
-      );
-
       const response = await fetch(
         `${API_BASE_URL}/subscription/renewal-info`,
         {
@@ -34,41 +27,16 @@ export const useRenewalApi = () => {
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log(
-        "Response headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-
       if (!response.ok) {
-        let errorDetail;
-        try {
-          errorDetail = await response.json();
-        } catch {
-          errorDetail = await response.text();
-        }
-        console.error("Error response:", errorDetail);
+        const errorText = await response.text();
         throw new Error(
-          `Failed to fetch renewal information: ${
-            response.status
-          } ${JSON.stringify(errorDetail)}`
+          `Failed to fetch renewal information: ${response.status} ${errorText}`
         );
       }
 
       const data = await response.json();
-      console.log("Renewal info data:", data);
       return data;
     } catch (err) {
-      console.error("=== FETCH RENEWAL INFO ERROR ===");
-      console.error("Error:", err);
-      console.error(
-        "Error type:",
-        err instanceof Error ? err.constructor.name : typeof err
-      );
-      console.error(
-        "Error message:",
-        err instanceof Error ? err.message : String(err)
-      );
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
@@ -83,51 +51,17 @@ export const useRenewalApi = () => {
     setError(null);
 
     try {
-      console.log("=== RENEW SUBSCRIPTION ===");
-      console.log("API URL:", `${API_BASE_URL}/subscription/renew`);
-      console.log(
-        "Token:",
-        localStorage.getItem("token") ? "Present" : "Missing"
-      );
-
       const response = await fetch(`${API_BASE_URL}/subscription/renew`, {
         method: "POST",
         headers: getAuthHeaders(),
       });
 
-      console.log("Response status:", response.status);
-      console.log(
-        "Response headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-
       if (!response.ok) {
-        let errorDetail;
-        try {
-          errorDetail = await response.json();
-        } catch {
-          errorDetail = await response.text();
-        }
-        console.error("Error response:", errorDetail);
-        throw new Error(
-          `Failed to renew: ${response.status} - ${JSON.stringify(errorDetail)}`
-        );
+        throw new Error("Failed to renew subscription");
       }
 
-      const data = await response.json();
-      console.log("Renew response data:", data);
       return true;
     } catch (err) {
-      console.error("=== RENEW SUBSCRIPTION ERROR ===");
-      console.error("Error:", err);
-      console.error(
-        "Error type:",
-        err instanceof Error ? err.constructor.name : typeof err
-      );
-      console.error(
-        "Error message:",
-        err instanceof Error ? err.message : String(err)
-      );
       const errorMessage =
         err instanceof Error ? err.message : "Failed to renew subscription";
       setError(errorMessage);
