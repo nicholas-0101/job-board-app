@@ -14,6 +14,7 @@ interface JobFormData {
   salaryMax: number | null;
   tags: string[];
   deadline: string | null;
+  banner: string | null;
 }
 
 export function useJobEditing() {
@@ -34,6 +35,7 @@ export function useJobEditing() {
     salaryMax: null,
     tags: [],
     deadline: null,
+    banner: null,
   });
 
   const [loading, setLoading] = useState(true);
@@ -63,6 +65,7 @@ export function useJobEditing() {
           salaryMax: detail.salaryMax ?? null,
           tags: detail.tags ?? [],
           deadline: (detail as any).deadline ?? null,
+          banner: detail.banner ?? null,
         });
 
         // Activate test tab from query if provided

@@ -89,16 +89,16 @@ export function DemographicsSection({ demographics }: { demographics: any }) {
             return demographics.locations.slice(0, 6).map((location: any, index: number) => {
               const percentage = clampPercentage((location.count * 100) / total);
               return (
-                <div key={location.city} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
-                  <div className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: `hsl(${120 + index * 15}, 60%, 50%)` }} />
-                    <span className="truncate">{location.city}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 flex-1 rounded-full bg-gray-200">
-                      <div className="h-2 rounded-full bg-green-500 transition-all duration-500" style={{ width: `${percentage}%` }} />
+                <div key={location.city} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-sm font-medium text-gray-700 min-w-0 flex-1">
+                      <span className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: `hsl(${120 + index * 15}, 60%, 50%)` }} />
+                      <span className="truncate" title={location.city}>{location.city}</span>
                     </div>
-                    <span className="w-10 text-right text-xs font-semibold text-gray-900">{Math.round(percentage)}%</span>
+                    <span className="text-xs font-semibold text-gray-900 ml-2 flex-shrink-0">{Math.round(percentage)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full bg-green-500 transition-all duration-500" style={{ width: `${percentage}%` }} />
                   </div>
                 </div>
               );

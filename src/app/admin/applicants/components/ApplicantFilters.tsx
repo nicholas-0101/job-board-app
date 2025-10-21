@@ -5,9 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function ApplicantFilters(props: {
-  jobs: Array<{ id: number; title: string }>;
-  selectedJobId: number | null;
-  setSelectedJobId: (id: number) => void;
   searchName: string;
   setSearchName: (v: string) => void;
   education: string;
@@ -25,9 +22,6 @@ export function ApplicantFilters(props: {
   onApply: () => void;
 }) {
   const {
-    jobs,
-    selectedJobId,
-    setSelectedJobId,
     searchName,
     setSearchName,
     education,
@@ -55,21 +49,7 @@ export function ApplicantFilters(props: {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-12 gap-3 mb-4">
-          <div className="col-span-12 sm:col-span-6 md:col-span-3">
-            <label className="block text-sm font-medium mb-1.5">Job Position</label>
-            <select
-              value={selectedJobId || ""}
-              onChange={(e) => setSelectedJobId(Number(e.target.value))}
-              className="w-full h-10 px-3 border rounded-xl bg-background hover:border-primary transition-colors"
-            >
-              {jobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.title}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-3">
+          <div className="col-span-12 sm:col-span-6 md:col-span-4">
             <label className="block text-sm font-medium mb-1.5">Search Name</label>
             <Input
               value={searchName}
@@ -78,7 +58,7 @@ export function ApplicantFilters(props: {
               className="rounded-xl h-10"
             />
           </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-3">
+          <div className="col-span-12 sm:col-span-6 md:col-span-4">
             <label className="block text-sm font-medium mb-1.5">Education</label>
             <Input
               value={education}
@@ -87,7 +67,7 @@ export function ApplicantFilters(props: {
               className="rounded-xl h-10"
             />
           </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-3">
+          <div className="col-span-12 sm:col-span-6 md:col-span-4">
             <label className="block text-sm font-medium mb-1.5">Sort By</label>
             <select
               value={sortBy}

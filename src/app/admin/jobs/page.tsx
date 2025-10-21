@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useJobsData } from "@/hooks/useJobsData";
 import JobFilters from "@/components/admin/jobs/JobFilters";
 import JobCard from "@/components/admin/jobs/JobCard";
@@ -15,16 +16,14 @@ import Pagination from "@/components/admin/shared/Pagination";
 export default function AdminJobsPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
 
   const { data, loading, error, handleTogglePublish } = useJobsData({
     title,
     category,
-    sortBy,
-    sortOrder,
+    sortBy: "createdAt", // Default sorting
+    sortOrder: "desc", // Default order
     limit,
     page,
   });
@@ -44,21 +43,8 @@ export default function AdminJobsPage() {
               </p>
             </div>
             <Link href="/admin/jobs/new">
-              <Button className="bg-[#24CFA7] hover:bg-[#1fc39c] gap-2 shadow-md hover:shadow-lg transition-all">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14" />
-                  <path d="M12 5v14" />
-                </svg>
+              <Button className="bg-[#24CFA7] hover:bg-[#1fc39c] text-white shadow-md">
+                <Plus className="w-4 h-4 mr-2" />
                 New Job
               </Button>
             </Link>
@@ -70,14 +56,8 @@ export default function AdminJobsPage() {
         <JobFilters
           title={title}
           category={category}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          limit={limit}
           onTitleChange={setTitle}
           onCategoryChange={setCategory}
-          onSortByChange={setSortBy}
-          onSortOrderChange={setSortOrder}
-          onLimitChange={setLimit}
         />
 
         {loading ? (

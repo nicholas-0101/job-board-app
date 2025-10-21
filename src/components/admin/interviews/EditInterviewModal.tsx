@@ -17,7 +17,6 @@ interface EditInterviewModalProps {
     scheduleDate: string;
     locationOrLink: string;
     notes: string;
-    status: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
   };
   updating: boolean;
   onClose: () => void;
@@ -91,22 +90,6 @@ export default function EditInterviewModal({
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#24CFA7] focus:border-[#24CFA7] bg-background resize-none"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
-              </label>
-              <select
-                value={editForm.status}
-                onChange={(e) => onFormChange('status', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#24CFA7] focus:border-[#24CFA7] bg-background"
-              >
-                <option value="SCHEDULED">Scheduled</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
-                <option value="NO_SHOW">No Show</option>
-              </select>
             </div>
           </div>
 

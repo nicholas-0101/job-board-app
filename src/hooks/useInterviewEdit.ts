@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { updateInterview, InterviewItemDTO } from "@/lib/interviews";
+import { updateInterview, deleteInterview, InterviewItemDTO } from "@/lib/interviews";
+
+const formatForDatetimeLocal = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const tzOffsetMs = date.getTimezoneOffset() * 60_000;
+  const local = new Date(date.getTime() - tzOffsetMs);
+  return local.toISOString().slice(0, 16);
+};
 
 export function useInterviewEdit(companyId: number, onSuccess: () => void) {
   const [editingInterview, setEditingInterview] = useState<InterviewItemDTO | null>(null);
@@ -7,18 +15,15 @@ export function useInterviewEdit(companyId: number, onSuccess: () => void) {
     scheduleDate: "",
     locationOrLink: "",
     notes: "",
-    status: "SCHEDULED" as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
   });
   const [updating, setUpdating] = useState(false);
 
   const onEdit = (interview: InterviewItemDTO) => {
     setEditingInterview(interview);
-    const dateStr = new Date(interview.scheduleDate).toISOString().slice(0, 16);
     setEditForm({
-      scheduleDate: dateStr,
+      scheduleDate: formatForDatetimeLocal(interview.scheduleDate),
       locationOrLink: interview.locationOrLink || "",
       notes: interview.notes || "",
-      status: interview.status
     });
   };
 
@@ -33,7 +38,6 @@ export function useInterviewEdit(companyId: number, onSuccess: () => void) {
         scheduleDate: editForm.scheduleDate,
         locationOrLink: editForm.locationOrLink || null,
         notes: editForm.notes || null,
-        status: editForm.status
       });
       setEditingInterview(null);
       onSuccess(); // Refresh the list
@@ -50,7 +54,6 @@ export function useInterviewEdit(companyId: number, onSuccess: () => void) {
       scheduleDate: "",
       locationOrLink: "",
       notes: "",
-      status: "SCHEDULED"
     });
   };
 
@@ -68,6 +71,26 @@ export function useInterviewEdit(companyId: number, onSuccess: () => void) {
     }
   };
 
+  const onComplete = async (id: number) => {
+    if (!confirm("Mark this interview as completed?")) return;
+    try {
+      await updateInterview({ companyId, id, status: "COMPLETED" });
+      onSuccess();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to complete interview");
+    }
+  };
+
+  const onRemove = async (id: number) => {
+    if (!confirm("Remove this interview schedule permanently?")) return;
+    try {
+      await deleteInterview({ companyId, id });
+      onSuccess();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to remove interview");
+    }
+  };
+
   return {
     editingInterview,
     editForm,
@@ -77,5 +100,7 @@ export function useInterviewEdit(companyId: number, onSuccess: () => void) {
     onCloseModal,
     onFormChange,
     onCancel,
+    onComplete,
+    onRemove,
   };
 }

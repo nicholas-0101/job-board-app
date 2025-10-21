@@ -44,6 +44,17 @@ export default function JobDetailCard({ job }: JobDetailCardProps) {
         animate={{ opacity: 1, y: 0 }}
         className="bg-[#F0F5F9] text-card-foreground rounded-2xl p-4 sm:p-6"
       >
+        {/* Job Banner */}
+        {job.banner && (
+          <div className="mb-6 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6">
+            <img
+              src={job.banner}
+              alt={`${job.title} banner`}
+              className="w-full h-48 sm:h-64 object-cover rounded-t-2xl"
+            />
+          </div>
+        )}
+
         <JobDetailHeader
           jobTitle={job.title}
           preselectionStatus={preselectionStatus}

@@ -15,9 +15,11 @@ interface InterviewsTableProps {
   items: InterviewItemDTO[];
   onEdit: (interview: InterviewItemDTO) => void;
   onCancel: (id: number) => void;
+  onComplete: (id: number) => void;
+  onRemove: (id: number) => void;
 }
 
-export default function InterviewsTable({ items, onEdit, onCancel }: InterviewsTableProps) {
+export default function InterviewsTable({ items, onEdit, onCancel, onComplete, onRemove }: InterviewsTableProps) {
   return (
     <div className="bg-card rounded-xl shadow-md border overflow-hidden">
       <div className="overflow-x-auto">
@@ -63,28 +65,28 @@ export default function InterviewsTable({ items, onEdit, onCancel }: InterviewsT
                   </td>
                   <td className="p-4">
                     {it.status === 'SCHEDULED' && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700 font-medium">
-                        📅 Scheduled
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 font-medium">
+                        Scheduled
                       </span>
                     )}
                     {it.status === 'COMPLETED' && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">
-                        ✓ Completed
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+                        Completed
                       </span>
                     )}
                     {it.status === 'CANCELLED' && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-red-100 text-red-700 font-medium">
-                        ✕ Cancelled
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700 font-medium">
+                        Cancelled
                       </span>
                     )}
                     {it.status === 'NO_SHOW' && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 font-medium">
                         No Show
                       </span>
                     )}
                   </td>
                   <td className="p-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button 
                         onClick={() => onEdit(it)} 
                         className="px-3 py-1.5 text-sm border border-blue-300 rounded-xl hover:bg-blue-50 text-blue-600 transition-colors flex items-center gap-1"
@@ -97,9 +99,23 @@ export default function InterviewsTable({ items, onEdit, onCancel }: InterviewsT
                       </button>
                       <button 
                         onClick={() => onCancel(it.id)} 
-                        className="px-3 py-1.5 text-sm border border-red-300 rounded-xl hover:bg-red-50 text-red-600 transition-colors"
+                        disabled={it.status === "CANCELLED"}
+                        className="px-3 py-1.5 text-sm border border-red-300 rounded-xl hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Cancel
+                      </button>
+                      <button
+                        onClick={() => onComplete(it.id)}
+                        disabled={it.status !== "SCHEDULED"}
+                        className="px-3 py-1.5 text-sm border border-green-300 rounded-xl hover:bg-green-50 text-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Complete
+                      </button>
+                      <button
+                        onClick={() => onRemove(it.id)}
+                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors"
+                      >
+                        Remove
                       </button>
                     </div>
                   </td>

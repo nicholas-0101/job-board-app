@@ -38,12 +38,10 @@ import { Input } from "@/components/ui/input";
 import { OverviewHeader } from "./components/OverviewHeader";
 import { CompanyBanner } from "./components/CompanyBanner";
 import { OverviewStatsGrid } from "./components/OverviewStatsGrid";
-import { RecentJobsCard } from "./components/RecentJobsCard";
-import { UpcomingInterviewsCard } from "./components/UpcomingInterviewsCard";
 import { useAdminDashboard } from "./hooks/useAdminDashboard";
 
 export default function AdminPage() {
-  const { loading, realStats, companyInfo, recentJobs, upcomingInterviews, fetchDashboardData } = useAdminDashboard();
+  const { loading, realStats, companyInfo } = useAdminDashboard();
 
   const stats = [
     {
@@ -75,18 +73,12 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:py-8">
-        <OverviewHeader loading={loading} onRefresh={fetchDashboardData} companyInfo={companyInfo} />
+        <OverviewHeader companyInfo={companyInfo} />
 
         <CompanyBanner companyInfo={companyInfo} />
 
       <div className="space-y-6">
         <OverviewStatsGrid stats={stats as any} loading={loading} />
-
-        {/* Recent Jobs & Upcoming Interviews */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <RecentJobsCard jobs={recentJobs} loading={loading} />
-          <UpcomingInterviewsCard interviews={upcomingInterviews} loading={loading} />
-        </div>
       </div>
     </div>
   </div>

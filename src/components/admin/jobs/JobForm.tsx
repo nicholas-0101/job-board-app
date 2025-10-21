@@ -1,23 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { Save, ArrowLeft } from "lucide-react";
 import ErrorCard from "@/components/admin/shared/ErrorCard";
+import BannerUpload from "./BannerUpload";
 
 interface JobFormData {
   title: string;
-  description: string;
   category: string;
+  description: string;
   city: string;
-  salaryMin: string;
-  salaryMax: string;
-  tags: string;
-  deadline: string;
+  employmentType: string;
+  experienceLevel: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  tags: string[];
+  deadline: string | null;
+  banner: string | null;
 }
 
 interface JobFormProps {
   form: JobFormData;
   submitting: boolean;
   error?: string | null;
-  onUpdateForm: (field: keyof JobFormData, value: string) => void;
+  onUpdateForm: (field: keyof JobFormData, value: any) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 }
@@ -74,55 +78,92 @@ export default function JobForm({
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-          <input 
-            placeholder="e.g. Jakarta" 
-            value={form.city} 
-            onChange={(e) => onUpdateForm('city', e.target.value)} 
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-            required 
-          />
+        <BannerUpload
+          value={form.banner}
+          onChange={(value) => onUpdateForm('banner', value)}
+          disabled={submitting}
+        />
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+            <input
+              placeholder="e.g. Jakarta"
+              value={form.city}
+              onChange={(e) => onUpdateForm("city", e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Employment Type</label>
+            <select
+              value={form.employmentType || ""}
+              onChange={(e) => onUpdateForm("employmentType", e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Select Type</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+              <option value="Internship">Internship</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+            <select
+              value={form.experienceLevel || ""}
+              onChange={(e) => onUpdateForm("experienceLevel", e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Select Level</option>
+              <option value="Entry Level">Entry Level</option>
+              <option value="Junior">Junior</option>
+              <option value="Mid-Level">Mid-Level</option>
+              <option value="Senior">Senior</option>
+              <option value="Lead/Manager">Lead/Manager</option>
+            </select>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Min Salary (IDR)</label>
-            <input 
-              placeholder="e.g. 15000000" 
-              value={form.salaryMin} 
-              onChange={(e) => onUpdateForm('salaryMin', e.target.value)} 
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+            <input
+              type="number"
+              placeholder="e.g. 15000000"
+              value={form.salaryMin ?? ""}
+              onChange={(e) => onUpdateForm("salaryMin", Number(e.target.value) || null)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Max Salary (IDR)</label>
-            <input 
-              placeholder="e.g. 25000000" 
-              value={form.salaryMax} 
-              onChange={(e) => onUpdateForm('salaryMax', e.target.value)} 
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+            <input
+              type="number"
+              placeholder="e.g. 25000000"
+              value={form.salaryMax ?? ""}
+              onChange={(e) => onUpdateForm("salaryMax", Number(e.target.value) || null)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
+            <input
+              type="date"
+              value={form.deadline || ""}
+              onChange={(e) => onUpdateForm("deadline", e.target.value || null)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma separated)</label>
-          <input 
-            placeholder="e.g. React, TypeScript, Node.js" 
-            value={form.tags} 
-            onChange={(e) => onUpdateForm('tags', e.target.value)} 
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
-          <input 
-            type="date" 
-            value={form.deadline} 
-            onChange={(e) => onUpdateForm('deadline', e.target.value)} 
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          <input
+            placeholder="e.g. React, TypeScript, Node.js"
+            value={(form.tags || []).join(', ')}
+            onChange={(e) => onUpdateForm("tags", e.target.value.split(',').map((t: string) => t.trim()).filter(Boolean))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 

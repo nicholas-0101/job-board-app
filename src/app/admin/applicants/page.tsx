@@ -12,8 +12,6 @@ export default function ApplicantsPage() {
     applicants,
     total,
     jobs,
-    selectedJobId,
-    setSelectedJobId,
     searchName,
     setSearchName,
     education,
@@ -41,15 +39,12 @@ export default function ApplicantsPage() {
 
   return (
     <div className="min-h-screen">
-      <ApplicantsHeader loading={loading} onRefresh={fetchApplicants} />
+      <ApplicantsHeader />
 
       <div className="container mx-auto px-4 py-6 space-y-6">
         <ApplicantStatsGrid stats={stats as unknown as StatItem[]} />
 
         <ApplicantFilters
-          jobs={jobs}
-          selectedJobId={selectedJobId}
-          setSelectedJobId={(id:number)=>setSelectedJobId(id)}
           searchName={searchName}
           setSearchName={setSearchName}
           education={education}
