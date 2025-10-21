@@ -69,6 +69,7 @@ export default function AdminLayout({
               <SidebarActions onLogout={onLogout} />
             </div>
           </aside>
+        )}
 
         {/* Main Content Area */}
         <main className={`flex-1 ${!isProfileCompletionPage ? 'ml-64' : ''}`}>
@@ -77,7 +78,7 @@ export default function AdminLayout({
           </div>
         </main>
       </div>
-    )
+    </div>
   );
 
   return (
