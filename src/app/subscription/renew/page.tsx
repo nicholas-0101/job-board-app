@@ -22,41 +22,64 @@ export default function SubscriptionRenewalPage() {
   const [toastMessage, setToastMessage] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
   const router = useRouter();
-  
-  const { loading, error, fetchRenewalInfo, renewSubscription, uploadPaymentProof } = useRenewalApi();
+
+  const {
+    loading,
+    error,
+    fetchRenewalInfo,
+    renewSubscription,
+    uploadPaymentProof,
+  } = useRenewalApi();
 
   const loadRenewalData = async () => {
+    console.log("Loading renewal data...");
     const data = await fetchRenewalInfo();
+    console.log("Renewal data loaded:", data);
     if (data) {
       setRenewalInfo(data);
+    } else {
+      console.error("No renewal data returned");
     }
   };
 
   const handleRenew = async () => {
-    if (!renewalInfo?.canRenew) return;
+    if (!renewalInfo?.canRenew) {
+      console.warn("Cannot renew: canRenew is false");
+      return;
+    }
 
+    console.log("Starting renewal process...");
     setIsRenewing(true);
     const success = await renewSubscription();
-    
+
+    console.log("Renewal result:", success);
+
     if (success) {
       setToastMessage("Renewal request created successfully!");
       setShowToast(true);
       await loadRenewalData();
     } else {
-      setToastMessage("Failed to renew subscription");
+      // Show detailed error from useRenewalApi hook
+      setToastMessage(error || "Failed to renew subscription");
       setShowToast(true);
     }
-    
+
     setIsRenewing(false);
   };
 
   const handleUploadProof = async (file: File) => {
     if (!renewalInfo?.pendingPayment) return;
 
-    const success = await uploadPaymentProof(renewalInfo.pendingPayment.slug || renewalInfo.pendingPayment.id.toString(), file);
-    
+    const success = await uploadPaymentProof(
+      renewalInfo.pendingPayment.slug ||
+        renewalInfo.pendingPayment.id.toString(),
+      file
+    );
+
     if (success) {
-      setToastMessage("Payment proof uploaded successfully! Waiting for approval.");
+      setToastMessage(
+        "Payment proof uploaded successfully! Waiting for approval."
+      );
       setShowToast(true);
       await loadRenewalData();
     } else {
@@ -68,23 +91,23 @@ export default function SubscriptionRenewalPage() {
   const renderRightCard = () => {
     if (renewalInfo?.pendingPayment) {
       return (
-        <PendingPaymentCard 
+        <PendingPaymentCard
           pendingPayment={renewalInfo.pendingPayment}
           onUploadProof={handleUploadProof}
         />
       );
     }
-    
+
     if (renewalInfo?.canRenew) {
       return (
-        <RenewalCard 
+        <RenewalCard
           renewalInfo={renewalInfo}
           onRenew={handleRenew}
           isRenewing={isRenewing}
         />
       );
     }
-    
+
     return (
       <Card className="border-[#A3B6CE]/30 bg-[#E1F1F3]/30">
         <CardContent className="flex items-center justify-center p-8">
@@ -105,7 +128,13 @@ export default function SubscriptionRenewalPage() {
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} onRetry={loadRenewalData} />;
-  if (!renewalInfo) return <ErrorMessage message="No renewal information available" onRetry={loadRenewalData} />;
+  if (!renewalInfo)
+    return (
+      <ErrorMessage
+        message="No renewal information available"
+        onRetry={loadRenewalData}
+      />
+    );
 
   return (
     <div className="min-h-screen bg-[#F0F5F9] py-8">
@@ -120,7 +149,9 @@ export default function SubscriptionRenewalPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Subscription
           </Button>
-          <h1 className="text-3xl font-bold text-[#467EC7] mb-2">Renew Your Subscription</h1>
+          <h1 className="text-3xl font-bold text-[#467EC7] mb-2">
+            Renew Your Subscription
+          </h1>
           <p className="text-[#A3B6CE]">
             Continue enjoying premium features with subscription renewal
           </p>
@@ -129,16 +160,16 @@ export default function SubscriptionRenewalPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Order Summary - Left side (1/3 width) */}
           <div className="lg:col-span-1">
-            <CurrentSubscriptionCard subscription={renewalInfo.currentSubscription} />
+            <CurrentSubscriptionCard
+              subscription={renewalInfo.currentSubscription}
+            />
           </div>
 
           {/* Payment Information - Right side (2/3 width) */}
-          <div className="lg:col-span-2">
-            {renderRightCard()}
-          </div>
+          <div className="lg:col-span-2">{renderRightCard()}</div>
         </div>
 
-        <Toast 
+        <Toast
           message={toastMessage}
           show={showToast}
           onClose={() => setShowToast(false)}
