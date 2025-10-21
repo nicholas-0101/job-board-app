@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/helper/axios";
 import { getCityFromCoords, getUserLocation } from "@/lib/utils/locationUtils";
@@ -33,6 +33,8 @@ export function useCompaniesPage() {
     location: "",
   });
 
+  const geolocationAttempted = useRef(false);
+
   // Parse query params on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -49,6 +51,9 @@ export function useCompaniesPage() {
 
   useEffect(() => {
     const fetchLocationAndSetCity = async () => {
+      if (geolocationAttempted.current) return;
+      geolocationAttempted.current = true;
+      
       try {
         const pos = await getUserLocation();
         const { latitude, longitude } = pos.coords;
@@ -65,7 +70,7 @@ export function useCompaniesPage() {
       }
     };
 
-    if (!filters.location && !userHasInteractedWithLocation) {
+    if (!filters.location && !userHasInteractedWithLocation && !geolocationAttempted.current) {
       fetchLocationAndSetCity();
     } else {
       setGeolocationComplete(true);
