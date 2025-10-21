@@ -38,6 +38,7 @@ export function useJobsPage() {
   });
 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const geolocationAttempted = useRef(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -87,6 +88,9 @@ export function useJobsPage() {
 
   useEffect(() => {
     const fetchLocationAndSetFilter = async () => {
+      if (geolocationAttempted.current) return;
+      geolocationAttempted.current = true;
+      
       try {
         const pos = await getUserLocation();
         const { latitude, longitude } = pos.coords;
@@ -103,12 +107,12 @@ export function useJobsPage() {
       }
     };
 
-    if (!selectedLocation && !userHasInteractedWithLocation) {
+    if (!selectedLocation && !userHasInteractedWithLocation && !geolocationAttempted.current) {
       fetchLocationAndSetFilter();
     } else {
       setGeolocationComplete(true);
     }
-  }, [userHasInteractedWithLocation]);
+  }, [selectedLocation, userHasInteractedWithLocation]);
 
   useEffect(() => {
     if (!geolocationComplete) return;
