@@ -31,12 +31,14 @@ export function useJobsPage() {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [showPostedDropdown, setShowPostedDropdown] = useState(false);
   const [geolocationComplete, setGeolocationComplete] = useState(false);
+  const [userHasInteractedWithLocation, setUserHasInteractedWithLocation] = useState(false);
   const [searchInputs, setSearchInputs] = useState({
     keyword: "",
     location: "",
   });
 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const geolocationAttempted = useRef(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -86,12 +88,15 @@ export function useJobsPage() {
 
   useEffect(() => {
     const fetchLocationAndSetFilter = async () => {
+      if (geolocationAttempted.current) return;
+      geolocationAttempted.current = true;
+      
       try {
         const pos = await getUserLocation();
         const { latitude, longitude } = pos.coords;
         const { city } = await getCityFromCoords(latitude, longitude);
 
-        if (city && !filters.location) {
+        if (city && !filters.location && !userHasInteractedWithLocation) {
           setSearchInputs((prev) => ({ ...prev, location: city }));
           setFilters((prev) => ({ ...prev, location: city }));
         }
@@ -102,12 +107,12 @@ export function useJobsPage() {
       }
     };
 
-    if (!selectedLocation) {
+    if (!selectedLocation && !userHasInteractedWithLocation && !geolocationAttempted.current) {
       fetchLocationAndSetFilter();
     } else {
       setGeolocationComplete(true);
     }
-  }, []);
+  }, [selectedLocation, userHasInteractedWithLocation]);
 
   useEffect(() => {
     if (!geolocationComplete) return;
@@ -121,6 +126,7 @@ export function useJobsPage() {
   }, [filters, page, geolocationComplete]);
 
   const handleSearch = () => {
+    setUserHasInteractedWithLocation(true);
     setFilters((prev) => {
       if (
         prev.keyword === searchInputs.keyword &&
@@ -184,5 +190,6 @@ export function useJobsPage() {
     handleToggleDropdown,
     handleSelectPostedWithin,
     totalPages,
+    setUserHasInteractedWithLocation,
   };
 }

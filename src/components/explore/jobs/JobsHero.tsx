@@ -11,6 +11,7 @@ interface JobsHeroProps {
   onKeywordChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onSearch: () => void;
+  onLocationInteraction?: () => void;
 }
 
 export default function JobsHero({
@@ -18,6 +19,7 @@ export default function JobsHero({
   onKeywordChange,
   onLocationChange,
   onSearch,
+  onLocationInteraction,
 }: JobsHeroProps) {
   return (
     <section className="relative bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/20 py-12 sm:py-16 md:py-20">
@@ -44,6 +46,7 @@ export default function JobsHero({
               city={searchInputs.location}
               setCity={onLocationChange}
               onSearch={onSearch}
+              onLocationInteraction={onLocationInteraction}
             />
           </div>
         </motion.div>

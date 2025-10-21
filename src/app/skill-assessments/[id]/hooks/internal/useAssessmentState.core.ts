@@ -9,6 +9,10 @@ import { useAssessmentPersistence } from "../useAssessmentPersistence";
 import { useAssessmentSubmit } from "../useAssessmentSubmit";
 import type { Assessment } from "./types";
 
+const TIME_INACTIVE_THRESHOLD_SECONDS = 30;
+const ASSESSMENT_DURATION_MINUTES = 30;
+const TIME_TRACKING_INTERVAL_MS = 10000;
+
 export default function useAssessmentStateCore(
   assessmentIdOrSlug: number | string
 ) {
@@ -79,7 +83,10 @@ export default function useAssessmentStateCore(
         setShowResumeDialog(true);
       } else {
         setStarted(true);
-        if (info && info.timeSinceLastActive > 30) {
+        if (
+          info &&
+          info.timeSinceLastActive > TIME_INACTIVE_THRESHOLD_SECONDS
+        ) {
           toast.success(
             `Assessment resumed! Time remaining: ${Math.floor(
               info.remainingTime / 60
@@ -110,7 +117,7 @@ export default function useAssessmentStateCore(
   );
 
   const startAssessment = useCallback(() => {
-    const totalDuration = 30 * 60; // 30 minutes
+    const totalDuration = ASSESSMENT_DURATION_MINUTES * 60;
     const result = initializeAssessment(totalDuration);
 
     setStarted(true);
@@ -176,7 +183,7 @@ export default function useAssessmentStateCore(
     if (!started) return;
     const interval = setInterval(() => {
       updateTimeSpent();
-    }, 10000);
+    }, TIME_TRACKING_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [started, updateTimeSpent]);
 

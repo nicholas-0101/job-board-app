@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { RenewalInfo } from "../types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BE_URL || 'http://localhost:4400';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:4400";
 
 export const useRenewalApi = () => {
   const [loading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ export const useRenewalApi = () => {
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
     return {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     };
   };
@@ -18,21 +18,27 @@ export const useRenewalApi = () => {
   const fetchRenewalInfo = async (): Promise<RenewalInfo | null> => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`${API_BASE_URL}/subscription/renewal-info`, {
-        headers: getAuthHeaders(),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/subscription/renewal-info`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to fetch renewal information: ${response.status} ${errorText}`);
+        throw new Error(
+          `Failed to fetch renewal information: ${response.status} ${errorText}`
+        );
       }
 
       const data = await response.json();
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
       return null;
     } finally {
@@ -43,7 +49,7 @@ export const useRenewalApi = () => {
   const renewSubscription = async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/subscription/renew`, {
         method: "POST",
@@ -56,7 +62,8 @@ export const useRenewalApi = () => {
 
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to renew subscription";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to renew subscription";
       setError(errorMessage);
       return false;
     } finally {
@@ -64,23 +71,29 @@ export const useRenewalApi = () => {
     }
   };
 
-  const uploadPaymentProof = async (paymentSlug: string, file: File): Promise<boolean> => {
+  const uploadPaymentProof = async (
+    paymentSlug: string,
+    file: File
+  ): Promise<boolean> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("paymentProof", file);
 
       // Use slug-based endpoint for better security
-      const response = await fetch(`${API_BASE_URL}/subscription/payments/slug/${paymentSlug}/upload-proof`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/subscription/payments/slug/${paymentSlug}/upload-proof`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to upload payment proof");
@@ -88,7 +101,8 @@ export const useRenewalApi = () => {
 
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to upload payment proof";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to upload payment proof";
       setError(errorMessage);
       return false;
     } finally {
@@ -97,22 +111,28 @@ export const useRenewalApi = () => {
   };
 
   // Fallback function for backward compatibility
-  const uploadPaymentProofById = async (paymentId: number, file: File): Promise<boolean> => {
+  const uploadPaymentProofById = async (
+    paymentId: number,
+    file: File
+  ): Promise<boolean> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("paymentProof", file);
 
-      const response = await fetch(`${API_BASE_URL}/subscription/payments/${paymentId}/upload-proof`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/subscription/payments/${paymentId}/upload-proof`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to upload payment proof");
@@ -120,7 +140,8 @@ export const useRenewalApi = () => {
 
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to upload payment proof";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to upload payment proof";
       setError(errorMessage);
       return false;
     } finally {
