@@ -16,6 +16,17 @@ export default function JobCard({ job, onTogglePublish }: JobCardProps) {
       }}
     >
       <div className="p-5">
+        {/* Job Banner */}
+        {job.banner && (
+          <div className="mb-4 -mx-5 -mt-5">
+            <img
+              src={job.banner}
+              alt={`${job.title} banner`}
+              className="w-full h-32 object-cover rounded-t-lg"
+            />
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
             <h3 className="font-semibold text-lg truncate mb-2">
@@ -64,11 +75,11 @@ export default function JobCard({ job, onTogglePublish }: JobCardProps) {
                 {job.applicantsCount} applicants
               </span>
               {job.isPublished ? (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-medium">
-                  ✓ Published
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+                  Published
                 </span>
               ) : (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-medium">
                   Draft
                 </span>
               )}

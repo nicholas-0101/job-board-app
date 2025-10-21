@@ -9,6 +9,7 @@ export interface JobItemDTO {
   deadline?: string | null;
   createdAt: string;
   applicantsCount?: number;
+  banner?: string | null;
 }
 
 export interface JobDetailDTO extends JobItemDTO {
@@ -103,10 +104,13 @@ export async function createJob(params: {
   description: string;
   category: string;
   city: string;
+  employmentType?: string | null;
+  experienceLevel?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
   tags: string[];
   deadline?: string | null;
+  banner?: string | null;
 }) {
   const { companyId, ...body } = params;
   const res = await apiCall.post(`/job/companies/${companyId}/jobs`, body);
@@ -120,10 +124,13 @@ export async function updateJob(params: {
   description?: string;
   category?: string;
   city?: string;
+  employmentType?: string | null;
+  experienceLevel?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
   tags?: string[];
   deadline?: string | null;
+  banner?: string | null;
   isPublished?: boolean;
 }) {
   const { companyId, jobId, ...body } = params;

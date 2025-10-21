@@ -95,7 +95,7 @@ export interface JobWithApplicantCountDTO {
   title: string;
   category: string;
   city: string;
-  acceptedApplicantsCount: number;
+  eligibleApplicantsCount: number;
 }
 
 export interface EligibleApplicantDTO {

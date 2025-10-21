@@ -53,9 +53,15 @@ export async function listJobApplicants(params: {
   const cleanParams: Record<string, any> = {};
   Object.entries(queryParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      cleanParams[key] = value;
+      // Convert numeric parameters to numbers
+      if (['ageMin', 'ageMax', 'expectedSalaryMin', 'expectedSalaryMax', 'limit', 'offset'].includes(key)) {
+        cleanParams[key] = Number(value);
+      } else {
+        cleanParams[key] = value;
+      }
     }
   });
+
 
   const response = await apiCall.get(
     `/job/companies/${companyId}/jobs/${jobId}/applicants`,

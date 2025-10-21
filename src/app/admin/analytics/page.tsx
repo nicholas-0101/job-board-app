@@ -4,13 +4,11 @@ import { motion } from "framer-motion";
 import { 
   TrendingUp, Users, DollarSign, Briefcase, MapPin, 
   Calendar, BarChart3, PieChart, Activity, Target,
-  ArrowUp, ArrowDown, Filter, Download, RefreshCw,
+  ArrowUp, ArrowDown, Filter,
   Clock, Zap, Smartphone, Monitor, Eye, MousePointer
 } from "lucide-react";
 import { AnimatedCounter } from "../../../components/ui/AnimatedCounter";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TimeRangeSelector } from "./components/TimeRangeSelector";
 import { OverviewStatCard } from "./components/OverviewStatCard";
 import { DemographicsSection } from "./components/DemographicsSection";
 import { SalaryTrendsSection } from "./components/SalaryTrendsSection";
@@ -23,7 +21,6 @@ import { apiCall } from "@/helper/axios";
 const clampPercentage = (value: number) =>
   Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
 export default function AnalyticsPage() {
-  const [timeRange, setTimeRange] = useState("30d");
   const [companyId, setCompanyId] = useState<number>(() => {
     const raw = localStorage.getItem("companyId");
     return raw ? Number(raw) : NaN;
@@ -79,26 +76,6 @@ export default function AnalyticsPage() {
     return () => { mounted = false; };
   }, [companyId]);
 
-  const exportAnalytics = () => {
-    const data = {
-      overview,
-      demographics,
-      salaryTrends,
-      interests,
-      exportedAt: new Date().toISOString(),
-      timeRange,
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `analytics-export-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   const StatCard = ({
     title,
@@ -136,29 +113,11 @@ export default function AnalyticsPage() {
               <h1 className="text-2xl font-semibold truncate">Analytics Dashboard</h1>
               <p className="text-sm text-muted-foreground mt-1">Comprehensive insights into platform performance</p>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-              <Button 
-                className="gap-2 bg-[#467EC7] hover:bg-[#578BCC]"
-                onClick={() => window.location.reload()}
-              >
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </Button>
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => exportAnalytics()}
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </Button>
-            </div>
           </div>
         </div>
       </div>
 
       <div className="relative z-0 container mx-auto px-4 py-8">
-        <TimeRangeSelector timeRange={timeRange} setTimeRange={setTimeRange} onRefresh={() => window.location.reload()} onExport={exportAnalytics} />
         {/* Overview Stats */}
         {loading ? (
           <div className="flex items-center justify-center py-20">

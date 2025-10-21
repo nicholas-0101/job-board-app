@@ -9,8 +9,9 @@ interface TestSummary {
   jobId: number;
   jobTitle: string;
   isActive: boolean;
-  totalQuestions: number;
   passingScore: number | null;
+  totalQuestions: number;
+  hasDraft: boolean;
 }
 
 interface TestCardProps {
@@ -36,31 +37,26 @@ export function TestCard({ test, index }: TestCardProps) {
                 <h4 className="text-lg font-semibold">{test.jobTitle}</h4>
                 {test.isActive ? (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">
-                    ✓ Active
+                    ACTIVE
+                  </span>
+                ) : test.hasDraft ? (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium">
+                    DRAFT
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium">
-                    Inactive
+                    INACTIVE
                   </span>
                 )}
               </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <TestTube className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Questions</p>
-                    <p className="font-semibold">{test.totalQuestions} / 25</p>
-                  </div>
-                </div>
+              <div className="grid md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-2 text-sm">
                   <div className="p-2 bg-purple-100 rounded-lg">
                     <Target className="w-4 h-4 text-purple-600" />
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Passing Score</p>
-                    <p className="font-semibold">{test.passingScore ?? '-'} / 25</p>
+                    <p className="font-semibold">{test.passingScore ? `${test.passingScore} correct answers` : '-'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
@@ -68,17 +64,24 @@ export function TestCard({ test, index }: TestCardProps) {
                     <BarChart3 className="w-4 h-4 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-xs">Status</p>
-                    <p className="font-semibold">{test.isActive && test.totalQuestions >= 25 ? 'Ready' : 'Setup Required'}</p>
+                    <p className="text-muted-foreground text-xs">Questions</p>
+                    <p className="font-semibold">
+                      {test.isActive 
+                        ? '25 Questions' 
+                        : test.hasDraft 
+                          ? `${test.totalQuestions} Questions`
+                          : 'No Questions'
+                      }
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
-              <Link href={`/admin/jobs/${test.jobId}/edit?tab=test`}>
+              <Link href={`/admin/preselection/${test.jobId}/edit`}>
                 <Button className="bg-[#24CFA7] hover:bg-[#1fc39c] shadow-md">
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit Test
+                  {test.hasDraft ? 'Edit Test' : 'Add Test'}
                 </Button>
               </Link>
             </div>

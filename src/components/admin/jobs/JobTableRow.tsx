@@ -64,11 +64,11 @@ export default function JobTableRow({ job, onTogglePublish }: JobTableRowProps) 
       </td>
       <td className="p-4">
         {job.isPublished ? (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">
-            ✓ Published
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+            Published
           </span>
         ) : (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700 font-medium">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-medium">
             Draft
           </span>
         )}

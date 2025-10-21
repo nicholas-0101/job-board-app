@@ -8,13 +8,6 @@ export function useInterviewList() {
     return raw ? Number(raw) : NaN;
   });
 
-  const [filters, setFilters] = useState({
-    jobId: "",
-    applicantId: "",
-    status: "",
-    dateFrom: "",
-    dateTo: "",
-  });
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const offset = useMemo(() => (page - 1) * limit, [page, limit]);
@@ -45,11 +38,6 @@ export function useInterviewList() {
 
       const res = await listCompanyInterviews({
         companyId: cid,
-        jobId: filters.jobId ? Number(filters.jobId) : undefined,
-        applicantId: filters.applicantId ? Number(filters.applicantId) : undefined,
-        status: (filters.status || undefined) as any,
-        dateFrom: filters.dateFrom || undefined,
-        dateTo: filters.dateTo || undefined,
         limit,
         offset,
       });
@@ -64,14 +52,12 @@ export function useInterviewList() {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, filters, limit, offset]);
+  }, [companyId, limit, offset]);
 
   const totalPages = Math.max(1, Math.ceil(data.total / limit));
 
   return {
     companyId,
-    filters,
-    setFilters,
     limit,
     setLimit,
     page,

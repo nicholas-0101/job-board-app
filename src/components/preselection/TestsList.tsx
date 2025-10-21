@@ -9,8 +9,9 @@ interface TestSummary {
   jobId: number;
   jobTitle: string;
   isActive: boolean;
-  totalQuestions: number;
   passingScore: number | null;
+  totalQuestions: number;
+  hasDraft: boolean;
 }
 
 interface TestsListProps {

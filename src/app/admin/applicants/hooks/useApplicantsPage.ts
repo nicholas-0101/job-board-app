@@ -1,85 +1,82 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
-import { listCompanyJobs, JobItemDTO } from "@/lib/jobs";
-import { listJobApplicants, updateApplicantStatus, ApplicantDTO } from "@/lib/applicants";
-import { apiCall } from "@/helper/axios";
+import { useEffect } from "react";
+import { useApplicantsPageState as useApplicantsPageStateHook } from "./useApplicantsPageState";
+import { useApplicantsPageStats } from "./useApplicantsPageStats";
+import { 
+  fetchCompanyId, 
+  fetchJobs, 
+  fetchApplicantsFromAllJobs, 
+  handleUpdateApplicantStatus 
+} from "./useApplicantsPageHelpers";
 
 export type SortBy = "appliedAt" | "expectedSalary" | "age";
 export type SortOrder = "asc" | "desc";
 
 export function useApplicantsPageState() {
-  const [companyId, setCompanyId] = useState<number>(() => {
-    const raw = typeof window !== "undefined" ? localStorage.getItem("companyId") : null;
-    return raw ? Number(raw) : NaN;
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [applicants, setApplicants] = useState<ApplicantDTO[]>([]);
-  const [total, setTotal] = useState(0);
-  const [jobs, setJobs] = useState<JobItemDTO[]>([]);
-
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-  const [searchName, setSearchName] = useState("");
-  const [education, setEducation] = useState("");
-  const [ageMin, setAgeMin] = useState("");
-  const [ageMax, setAgeMax] = useState("");
-  const [salaryMin, setSalaryMin] = useState("");
-  const [salaryMax, setSalaryMax] = useState("");
-  const [sortBy, setSortBy] = useState<SortBy>("appliedAt");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-
-  const fetchCompanyId = async () => {
-    if (!companyId || Number.isNaN(companyId)) {
-      try {
-        const resp = await apiCall.get("/company/admin");
-        const data = resp.data?.data ?? resp.data;
-        const resolved = Number(data?.id ?? data?.data?.id);
-        if (resolved) {
-          setCompanyId(resolved);
-          if (typeof window !== "undefined") localStorage.setItem("companyId", resolved.toString());
-          return resolved;
-        }
-      } catch {}
-    }
-    return companyId;
-  };
-
-  const fetchJobs = async (cid: number) => {
-    try {
-      const response = await listCompanyJobs({ companyId: cid, limit: 100, offset: 0 });
-      setJobs(response.items);
-      if (response.items.length > 0 && !selectedJobId) {
-        setSelectedJobId(response.items[0].id);
-      }
-    } catch (err) {
-      console.error("Failed to load jobs:", err);
-    }
-  };
+  const {
+    companyId,
+    setCompanyId,
+    loading,
+    setLoading,
+    applicants,
+    setApplicants,
+    total,
+    setTotal,
+    jobs,
+    setJobs,
+    jobsLoaded,
+    setJobsLoaded,
+    searchName,
+    setSearchName,
+    education,
+    setEducation,
+    ageMin,
+    setAgeMin,
+    ageMax,
+    setAgeMax,
+    salaryMin,
+    setSalaryMin,
+    salaryMax,
+    setSalaryMax,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    page,
+    setPage,
+    limit,
+  } = useApplicantsPageStateHook();
 
   const fetchApplicants = async () => {
-    if (!selectedJobId) return;
     setLoading(true);
     try {
-      const cid = await fetchCompanyId();
+      const cid = await fetchCompanyId(companyId);
       if (!cid || Number.isNaN(cid)) throw new Error("Company not found");
-      const response = await listJobApplicants({
-        companyId: cid,
-        jobId: selectedJobId,
-        name: searchName || undefined,
-        education: education || undefined,
-        ageMin: ageMin ? Number(ageMin) : undefined,
-        ageMax: ageMax ? Number(ageMax) : undefined,
-        expectedSalaryMin: salaryMin ? Number(salaryMin) : undefined,
-        expectedSalaryMax: salaryMax ? Number(salaryMax) : undefined,
+
+      if (jobs.length === 0) {
+        setApplicants([]);
+        setTotal(0);
+        return;
+      }
+      
+      const { allApplicants, totalCount } = await fetchApplicantsFromAllJobs(jobs, cid, {
+        searchName,
+        education,
+        ageMin,
+        ageMax,
+        salaryMin,
+        salaryMax,
         sortBy,
         sortOrder,
-        limit,
-        offset: (page - 1) * limit,
       });
-      setApplicants(response.items);
-      setTotal(response.total);
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedApplicants = allApplicants.slice(startIndex, endIndex);
+      
+      setApplicants(paginatedApplicants);
+      setTotal(totalCount);
     } catch (err: any) {
       console.error("Failed to load applicants:", err);
     } finally {
@@ -88,21 +85,57 @@ export function useApplicantsPageState() {
   };
 
   useEffect(() => {
+    let isMounted = true;
     (async () => {
-      const cid = await fetchCompanyId();
-      if (cid && !Number.isNaN(cid)) {
-        await fetchJobs(cid);
+      try {
+        const cid = await fetchCompanyId(companyId);
+        if (!isMounted) return;
+        if (cid && !Number.isNaN(cid)) {
+          if (typeof window !== "undefined") localStorage.setItem("companyId", cid.toString());
+          setCompanyId(cid);
+          const jobsData = await fetchJobs(cid);
+          if (!isMounted) return;
+          setJobs(jobsData);
+          setJobsLoaded(true);
+          if (jobsData.length === 0) {
+            setApplicants([]);
+            setTotal(0);
+            setLoading(false);
+          }
+        } else {
+          setJobs([]);
+          setJobsLoaded(true);
+          setApplicants([]);
+          setTotal(0);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        console.error("Failed to load company or jobs:", err);
+        setJobs([]);
+        setJobsLoaded(true);
+        setApplicants([]);
+        setTotal(0);
+        setLoading(false);
       }
     })();
+    return () => {
+      isMounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (selectedJobId) {
-      fetchApplicants();
+    if (!jobsLoaded) return;
+    if (jobs.length === 0) {
+      setApplicants([]);
+      setTotal(0);
+      setLoading(false);
+      return;
     }
+    fetchApplicants();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedJobId, sortBy, sortOrder, page]);
+  }, [jobsLoaded, jobs, sortBy, sortOrder, page]);
 
   const handleApplyFilters = () => {
     setPage(1);
@@ -110,28 +143,13 @@ export function useApplicantsPageState() {
   };
 
   const handleUpdateStatus = async (applicationId: number, newStatus: string) => {
-    if (!confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
-    try {
-      const cid = await fetchCompanyId();
-      if (!cid || Number.isNaN(cid) || !selectedJobId) return;
-      await updateApplicantStatus({ companyId: cid, jobId: selectedJobId, applicationId, status: newStatus });
+    const success = await handleUpdateApplicantStatus(applicationId, newStatus, applicants, companyId);
+    if (success) {
       fetchApplicants();
-    } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to update status");
     }
   };
 
-  const stats = useMemo(
-    () => [
-      { label: "Total Applicants", value: total, icon: undefined, color: "from-blue-500 to-blue-600" },
-      { label: "Priority Applications", value: applicants.filter((a) => a.isPriority).length, icon: undefined, color: "from-amber-500 to-yellow-600" },
-      { label: "Pending Review", value: applicants.filter((a) => a.status === "SUBMITTED").length, icon: undefined, color: "from-yellow-500 to-yellow-600" },
-      { label: "Interview Stage", value: applicants.filter((a) => a.status === "INTERVIEW").length, icon: undefined, color: "from-purple-500 to-purple-600" },
-      { label: "Accepted", value: applicants.filter((a) => a.status === "ACCEPTED").length, icon: undefined, color: "from-green-500 to-green-600" },
-    ],
-    [applicants, total]
-  );
-
+  const stats = useApplicantsPageStats(applicants, total);
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return {
@@ -140,8 +158,6 @@ export function useApplicantsPageState() {
     applicants,
     total,
     jobs,
-    selectedJobId,
-    setSelectedJobId,
     searchName,
     setSearchName,
     education,

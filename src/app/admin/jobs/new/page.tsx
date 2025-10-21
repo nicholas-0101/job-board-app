@@ -1,31 +1,16 @@
 "use client";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useJobCreation } from "@/hooks/useJobCreation";
-import { usePreselectionTestCreation } from "@/hooks/usePreselectionTestCreation";
 import { useErrorDialog } from "@/hooks/useErrorDialog";
 import JobForm from "@/components/admin/jobs/JobForm";
-import TabNavigation from "@/components/admin/jobs/TabNavigation";
-import PreselectionTest from "@/components/admin/jobs/PreselectionTest";
 import ErrorDialog from "@/components/admin/shared/ErrorDialog";
 
 export default function NewJobPage() {
   const router = useRouter();
   const { form, submitting, error: jobError, updateForm, onSubmit, clearError: clearJobError } = useJobCreation();
-  const {
-    testQuestions,
-    passingScore,
-    isTestActive,
-    addQuestion,
-    updateQuestion,
-    removeQuestion,
-    validateTest,
-    getTestData,
-    setPassingScore,
-    setIsTestActive,
-    error: testError,
-    clearError: clearTestError,
-  } = usePreselectionTestCreation();
   const { 
     dialogOpen, 
     dialogTitle, 
@@ -34,69 +19,15 @@ export default function NewJobPage() {
     closeDialog, 
     showWarning 
   } = useErrorDialog();
-  
-  const [activeTab, setActiveTab] = useState("job");
 
-  const handleCreateJob = () => {
-    // Create a synthetic event for the form submission
-    const syntheticEvent = {
-      preventDefault: () => {},
-    } as React.FormEvent;
-    
-    // Clear previous errors
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     clearJobError();
-    clearTestError();
-    
-    // Always validate test if it's active
-    if (isTestActive) {
-      const validation = validateTest();
-      if (!validation.valid) {
-        showWarning(
-          `You have enabled preselection test but haven't completed it yet.\n\nPlease complete all 25 questions in the test, or uncheck "Enable Preselection Test" if you don't need it.\n\nCurrent status: ${validation.message}`,
-          "⚠️ Preselection Test Required"
-        );
-        return;
-      }
-    }
-
-    // Get test data if test is active
-    const testData = isTestActive ? getTestData() : undefined;
-    
-    // Submit with test data
-    onSubmit(syntheticEvent, testData);
+    await onSubmit(e);
   };
 
   const handleCancel = () => {
-    router.back();
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
-    
-    // Clear previous errors
-    clearJobError();
-    clearTestError();
-    
-    // Always validate test if it's active, regardless of which tab we're on
-    if (isTestActive) {
-      const validation = validateTest();
-      if (!validation.valid) {
-        // If we're on job tab and test is incomplete, show notification
-        if (activeTab === "job") {
-          showWarning(
-            `You have enabled preselection test but haven't completed it yet.\n\nPlease go to "Pre-Selection Test" tab to complete the test, or uncheck "Enable Preselection Test" if you don't need it.\n\nCurrent status: ${validation.message}`,
-            "⚠️ Preselection Test Required"
-          );
-        }
-        return;
-      }
-    }
-
-    // Get test data if test is active
-    const testData = isTestActive ? getTestData() : undefined;
-    
-    // Submit with test data
-    await onSubmit(e, testData);
+    router.push("/admin/jobs");
   };
 
   return (
@@ -112,22 +43,37 @@ export default function NewJobPage() {
       />
       
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-6">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Create Job Posting</h1>
-              <p className="text-gray-600">Fill in the job details and create pre-selection test</p>
+            <div className="flex items-center gap-4">
+              <Link href="/admin/jobs">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Create New Job</h1>
+                <p className="text-gray-600 mt-2">Fill in the job details to create a new job posting</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/admin/jobs">
+                <button className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                  Back to Jobs
+                </button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-
-        {/* Job Details Tab */}
-        {activeTab === "job" && (
+        <div className="max-w-4xl mx-auto">
           <JobForm
             form={form}
             submitting={submitting}
@@ -136,32 +82,7 @@ export default function NewJobPage() {
             onSubmit={handleSubmit}
             onCancel={handleCancel}
           />
-        )}
-
-        {/* Pre-Selection Test Tab */}
-        {activeTab === "test" && (
-          <PreselectionTest 
-            testQuestions={testQuestions}
-            passingScore={passingScore}
-            isTestActive={isTestActive}
-            testLoaded={true}
-            setPassingScore={setPassingScore}
-            setIsTestActive={setIsTestActive}
-            addQuestion={addQuestion}
-            updateQuestion={updateQuestion}
-            removeQuestion={removeQuestion}
-            saveTest={async () => {
-              const validation = validateTest();
-              if (!validation.valid) {
-                return;
-              }
-              // Test is valid, show success message
-              console.log("Test validated successfully!");
-            }}
-            onCreateJob={handleCreateJob}
-            isCreateMode={true}
-          />
-        )}
+        </div>
       </div>
     </div>
   );

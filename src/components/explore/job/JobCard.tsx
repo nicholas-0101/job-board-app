@@ -15,6 +15,7 @@ interface JobCardProps {
   category: string;
   tags: string[];
   rating: number;
+  banner?: string | null;
 }
 
 export function JobCard({
@@ -27,6 +28,7 @@ export function JobCard({
   salary,
   category,
   tags,
+  banner,
 }: JobCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -63,6 +65,17 @@ export function JobCard({
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3 }}
           />
+
+          {/* Job Banner */}
+          {banner && (
+            <div className="mb-4 -mx-3 sm:-mx-5 -mt-4 sm:-mt-6">
+              <img
+                src={banner}
+                alt={`${title} banner`}
+                className="w-full h-32 sm:h-40 object-cover rounded-t-2xl"
+              />
+            </div>
+          )}
 
           {/* Header */}
           <div className="flex items-start gap-3 sm:gap-4 mb-4">

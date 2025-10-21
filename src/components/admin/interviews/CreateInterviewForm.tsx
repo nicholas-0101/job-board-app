@@ -15,7 +15,7 @@ interface CreateInterviewFormProps {
     title: string;
     category: string;
     city: string;
-    acceptedApplicantsCount: number;
+    eligibleApplicantsCount: number;
   }>;
   eligibleApplicants: Array<{
     userId: number;
@@ -63,7 +63,7 @@ export default function CreateInterviewForm({
             <option value="">Select a job...</option>
             {jobsList.map((job) => (
               <option key={job.id} value={job.id}>
-                {job.title} ({job.acceptedApplicantsCount} eligible applicants)
+                {job.title} ({job.eligibleApplicantsCount} eligible applicants)
               </option>
             ))}
           </select>
@@ -75,66 +75,75 @@ export default function CreateInterviewForm({
         </div>
       </div>
       <div className="space-y-3">
-        {createForm.items.map((it, idx) => (
-          <div key={idx} className="grid gap-3 md:grid-cols-5 p-4 bg-secondary/30 rounded-xl">
-            <div className="relative">
-              <select 
-                value={it.applicantId} 
-                onChange={(e) => onItemChange(idx, 'applicantId', e.target.value)}
-                className="px-3 py-2 border rounded-xl bg-background w-full appearance-none"
-                disabled={!createForm.jobId || loadingApplicants}
-              >
-                <option value="">Select applicant...</option>
-                {eligibleApplicants.map((applicant) => (
-                  <option key={applicant.userId} value={applicant.userId}>
-                    {applicant.userName} ({applicant.userEmail})
-                  </option>
-                ))}
-              </select>
-              {loadingApplicants && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                </div>
-              )}
-            </div>
-            <input 
-              type="datetime-local" 
-              value={it.scheduleDate} 
-              onChange={(e) => onItemChange(idx, 'scheduleDate', e.target.value)} 
-              className="px-3 py-2 border rounded-xl bg-background" 
-            />
-            <input 
-              value={it.locationOrLink || ''} 
-              onChange={(e) => onItemChange(idx, 'locationOrLink', e.target.value)} 
-              placeholder="Location/Link" 
-              className="px-3 py-2 border rounded-xl bg-background" 
-            />
-            <input 
-              value={it.notes || ''} 
-              onChange={(e) => onItemChange(idx, 'notes', e.target.value)} 
-              placeholder="Notes" 
-              className="px-3 py-2 border rounded-xl bg-background" 
-            />
-            <button 
-              onClick={() => onRemoveItem(idx)} 
-              className="px-3 py-2 border border-red-300 rounded-xl hover:bg-red-50 text-red-600 transition-colors"
-            >
-              Remove
-            </button>
+        {createForm.items.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 p-6 text-sm text-muted-foreground">
+            {createForm.jobId
+              ? 'No candidates added yet. Click \'Add Candidate\' to start scheduling interviews for this job.'
+              : 'Select a job first, then click \'Add Candidate\' to begin scheduling interviews.'}
           </div>
-        ))}
+        ) : (
+          createForm.items.map((it, idx) => (
+            <div key={idx} className="grid gap-3 md:grid-cols-5 p-4 bg-secondary/30 rounded-xl">
+              <div className="relative">
+                <select
+                  value={it.applicantId}
+                  onChange={(e) => onItemChange(idx, 'applicantId', e.target.value)}
+                  className="px-3 py-2 border rounded-xl bg-background w-full appearance-none"
+                  disabled={!createForm.jobId || loadingApplicants}
+                >
+                  <option value="">Select applicant...</option>
+                  {eligibleApplicants.map((applicant) => (
+                    <option key={applicant.userId} value={applicant.userId}>
+                      {applicant.userName} ({applicant.userEmail})
+                    </option>
+                  ))}
+                </select>
+                {loadingApplicants && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  </div>
+                )}
+              </div>
+              <input
+                type="datetime-local"
+                value={it.scheduleDate}
+                onChange={(e) => onItemChange(idx, 'scheduleDate', e.target.value)}
+                className="px-3 py-2 border rounded-xl bg-background"
+              />
+              <input
+                value={it.locationOrLink || ''}
+                onChange={(e) => onItemChange(idx, 'locationOrLink', e.target.value)}
+                placeholder="Location/Link"
+                className="px-3 py-2 border rounded-xl bg-background"
+              />
+              <input
+                value={it.notes || ''}
+                onChange={(e) => onItemChange(idx, 'notes', e.target.value)}
+                placeholder="Notes"
+                className="px-3 py-2 border rounded-xl bg-background"
+              />
+              <button
+                onClick={() => onRemoveItem(idx)}
+                className="px-3 py-2 border border-red-300 rounded-xl hover:bg-red-50 text-red-600 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          ))
+        )}
       </div>
       <div className="flex gap-3 mt-4">
         <button 
           onClick={onAddItem} 
-          className="px-4 py-2 border rounded-xl hover:bg-secondary transition-colors flex items-center gap-2"
+          disabled={!createForm.jobId || loadingApplicants}
+          className="px-4 py-2 border rounded-xl hover:bg-secondary transition-colors flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
           Add Candidate
         </button>
         <button 
           onClick={onCreate} 
-          disabled={creating} 
+          disabled={creating || !createForm.jobId || createForm.items.length === 0} 
           className="px-6 py-2 bg-[#24CFA7] hover:bg-[#1fc39c] text-white rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {creating ? "Creating..." : "Create Schedules"}

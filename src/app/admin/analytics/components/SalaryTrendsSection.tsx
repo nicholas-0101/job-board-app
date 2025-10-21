@@ -50,10 +50,6 @@ export function SalaryTrendsSection({ salaryTrends }: { salaryTrends: any }) {
               <div key={location.city} className="p-4 bg-gray-50 rounded-xl">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{location.city}</h4>
-                  <div className={`flex items-center gap-1 text-sm ${location.growth >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {location.growth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                    {location.growth}%
-                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-gray-900">IDR {(location.avg / 1000000).toFixed(1)}M</span>

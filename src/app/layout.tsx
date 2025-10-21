@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import ConditionalLayout from "../components/layout/ConditionalLayout";
+import "../utils/suppressConsoleErrors"; // Suppress preselection 404 console errors
 
 export const metadata: Metadata = {
   title: "workoo",
@@ -22,6 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
+        <Script
+          src="/suppress-errors.js"
+          strategy="beforeInteractive"
+        />
         <Script
           src="https://apis.google.com/js/platform.js"
           strategy="lazyOnload"

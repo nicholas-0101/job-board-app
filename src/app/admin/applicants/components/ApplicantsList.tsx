@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Star, FileText, DollarSign, Clock } from "lucide-react";
+import { Eye, Star, FileText, DollarSign, Clock, Briefcase } from "lucide-react";
 
 export type Applicant = {
   applicationId: number;
@@ -16,6 +16,8 @@ export type Applicant = {
   expectedSalary?: number | null;
   appliedAt: string | number | Date;
   cvFile?: string | null;
+  jobTitle?: string;
+  jobId?: number;
 };
 
 export function ApplicantsList({
@@ -112,11 +114,17 @@ export function ApplicantsList({
                       )}
                     </div>
                   </div>
-                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-muted-foreground">
+                  <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2 min-w-0">
                       <FileText className="w-4 h-4" />
                       <span className="truncate sm:truncate break-all">{applicant.userEmail}</span>
                     </div>
+                    {applicant.jobTitle && (
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4" />
+                        <span className="truncate" title={applicant.jobTitle}>{applicant.jobTitle}</span>
+                      </div>
+                    )}
                     {applicant.expectedSalary && (
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-4 h-4" />

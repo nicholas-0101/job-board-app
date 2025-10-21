@@ -1,4 +1,77 @@
 import { apiCall } from "@/helper/axios";
+import axios from "axios";
+
+// Create a separate axios instance for preselection tests to suppress 404 errors
+const preselectionApiCall = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BE_URL || "http://localhost:4400",
+  withCredentials: false,
+  // Suppress 404 errors from console logging
+  validateStatus: (status) => {
+    // Don't treat 404 as error for preselection tests
+    if (status === 404) {
+      return true;
+    }
+    return status >= 200 && status < 300;
+  },
+});
+
+// Add auth interceptor
+preselectionApiCall.interceptors.request.use((config) => {
+  const token =
+    localStorage.getItem("token") || localStorage.getItem("verifiedToken");
+
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Add response interceptor to suppress 404 error logging
+preselectionApiCall.interceptors.response.use(
+  (response) => {
+    // For 404 responses, we want to suppress the error logging
+    if (response.status === 404) {
+      // Return a custom response that won't trigger error logging
+      return {
+        ...response,
+        data: null,
+        status: 404,
+        statusText: 'Not Found',
+        headers: response.headers,
+        config: response.config,
+        request: response.request,
+      };
+    }
+    return response;
+  },
+  (error) => {
+    // Suppress 404 errors from being logged
+    if (error.response?.status === 404) {
+      // Return a custom response instead of throwing an error
+      return {
+        data: null,
+        status: 404,
+        statusText: 'Not Found',
+        headers: error.response?.headers || {},
+        config: error.config,
+        request: error.request,
+      };
+    }
+    // For other errors, also suppress them for preselection endpoints
+    if (error.config?.url?.includes('/preselection/jobs/') && error.config?.url?.includes('/tests')) {
+      return {
+        data: null,
+        status: 404,
+        statusText: 'Not Found',
+        headers: {},
+        config: error.config,
+        request: error.request,
+      };
+    }
+    // For other errors, let them through
+    return Promise.reject(error);
+  }
+);
 
 export interface PreselectionQuestionDTO {
   id: number;
@@ -18,18 +91,17 @@ export interface PreselectionTestDTO {
 
 export async function fetchPreselectionTest(jobId: number): Promise<PreselectionTestDTO | null> {
   try {
-    const res = await apiCall.get<{ success: boolean; data: PreselectionTestDTO }>(
-      `/preselection/jobs/${jobId}/tests`
-    );
-    return res.data.data;
-  } catch (error: any) {
-    // 404 is expected when job doesn't have a preselection test
-    if (error.response?.status === 404) {
+    const response = await preselectionApiCall.get(`/preselection/jobs/${jobId}/tests`);
+    
+    // If status is 404 or any error, return null
+    if (response.status === 404 || response.status >= 400) {
       return null;
     }
-    // Log other errors
-    console.error("Error fetching preselection test:", error.response?.data?.message || error.message);
-    throw error;
+    
+    return response.data?.data || null;
+  } catch (error) {
+    // Any error should return null
+    return null;
   }
 }
 

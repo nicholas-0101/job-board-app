@@ -1,20 +1,19 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { listCompanyJobs } from "@/lib/jobs";
 import { apiCall } from "@/helper/axios";
 import { fetchPreselectionTest } from "@/lib/preselection";
 import { StatsOverview } from "@/components/preselection/StatsOverview";
 import { TestsList } from "@/components/preselection/TestsList";
+import "@/utils/suppressConsoleErrors";
 
 type TestSummary = {
   jobId: number;
   jobTitle: string;
   isActive: boolean;
-  totalQuestions: number;
   passingScore: number | null;
+  totalQuestions: number;
+  hasDraft: boolean;
 };
 
 export default function PreselectionPage() {
@@ -47,20 +46,47 @@ export default function PreselectionPage() {
         // Fetch all jobs then load tests for each
         const jobs = await listCompanyJobs({ companyId: cid, limit: 100, offset: 0 } as any);
         const summaries: TestSummary[] = [];
-        for (const j of jobs.items) {
-          try {
-            const t = await fetchPreselectionTest(j.id);
-            // t will be null if no test exists (404)
-            summaries.push({
-              jobId: j.id,
-              jobTitle: j.title,
-              isActive: t ? !!t.isActive : false,
-              totalQuestions: t?.questions?.length ?? 0,
-              passingScore: t?.passingScore ?? null,
-            });
-          } catch {
-            // Handle other errors
-            summaries.push({ jobId: j.id, jobTitle: j.title, isActive: false, totalQuestions: 0, passingScore: null });
+        
+        // Process jobs in batches to avoid overwhelming the server
+        const batchSize = 5;
+        for (let i = 0; i < jobs.items.length; i += batchSize) {
+          const batch = jobs.items.slice(i, i + batchSize);
+          const batchPromises = batch.map(async (j) => {
+            try {
+              const t = await fetchPreselectionTest(j.id);
+              
+              // t will be null if no test exists (404)
+              if (!t) {
+                return { 
+                  jobId: j.id, 
+                  jobTitle: j.title, 
+                  isActive: false, 
+                  passingScore: null, 
+                  totalQuestions: 0, 
+                  hasDraft: false 
+                };
+              }
+              
+              return {
+                jobId: j.id,
+                jobTitle: j.title,
+                isActive: !!t.isActive,
+                passingScore: t.passingScore ?? null,
+                totalQuestions: t.questions?.length ?? 0,
+                hasDraft: (t.questions?.length ?? 0) > 0,
+              };
+            } catch (error) {
+              // Silently handle errors (404s are expected for jobs without tests)
+              return { jobId: j.id, jobTitle: j.title, isActive: false, passingScore: null, totalQuestions: 0, hasDraft: false };
+            }
+          });
+          
+          const batchResults = await Promise.all(batchPromises);
+          summaries.push(...batchResults);
+          
+          // Small delay between batches to reduce server load
+          if (i + batchSize < jobs.items.length) {
+            await new Promise(resolve => setTimeout(resolve, 100));
           }
         }
         setTests(summaries);
@@ -69,6 +95,15 @@ export default function PreselectionPage() {
       }
     })();
   }, [companyId]);
+
+  // Add refresh function
+  const refresh = () => {
+    setLoading(true);
+    setTests([]);
+    // Trigger re-fetch by updating companyId state
+    const raw = localStorage.getItem("companyId");
+    setCompanyId(raw ? Number(raw) : NaN);
+  };
 
   return (
     <div className="min-h-screen">
@@ -79,14 +114,6 @@ export default function PreselectionPage() {
             <div>
               <h1 className="text-2xl font-semibold">Pre-Selection Tests</h1>
               <p className="text-sm text-muted-foreground mt-1">Create and manage 25-question tests for job applicants</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-              <Link href="/admin/jobs">
-                <Button variant="outline" className="gap-2 hover:bg-secondary">
-                  <Settings className="w-5 h-5" />
-                  Manage Jobs
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
@@ -102,7 +129,7 @@ export default function PreselectionPage() {
             <h3 className="text-lg font-semibold">Tests by Job Position</h3>
             {tests.length > 0 && (
               <p className="text-sm text-muted-foreground">
-                {tests.filter(t=>t.totalQuestions>0).length} of {tests.length} jobs have configured tests
+                {tests.filter(t=>t.isActive).length} of {tests.length} jobs have active tests
               </p>
             )}
           </div>

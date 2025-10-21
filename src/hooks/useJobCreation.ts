@@ -9,10 +9,13 @@ interface JobFormData {
   description: string;
   category: string;
   city: string;
-  salaryMin: string;
-  salaryMax: string;
-  tags: string;
-  deadline: string;
+  employmentType: string;
+  experienceLevel: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  tags: string[];
+  deadline: string | null;
+  banner: string | null;
 }
 
 interface TestData {
@@ -36,13 +39,16 @@ export function useJobCreation() {
     description: "",
     category: "",
     city: "",
-    salaryMin: "",
-    salaryMax: "",
-    tags: "",
+    employmentType: "",
+    experienceLevel: "",
+    salaryMin: null,
+    salaryMax: null,
+    tags: [],
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+    banner: null,
   });
 
-  const updateForm = (field: keyof JobFormData, value: string) => {
+  const updateForm = (field: keyof JobFormData, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
@@ -73,10 +79,13 @@ export function useJobCreation() {
         description: form.description,
         category: form.category,
         city: form.city,
-        salaryMin: form.salaryMin ? Number(form.salaryMin) : null,
-        salaryMax: form.salaryMax ? Number(form.salaryMax) : null,
-        tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-        deadline: form.deadline || null,
+        employmentType: form.employmentType || null,
+        experienceLevel: form.experienceLevel || null,
+        salaryMin: form.salaryMin,
+        salaryMax: form.salaryMax,
+        tags: form.tags,
+        deadline: form.deadline,
+        banner: form.banner,
       });
 
       // If test data is provided, create the preselection test

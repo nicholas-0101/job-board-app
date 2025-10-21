@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Save, Trash2 } from "lucide-react";
+import BannerUpload from "./BannerUpload";
 
 interface JobFormData {
   title: string;
@@ -12,6 +13,7 @@ interface JobFormData {
   salaryMax: number | null;
   tags: string[];
   deadline: string | null;
+  banner: string | null;
 }
 
 interface JobEditFormProps {
@@ -73,6 +75,12 @@ export default function JobEditForm({
             rows={6}
           />
         </div>
+
+        <BannerUpload
+          value={form.banner}
+          onChange={(value) => onUpdateForm('banner', value)}
+          disabled={saving}
+        />
 
         <div className="grid md:grid-cols-3 gap-4">
           <div>
