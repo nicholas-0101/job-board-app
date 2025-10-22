@@ -4,9 +4,13 @@ import { updateInterview, deleteInterview, InterviewItemDTO } from "@/lib/interv
 const formatForDatetimeLocal = (value: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  const tzOffsetMs = date.getTimezoneOffset() * 60_000;
-  const local = new Date(date.getTime() - tzOffsetMs);
-  return local.toISOString().slice(0, 16);
+  // Convert to local timezone for datetime-local input
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '03');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 export function useInterviewEdit(companyId: number, onSuccess: () => void) {
