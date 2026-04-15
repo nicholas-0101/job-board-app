@@ -39,7 +39,7 @@ export default function DashboardStats({ results }: DashboardStatsProps) {
       title: "Passed",
       value: passedAssessments,
       icon: CheckCircle,
-      iconColor: "text-emerald-100",
+      iconColor: "text-emerald-700",
       iconBg: "bg-emerald-100",
       gradientFrom: "from-emerald-50",
       gradientTo: "to-teal-50",
