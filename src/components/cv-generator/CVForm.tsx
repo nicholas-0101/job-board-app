@@ -30,12 +30,12 @@ export default function CVForm({ formData, isGenerating, onInputChange, onGenera
           {/* Template Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-600" />
+              <FileText className="w-5 h-5 text-blue-900" />
               <div>
                 <h3 className="font-semibold text-blue-900">
                   ATS-Friendly Template
                 </h3>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-blue-900">
                   Clean, professional template optimized for Applicant
                   Tracking Systems
                 </p>
@@ -51,7 +51,7 @@ export default function CVForm({ formData, isGenerating, onInputChange, onGenera
           <Button
             onClick={onGenerateCV}
             disabled={isGenerating}
-            className="w-full"
+            className="w-full bg-[#24CFA7] hover:bg-[#1fc39c] text-white"
             size="lg"
           >
             {isGenerating ? (

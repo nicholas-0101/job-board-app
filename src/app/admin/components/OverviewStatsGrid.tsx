@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
-export type OverviewStat = { label: string; value: number; color: string; icon: any };
+export type OverviewStat = { label: string; value: number; color: string; icon: any; iconColor?: string };
 
 export function OverviewStatsGrid({ stats, loading }: { stats: OverviewStat[]; loading: boolean }) {
   return (
@@ -30,8 +30,8 @@ export function OverviewStatsGrid({ stats, loading }: { stats: OverviewStat[]; l
                     </div>
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
                   </div>
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shrink-0`}>
-                    <IconComponent className="w-5 h-5 text-white" />
+                  <div className={`p-3 rounded-xl ${stat.color} shrink-0`}>
+                    <IconComponent className={`w-5 h-5 ${stat.iconColor || 'text-white'}`} />
                   </div>
                 </div>
               </CardContent>

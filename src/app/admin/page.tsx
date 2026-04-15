@@ -48,25 +48,29 @@ export default function AdminPage() {
       label: "Total Jobs",
       value: realStats.totalJobs,
       icon: Briefcase,
-      color: "from-blue-500 to-blue-600",
+      color: "bg-blue-100",
+      iconColor: "text-blue-500",
     },
     {
       label: "Published Jobs",
       value: realStats.publishedJobs,
       icon: CheckCircle,
-      color: "from-green-500 to-green-600",
+      color: "bg-emerald-100",
+      iconColor: "text-emerald-500",
     },
     {
       label: "Total Applicants",
       value: realStats.totalApplicants,
       icon: Users,
-      color: "from-purple-500 to-purple-600",
+      color: "bg-purple-100",
+      iconColor: "text-purple-500",
     },
     {
       label: "Scheduled Interviews",
       value: realStats.totalInterviews,
       icon: Calendar,
-      color: "from-orange-500 to-orange-600",
+      color: "bg-amber-100",
+      iconColor: "text-amber-500",
     },
   ];
 

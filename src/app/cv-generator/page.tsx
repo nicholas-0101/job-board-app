@@ -24,7 +24,9 @@ const TabNavigation = ({
       variant={activeTab === "generate" ? "default" : "ghost"}
       onClick={() => setActiveTab("generate")}
       className={`flex-1 ${
-        activeTab === "generate" ? "bg-[#467EC7] text-white" : ""
+        activeTab === "generate"
+          ? "bg-[#467EC7] text-white hover:bg-[#5a8fd4]"
+          : "text-gray-600 hover:bg-blue-50 hover:text-[#467EC7]"
       }`}
     >
       <Plus className="w-4 h-4 mr-2" />
@@ -34,7 +36,9 @@ const TabNavigation = ({
       variant={activeTab === "my-cvs" ? "default" : "ghost"}
       onClick={() => setActiveTab("my-cvs")}
       className={`flex-1 ${
-        activeTab === "my-cvs" ? "bg-[#467EC7] text-white" : ""
+        activeTab === "my-cvs"
+          ? "bg-[#467EC7] text-white hover:bg-[#5a8fd4]"
+          : "text-gray-600 hover:bg-blue-50 hover:text-[#467EC7]"
       }`}
     >
       <FileText className="w-4 h-4 mr-2" />
@@ -74,7 +78,7 @@ export default function CVGeneratorPage() {
 
             {isLoading && (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#467EC7] mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading...</p>
               </div>
             )}

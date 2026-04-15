@@ -10,7 +10,7 @@ export function DemographicsSection({ demographics }: { demographics: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <Users className="w-5 h-5 text-blue-600" />
+            <Users className="w-5 h-5 text-blue-400" />
             Age Demographics
           </CardTitle>
         </CardHeader>
@@ -45,7 +45,7 @@ export function DemographicsSection({ demographics }: { demographics: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <PieChart className="w-5 h-5 text-purple-600" />
+            <PieChart className="w-5 h-5 text-purple-400" />
             Gender Distribution
           </CardTitle>
         </CardHeader>
@@ -79,7 +79,7 @@ export function DemographicsSection({ demographics }: { demographics: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <MapPin className="w-5 h-5 text-green-600" />
+            <MapPin className="w-5 h-5 text-green-400" />
             Top Locations
           </CardTitle>
         </CardHeader>

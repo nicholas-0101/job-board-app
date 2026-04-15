@@ -10,7 +10,7 @@ export function SalaryTrendsSection({ salaryTrends }: { salaryTrends: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <DollarSign className="w-5 h-5 text-yellow-600" />
+            <DollarSign className="w-5 h-5 text-amber-400" />
             Average Salary by Position
           </CardTitle>
         </CardHeader>
@@ -27,7 +27,7 @@ export function SalaryTrendsSection({ salaryTrends }: { salaryTrends: any }) {
                   <span className="font-semibold text-green-600">Avg: IDR {(position.avg / 1000000).toFixed(0)}M</span>
                 </div>
                 <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-1000" style={{ width: `${(position.avg / 35000000) * 100}%` }} />
+                  <div className="bg-gradient-to-r from-amber-200 to-amber-400 h-2 rounded-full transition-all duration-1000" style={{ width: `${(position.avg / 35000000) * 100}%` }} />
                 </div>
               </div>
             ))
@@ -40,7 +40,7 @@ export function SalaryTrendsSection({ salaryTrends }: { salaryTrends: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <BarChart3 className="w-5 h-5 text-indigo-600" />
+            <BarChart3 className="w-5 h-5 text-indigo-400" />
             Salary Trends by Location
           </CardTitle>
         </CardHeader>
@@ -57,7 +57,7 @@ export function SalaryTrendsSection({ salaryTrends }: { salaryTrends: any }) {
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="h-2 flex-1 rounded-full bg-gray-200">
-                    <div className="h-2 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-600 transition-all duration-500" style={{ width: `${clampPercentage((location.avg / 25000000) * 100)}%` }} />
+                    <div className="h-2 rounded-full bg-gradient-to-r from-indigo-200 to-indigo-400 transition-all duration-500" style={{ width: `${clampPercentage((location.avg / 25000000) * 100)}%` }} />
                   </div>
                   <span className="w-12 text-right text-xs font-semibold text-gray-900">{Math.round(clampPercentage((location.avg / 25000000) * 100))}%</span>
                 </div>

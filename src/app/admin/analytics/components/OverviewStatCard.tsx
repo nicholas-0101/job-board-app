@@ -6,8 +6,8 @@ export function OverviewStatCard({ title, value, icon: Icon, color }: { title: s
   return (
     <Card className="shadow-md">
       <CardContent className="flex flex-col items-center gap-3 p-5 text-center sm:p-6">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}>
-          <Icon className="h-6 w-6 text-white" aria-hidden />
+        <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${color}`}>
+          <Icon className="h-6 w-6" aria-hidden />
         </div>
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
         <div className="text-3xl font-semibold text-foreground">

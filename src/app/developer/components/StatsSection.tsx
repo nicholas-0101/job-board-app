@@ -24,6 +24,7 @@ export function StatsSection({ stats, isLoading }: StatsSectionProps) {
             description={config.description}
             icon={config.icon}
             iconBgColor={config.iconBgColor}
+            iconColor={config.iconColor}
             isLoading={isLoading}
           />
         );

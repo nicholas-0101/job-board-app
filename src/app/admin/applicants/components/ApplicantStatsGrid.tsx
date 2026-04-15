@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 
-export type StatItem = { label: string; value: number; color: string; icon: any };
+export type StatItem = { label: string; value: number; color: string; icon: any; iconColor?: string };
 
 export function ApplicantStatsGrid({ stats }: { stats: StatItem[] }) {
   return (
@@ -18,8 +18,8 @@ export function ApplicantStatsGrid({ stats }: { stats: StatItem[] }) {
           >
             <Card className="shadow-md h-full">
               <CardContent className="pt-6 flex flex-col items-center text-center gap-2">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
-                  <IconComponent className="w-5 h-5 text-white" />
+                <div className={`p-3 rounded-xl ${stat.color}`}>
+                  <IconComponent className={`w-5 h-5 ${stat.iconColor || 'text-white'}`} />
                 </div>
                 <p className="text-2xl font-semibold">{stat.value}</p>
                 <p className="text-sm text-muted-foreground">{stat.label}</p>

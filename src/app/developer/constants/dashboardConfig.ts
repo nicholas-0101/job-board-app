@@ -20,6 +20,7 @@ export interface StatConfig {
   description: string;
   icon: LucideIcon;
   iconBgColor: string;
+  iconColor: string;
   formatter?: (value: number) => string;
 }
 
@@ -29,21 +30,24 @@ export const STAT_CONFIGS: StatConfig[] = [
     title: "Active Assessments",
     description: "Total skill tests",
     icon: FileText,
-    iconBgColor: COLORS.SECONDARY,
+    iconBgColor: "bg-emerald-100",
+    iconColor: "text-emerald-500",
   },
   {
     key: "pendingApprovals",
     title: "Pending Approvals",
     description: "Subscription requests",
     icon: AlertCircle,
-    iconBgColor: COLORS.ACCENT,
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-500",
   },
   {
     key: "certificatesIssued",
     title: "Certificates Issued",
     description: "Total certificates",
     icon: Award,
-    iconBgColor: COLORS.SECONDARY,
+    iconBgColor: "bg-amber-100",
+    iconColor: "text-amber-500",
     formatter: (value: number) => value.toLocaleString(),
   },
 ];
@@ -53,6 +57,7 @@ export interface ToolConfig {
   description: string;
   icon: LucideIcon;
   iconBgColor: string;
+  iconColor: string;
   buttonText: string;
   route?: string;
 }
@@ -62,14 +67,16 @@ export const TOOL_CONFIGS: ToolConfig[] = [
     title: "Skill Assessment",
     description: "Manage skill tests, pass rate, badges, certificates",
     icon: FileText,
-    iconBgColor: COLORS.SECONDARY,
+    iconBgColor: "bg-emerald-100",
+    iconColor: "text-emerald-500",
     buttonText: "Manage",
   },
   {
     title: "Subscription Approval",
     description: "Approve subscription payments & manage access",
     icon: Users,
-    iconBgColor: COLORS.ACCENT,
+    iconBgColor: "bg-blue-100",
+    iconColor: "text-blue-500",
     buttonText: "Review",
     route: "/developer/subscription-approval/history",
   },
@@ -77,7 +84,8 @@ export const TOOL_CONFIGS: ToolConfig[] = [
     title: "Badge & Certificate",
     description: "Issued certificates, badge templates, verification system",
     icon: Award,
-    iconBgColor: COLORS.SECONDARY,
+    iconBgColor: "bg-amber-100",
+    iconColor: "text-amber-500",
     buttonText: "Manage",
   },
 ];

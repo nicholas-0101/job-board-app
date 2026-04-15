@@ -1,4 +1,6 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import { Filter, Search } from "lucide-react";
 import type { AssessmentFilters } from "@/types/skillAssessment";
 
@@ -11,29 +13,61 @@ interface AssessmentFiltersProps {
 
 // Helper functions (max 15 lines each)
 
-const FilterSelect = ({
+const CategoryDropdown = ({
   value,
   onChange,
   options,
-  placeholder,
 }: {
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
-  placeholder: string;
-}) => (
-  <select
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-  >
-    {options.map((option) => (
-      <option key={option.value} value={option.value}>
-        {option.label}
-      </option>
-    ))}
-  </select>
-);
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedLabel = options.find((o) => o.value === value)?.label || "All Categories";
+
+  return (
+    <div className="relative" ref={wrapperRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full sm:w-48 px-3 sm:px-4 py-2 rounded-lg bg-white text-grey-800 border border-gray-200 font-semibold text-xs sm:text-sm text-left flex justify-between items-center"
+      >
+        <span className="truncate">{selectedLabel}</span>
+        <span className="ml-2">▾</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-sm z-10">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+              className="w-full text-left px-3 sm:px-4 py-2 hover:bg-[#467EC7]/10 transition-colors rounded-lg text-xs sm:text-sm"
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SearchInput = ({ onSearch }: { onSearch: (query: string) => void }) => (
   <div className="relative flex-1 w-full max-w-full sm:max-w-md">
@@ -42,7 +76,7 @@ const SearchInput = ({ onSearch }: { onSearch: (query: string) => void }) => (
       type="text"
       placeholder="Search assessments..."
       onChange={(e) => onSearch(e.target.value)}
-      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-4 focus:ring-grey-500 focus:border-transparent"
     />
   </div>
 );
@@ -63,19 +97,15 @@ export default function AssessmentFilters({
         <SearchInput onSearch={onSearch} />
 
         <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">Filters:</span>
-          </div>
 
-          <FilterSelect
+          <CategoryDropdown
             value={filters.category}
             onChange={(value) => updateFilter("category", value)}
             options={categories}
-            placeholder="Category"
           />
         </div>
       </div>
     </div>
   );
 }
+

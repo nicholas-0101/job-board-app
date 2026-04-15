@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, BookOpen, Users, TrendingUp } from "lucide-react";
+import { BookOpen, Users } from "lucide-react";
 import { AssessmentStats as StatsType } from "@/types/skillAssessment";
 
 interface AssessmentStatsProps {
@@ -11,37 +10,41 @@ const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('id-ID').format(num);
 };
 
-const formatPercentage = (num: number): string => {
-  return `${num.toFixed(1)}%`;
-};
-
-const StatCard = ({ 
-  icon: Icon, 
-  title, 
-  value, 
+const StatCard = ({
+  icon: Icon,
+  title,
+  value,
   subtitle,
-  color = "text-blue-600"
+  gradientFrom,
+  gradientTo,
+  iconBg,
+  iconColor,
 }: {
   icon: any;
   title: string;
   value: string | number;
   subtitle?: string;
-  color?: string;
+  gradientFrom: string;
+  gradientTo: string;
+  iconBg: string;
+  iconColor: string;
 }) => (
-  <Card className="bg-white border border-gray-200">
-    <CardContent className="p-4 sm:p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs sm:text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-xl sm:text-2xl font-bold text-gray-900">{value}</p>
-          {subtitle && (
-            <p className="text-[10px] sm:text-xs text-gray-500 mt-1">{subtitle}</p>
-          )}
-        </div>
-        <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${color}`} />
+  <div
+    className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${gradientFrom} ${gradientTo} p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-300`}
+  >
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">{title}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
+        {subtitle && (
+          <p className="text-[11px] sm:text-xs text-gray-500 mt-1.5">{subtitle}</p>
+        )}
       </div>
-    </CardContent>
-  </Card>
+      <div className={`flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${iconBg}`}>
+        <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${iconColor}`} />
+      </div>
+    </div>
+  </div>
 );
 
 export default function AssessmentStats({ stats }: AssessmentStatsProps) {
@@ -52,14 +55,20 @@ export default function AssessmentStats({ stats }: AssessmentStatsProps) {
         title="Total Assessments"
         value={formatNumber(stats.totalAssessments)}
         subtitle="Available tests"
-        color="text-blue-600"
+        gradientFrom="from-blue-50"
+        gradientTo="to-indigo-50"
+        iconBg="bg-blue-100"
+        iconColor="text-blue-800"
       />
       <StatCard
         icon={Users}
         title="Total Participants"
         value={formatNumber(stats.totalParticipants)}
         subtitle="Users tested"
-        color="text-green-600"
+        gradientFrom="from-emerald-50"
+        gradientTo="to-teal-50"
+        iconBg="bg-emerald-100"
+        iconColor="text-emerald-600"
       />
     </div>
   );

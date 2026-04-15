@@ -57,7 +57,7 @@ export default function AuthGuard({
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#24CFA7] mx-auto mb-4"></div>
               <p className="text-gray-600">Checking authentication...</p>
             </div>
           </div>

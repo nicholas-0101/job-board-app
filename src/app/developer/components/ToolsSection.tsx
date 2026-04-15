@@ -27,6 +27,7 @@ export function ToolsSection() {
             description={tool.description}
             icon={tool.icon}
             iconBgColor={tool.iconBgColor}
+            iconColor={tool.iconColor}
             buttonText={tool.buttonText}
             onButtonClick={() => handleToolClick(tool.route)}
           />

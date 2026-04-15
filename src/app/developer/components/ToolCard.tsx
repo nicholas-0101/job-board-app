@@ -7,6 +7,7 @@ interface ToolCardProps {
   description: string;
   icon: LucideIcon;
   iconBgColor: string;
+  iconColor?: string;
   buttonText: string;
   onButtonClick?: () => void;
 }
@@ -16,6 +17,7 @@ export function ToolCard({
   description,
   icon: Icon,
   iconBgColor,
+  iconColor = "text-white",
   buttonText,
   onButtonClick,
 }: ToolCardProps) {
@@ -27,8 +29,8 @@ export function ToolCard({
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg" style={{ backgroundColor: iconBgColor }}>
-              <Icon className="w-6 h-6 text-white" />
+            <div className={`p-3 rounded-lg ${iconBgColor}`}>
+              <Icon className={`w-6 h-6 ${iconColor}`} />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#467EC7] transition-colors duration-300">

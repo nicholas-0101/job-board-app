@@ -9,7 +9,7 @@ export function InterestsGrid({ interests }: { interests: any[] | null }) {
     <Card className="shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
-          <Activity className="w-5 h-5 text-red-600" />
+          <Activity className="w-5 h-5 text-rose-400" />
           Most Popular Job Categories
         </CardTitle>
       </CardHeader>
@@ -30,9 +30,9 @@ export function InterestsGrid({ interests }: { interests: any[] | null }) {
                   </div>
                   <div className="text-sm text-gray-600 mb-3">{interest.category}</div>
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div className="bg-gradient-to-r from-red-400 to-red-600 h-2 rounded-full transition-all duration-1000" style={{ width: `${interest.percentage ?? 0}%` }} />
+                    <div className="bg-gradient-to-r from-rose-200 to-rose-400 h-2 rounded-full transition-all duration-1000" style={{ width: `${interest.percentage ?? 0}%` }} />
                   </div>
-                  <div className="text-sm font-medium text-red-600">{interest.percentage ?? 0}%</div>
+                  <div className="text-sm font-medium text-rose-500">{interest.percentage ?? 0}%</div>
                 </div>
               </motion.div>
             ))}

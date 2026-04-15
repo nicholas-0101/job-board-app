@@ -7,6 +7,7 @@ interface StatCardProps {
   description: string;
   icon: LucideIcon;
   iconBgColor: string;
+  iconColor?: string;
   isLoading?: boolean;
 }
 
@@ -16,6 +17,7 @@ export function StatCard({
   description,
   icon: Icon,
   iconBgColor,
+  iconColor = "text-white",
   isLoading = false,
 }: StatCardProps) {
   return (
@@ -25,8 +27,8 @@ export function StatCard({
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className="p-2 rounded-lg" style={{ backgroundColor: iconBgColor }}>
-          <Icon className="h-4 w-4 text-white" />
+        <div className={`p-2 rounded-lg ${iconBgColor}`}>
+          <Icon className={`h-4 w-4 ${iconColor}`} />
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center gap-1 px-2 py-3">

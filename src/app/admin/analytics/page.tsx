@@ -91,9 +91,9 @@ export default function AnalyticsPage() {
     <Card className="shadow-md">
       <CardContent className="flex flex-col items-center gap-3 p-5 text-center sm:p-6">
         <div
-          className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}
+          className={`flex h-12 w-12 items-center justify-center rounded-xl ${color}`}
         >
-          <Icon className="h-6 w-6 text-white" aria-hidden />
+          <Icon className="h-6 w-6 text-inherit" aria-hidden />
         </div>
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
         <div className="text-3xl font-semibold text-foreground">
@@ -129,10 +129,10 @@ export default function AnalyticsPage() {
         ) : (
           <>
             <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-              <OverviewStatCard title="Total Users" value={overview?.totalUsers} icon={Users} color="from-blue-500 to-blue-600" />
-              <OverviewStatCard title="Active Jobs" value={overview?.activeJobs} icon={Briefcase} color="from-green-500 to-green-600" />
-              <OverviewStatCard title="Applications" value={overview?.applications} icon={TrendingUp} color="from-purple-500 to-purple-600" />
-              <OverviewStatCard title="Companies" value={overview?.companies} icon={Target} color="from-orange-500 to-orange-600" />
+              <OverviewStatCard title="Total Users" value={overview?.totalUsers} icon={Users} color="bg-blue-100 text-blue-500" />
+              <OverviewStatCard title="Active Jobs" value={overview?.activeJobs} icon={Briefcase} color="bg-emerald-100 text-emerald-500" />
+              <OverviewStatCard title="Applications" value={overview?.applications} icon={TrendingUp} color="bg-purple-100 text-purple-500" />
+              <OverviewStatCard title="Companies" value={overview?.companies} icon={Target} color="bg-amber-100 text-amber-500" />
             </div>
 
             <DemographicsSection demographics={demographics} />

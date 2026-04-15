@@ -1,5 +1,4 @@
 "use client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Award, CheckCircle, Trophy, TrendingUp } from "lucide-react";
 
 interface AssessmentResult {
@@ -31,29 +30,37 @@ export default function DashboardStats({ results }: DashboardStatsProps) {
       title: "Total Assessments",
       value: totalAssessments,
       icon: Award,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      iconColor: "text-blue-900",
+      iconBg: "bg-blue-100",
+      gradientFrom: "from-blue-50",
+      gradientTo: "to-indigo-50",
     },
     {
       title: "Passed",
       value: passedAssessments,
       icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      iconColor: "text-emerald-100",
+      iconBg: "bg-emerald-100",
+      gradientFrom: "from-emerald-50",
+      gradientTo: "to-teal-50",
     },
     {
       title: "Certificates",
       value: certificatesEarned,
       icon: Trophy,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
+      iconColor: "text-amber-700",
+      iconBg: "bg-amber-100",
+      gradientFrom: "from-amber-50",
+      gradientTo: "to-yellow-50",
     },
     {
       title: "Average Score",
       value: `${averageScore}%`,
       icon: TrendingUp,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      iconColor: "text-purple-900",
+      iconBg: "bg-purple-100",
+      gradientFrom: "from-purple-50",
+      gradientTo: "to-fuchsia-50",
     },
   ];
 
@@ -62,21 +69,23 @@ export default function DashboardStats({ results }: DashboardStatsProps) {
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <Icon className={`w-6 h-6 ${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                </div>
+          <div
+            key={index}
+            className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${stat.gradientFrom} ${stat.gradientTo} p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-300`}
+          >
+            <div className="flex items-center gap-4">
+              <div className={`flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${stat.iconBg}`}>
+                <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${stat.iconColor}`} />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{stat.title}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
+              </div>
+            </div>
+          </div>
         );
       })}
     </div>
   );
 }
+

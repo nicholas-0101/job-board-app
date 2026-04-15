@@ -18,16 +18,11 @@ export default function DashboardHeader() {
         
         <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
           <Link href="/skill-assessments">
-            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
+            <Button className="flex items-center gap-2 w-full sm:w-auto bg-[#467EC7] hover:bg-[#467EC7]/90">
               <BookOpen className="w-4 h-4" />
               Browse Assessments
             </Button>
           </Link>
-          
-          <Button className="flex items-center gap-2 bg-[#467EC7] hover:bg-[#467EC7]/90 w-full sm:w-auto">
-            <Target className="w-4 h-4" />
-            Take Assessment
-          </Button>
         </div>
       </div>
     </div>

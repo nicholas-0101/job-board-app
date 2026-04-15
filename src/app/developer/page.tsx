@@ -15,7 +15,6 @@ export default function DeveloperPage() {
       <DeveloperLayout>
         <div
           className="min-h-screen py-6"
-          style={{ backgroundColor: COLORS.BACKGROUND }}
         >
           <div className="mx-auto max-w-7xl space-y-10 px-4 sm:px-6 lg:px-8">
             <DashboardHeader />
