@@ -47,7 +47,7 @@ export function JobCard({
   return (
     <Link
       href={`/explore/jobs/${slug}`}
-      className="block w-full max-w-full overflow-hidden"
+      className="block w-full h-full max-w-full"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -55,10 +55,10 @@ export function JobCard({
         whileHover={{ y: -5 }}
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
-        className="group w-full max-w-full overflow-hidden"
+        className="group w-full h-full max-w-full flex flex-col"
         aria-label={`${title} at ${company}`}
       >
-        <div className="w-full max-w-full bg-[#F0F5F9] text-card-foreground rounded-2xl transition-all duration-300 overflow-hidden box-border px-3 sm:px-5 py-4 sm:py-6">
+        <div className="w-full h-full max-w-full bg-[#F0F5F9] text-card-foreground rounded-2xl transition-all duration-300 overflow-hidden box-border px-3 sm:px-5 py-4 sm:py-6 flex flex-col">
           {/* Gradient Border on Hover */}
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 opacity-0 pointer-events-none"
@@ -122,21 +122,21 @@ export function JobCard({
           </div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 mt-auto overflow-hidden">
             {tags.slice(0, 3).map((tag, index) => (
               <motion.span
                 key={tag}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-medium rounded-full border border-primary/20"
+                className="px-2.5 py-1 bg-primary/5 text-primary text-xs font-medium rounded-full border border-primary/20 whitespace-nowrap shrink-0"
               >
                 {tag}
               </motion.span>
             ))}
             {tags.length > 3 && (
-              <span className="px-2.5 py-1 bg-secondary text-muted-foreground text-xs font-medium rounded-full">
-                +{tags.length - 3} more
+              <span className="px-2.5 py-1 bg-secondary text-muted-foreground text-xs font-medium border border-primary/10 rounded-full whitespace-nowrap shrink-0">
+                +{tags.length - 3}
               </span>
             )}
           </div>

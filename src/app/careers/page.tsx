@@ -32,9 +32,9 @@ export default function CareersPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10 py-20">
+      <section className="py-20">
         <div className="max-w-6xl mx-auto text-center px-6">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -119,7 +119,7 @@ export default function CareersPage() {
       </section>
 
       {/* Open Roles Section */}
-      <section className="bg-card border-t border-border py-20">
+      <section className="py-20">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}

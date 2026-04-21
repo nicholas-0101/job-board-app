@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Review } from "../types/review.types";
 import ReviewCard from "./ReviewCard";
 
@@ -30,12 +31,23 @@ export default function ReviewSlider({
 
   const lastSlideIndex = Math.max(slides.length - 1, 0);
   const isLastSlide = currentSlide >= lastSlideIndex;
-  const canGoNext =
-    slides.length > 0 && (currentSlide < lastSlideIndex || hasMore);
+  const canGoNext = slides.length > 0 && currentSlide < lastSlideIndex;
 
   return (
-    <div className="hidden md:block relative">
-      <div className="overflow-hidden">
+    <div className="hidden md:flex items-center gap-3">
+      {/* Left Navigation Button */}
+      <button
+        type="button"
+        aria-label="Previous reviews"
+        onClick={onPrev}
+        disabled={currentSlide === 0}
+        className="shrink-0 p-2 rounded-full border border-[#E1F1F3] bg-white text-[#467EC7] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition-colors"
+      >
+        <ChevronLeft />
+      </button>
+
+      {/* Slider Content */}
+      <div className="flex-1 overflow-hidden">
         <div
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -52,24 +64,15 @@ export default function ReviewSlider({
         </div>
       </div>
 
-      {/* Navigation Buttons */}
-      <button
-        type="button"
-        aria-label="Previous reviews"
-        onClick={onPrev}
-        disabled={currentSlide === 0}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-[#E1F1F3] bg-white text-[#467EC7] disabled:opacity-40 shadow-sm hover:bg-[#E1F1F3]"
-      >
-        ‹
-      </button>
+      {/* Right Navigation Button */}
       <button
         type="button"
         aria-label="Next reviews"
         onClick={onNext}
         disabled={!canGoNext && !loading}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-[#E1F1F3] bg-white text-[#467EC7] disabled:opacity-40 shadow-sm hover:bg-[#E1F1F3]"
+        className="shrink-0 p-2 rounded-full border border-[#E1F1F3] bg-white text-[#467EC7] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition-colors"
       >
-        ›
+        <ChevronRight />
       </button>
     </div>
   );

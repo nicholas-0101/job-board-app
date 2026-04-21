@@ -22,7 +22,7 @@ export default function ContactUsPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
       <ContactHero />
       
       <ContactFormComponent

@@ -38,8 +38,8 @@ const integrations = [
 
 export default function IntegrationsPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <section className="py-20 bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+    <div className="min-h-screen bg-gradient-to-br from-[#467EC7]/10 via-white to-[#24CFA7]/10">
+      <section className="py-20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}

@@ -37,7 +37,7 @@ export default function HomePage() {
         <JobsSection jobs={jobs} />
       </div>
 
-      <TrustedCompaniesSection />
+
     </section>
   );
 }

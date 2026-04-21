@@ -23,11 +23,11 @@ export default function CompanyHeader({
           whileHover={{ scale: 1.1, rotate: 5 }}
           className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center text-xl sm:text-2xl font-bold text-primary shadow-sm flex-shrink-0"
         >
-          {company.logo ? (
+          {company.logoUrl ? (
             <img
-              src={company.logo}
+              src={company.logoUrl}
               alt={`${company.name} logo`}
-              className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg flex-shrink-0"
+              className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg"
             />
           ) : (
             company.name?.charAt(0)

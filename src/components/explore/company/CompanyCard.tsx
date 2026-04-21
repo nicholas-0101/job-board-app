@@ -57,7 +57,7 @@ export function CompanyCard({
               <img
                 src={logo}
                 alt={`${name} logo`}
-                className="w-14 h-14 object-contain rounded-lg"
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg"
               />
             ) : (
               name.charAt(0)

@@ -98,7 +98,7 @@ export function useCompaniesPage() {
         name: c.name,
         locationCity: c.locationCity,
         jobs: c._count?.jobs || 0,
-        logo: c.logo || "",
+        logo: c.logoUrl || "",
         rating: Math.floor(Math.random() * 2) + 4,
       }));
 
