@@ -25,6 +25,7 @@ export function useHomePage() {
   const [mounted, setMounted] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [geolocationComplete, setGeolocationComplete] = useState(false);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(true);
 
   const exploreRef = useRef<HTMLDivElement>(null);
 
@@ -65,6 +66,7 @@ export function useHomePage() {
     if (!hasAccess || !geolocationComplete) return;
 
     const fetchJobs = async () => {
+      setIsLoadingJobs(true);
       try {
         const res = await apiCall.get("/job/all", {
           params: {
@@ -90,6 +92,8 @@ export function useHomePage() {
         setJobs(jobsData.slice(0, 6));
       } catch (err) {
         console.error("Failed to fetch jobs:", err);
+      } finally {
+        setIsLoadingJobs(false);
       }
     };
 
@@ -100,6 +104,7 @@ export function useHomePage() {
     async (shouldScroll: boolean = true) => {
       if (!hasAccess || !pathname) return;
 
+      setIsLoadingJobs(true);
       try {
         const params = new URLSearchParams();
         if (keyword) params.set("keyword", keyword);
@@ -140,6 +145,8 @@ export function useHomePage() {
         }
       } catch (err) {
         console.error("Search failed:", err);
+      } finally {
+        setIsLoadingJobs(false);
       }
     },
     [keyword, selectedLocation, pathname, router]
@@ -170,6 +177,7 @@ export function useHomePage() {
 
   return {
     jobs,
+    isLoadingJobs,
     mounted,
     hasAccess,
     keyword,

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader } from "lucide-react";
 import { JobCard } from "../explore/job/JobCard";
 import JobsEmptyState from "./JobsEmptyState";
 
@@ -21,9 +21,10 @@ interface Job {
 
 interface JobsSectionProps {
   jobs: Job[];
+  isLoading?: boolean;
 }
 
-export default function JobsSection({ jobs }: JobsSectionProps) {
+export default function JobsSection({ jobs, isLoading }: JobsSectionProps) {
   return (
     <section className="container mx-auto px-4 py-8 sm:py-12 md:py-16 min-h-[100vh]">
       <div className="text-center mb-8 sm:mb-10 md:mb-12 mt-6 sm:mt-8 md:mt-10">
@@ -35,7 +36,16 @@ export default function JobsSection({ jobs }: JobsSectionProps) {
         </p>
       </div>
 
-      {jobs.length === 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16 sm:py-20">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader className="w-8 h-8 sm:w-10 sm:h-10 text-[#24CFA7]" />
+          </motion.div>
+        </div>
+      ) : jobs.length === 0 ? (
         <JobsEmptyState />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">

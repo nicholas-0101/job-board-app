@@ -9,6 +9,7 @@ import { useHomePage } from "@/lib/hooks/useHomePage";
 export default function HomePage() {
   const {
     jobs,
+    isLoadingJobs,
     mounted,
     hasAccess,
     keyword,
@@ -34,7 +35,7 @@ export default function HomePage() {
       />
 
       <div ref={exploreRef}>
-        <JobsSection jobs={jobs} />
+        <JobsSection jobs={jobs} isLoading={isLoadingJobs} />
       </div>
 
 
