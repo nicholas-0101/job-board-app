@@ -41,7 +41,7 @@ export default function SkillAssessmentsPage() {
         hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
         onUpgrade={() => router.push("/subscription")}
-        onSignIn={() => router.push("/signin")}
+        onSignIn={() => router.push("/auth/signin")}
       />
     );
   }

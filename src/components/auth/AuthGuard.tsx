@@ -15,7 +15,7 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ 
   children, 
-  redirectTo = "/signin", 
+  redirectTo = "/auth/signin", 
   showWarning = false 
 }: AuthGuardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -90,7 +90,7 @@ export default function AuthGuard({
                 </p>
                 <div className="flex justify-center space-x-4">
                   <Button 
-                    onClick={() => router.push('/signin')}
+                    onClick={() => router.push('/auth/signin')}
                     className="bg-red-600 hover:bg-red-700 px-8 py-3 text-lg"
                   >
                     <LogIn className="w-5 h-5 mr-2" />
@@ -98,7 +98,7 @@ export default function AuthGuard({
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={() => router.push('/signup')}
+                    onClick={() => router.push('/auth/signup')}
                     className="px-8 py-3 text-lg"
                   >
                     Create Account

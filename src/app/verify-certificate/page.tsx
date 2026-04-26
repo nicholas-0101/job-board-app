@@ -61,7 +61,7 @@ export default function VerifyCertificatePage() {
         hasSubscription={hasSubscription}
         isAuthenticated={isAuthenticated}
         onUpgrade={() => router.push("/subscription")}
-        onSignIn={() => router.push("/signin")}
+        onSignIn={() => router.push("/auth/signin")}
       />
     );
   }

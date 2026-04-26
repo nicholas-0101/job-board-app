@@ -43,7 +43,7 @@ apiCall.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("verifiedToken");
-      window.location.href = "/login";
+      window.location.href = "/auth/signin";
     }
     return Promise.reject(error);
   }

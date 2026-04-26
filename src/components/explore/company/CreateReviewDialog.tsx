@@ -224,7 +224,7 @@ export default function CreateReviewDialog({
                   <button
                     onClick={() => {
                       onClose();
-                      router.push("/signin");
+                      router.push("/auth/signin");
                     }}
                     className="px-6 py-3 bg-[#24CFA7] text-white rounded-lg hover:bg-[#24CFA7]/90 transition-colors"
                   >
